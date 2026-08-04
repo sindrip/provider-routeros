@@ -11,6 +11,8 @@ import (
 	"github.com/terraform-routeros/terraform-provider-routeros/routeros"
 )
 
+const testRouterOSVersion = "7.20.1"
+
 func TestClientCacheReusesEquivalentConfiguration(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -37,7 +39,7 @@ func TestClientCacheReusesEquivalentConfiguration(t *testing.T) {
 		"username":         "crossplane",
 		"insecure":         "true",
 		"rest_timeout":     "59",
-		"routeros_version": "7.20.1",
+		"routeros_version": testRouterOSVersion,
 	}
 	first, err := cache.Configure(ctx, configuration)
 	if err != nil {
@@ -53,8 +55,8 @@ func TestClientCacheReusesEquivalentConfiguration(t *testing.T) {
 	if configurations.Load() != 1 {
 		t.Fatalf("provider configured %d times, want 1", configurations.Load())
 	}
-	if first.Version != "7.20.1" {
-		t.Fatalf("captured version = %q, want 7.20.1", first.Version)
+	if first.Version != testRouterOSVersion {
+		t.Fatalf("captured version = %q, want %s", first.Version, testRouterOSVersion)
 	}
 	if err := cache.Close(); err != nil {
 		t.Fatal(err)

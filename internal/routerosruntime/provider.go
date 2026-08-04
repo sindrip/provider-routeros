@@ -32,6 +32,8 @@ func WrapProvider(p *schema.Provider) *schema.Provider {
 	return p
 }
 
+// Legacy callbacks are deprecated by the SDK but remain part of the upstream
+// provider contract, so no-fork mode must guard them along with context APIs.
 func wrapResource(r *schema.Resource) {
 	if original := r.Create; original != nil {
 		r.Create = func(d *schema.ResourceData, meta any) error {

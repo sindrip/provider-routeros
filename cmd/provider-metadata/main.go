@@ -38,7 +38,9 @@ func generate(root, out, provider string) error {
 		if entry.IsDir() || filepath.Ext(entry.Name()) != ".md" {
 			continue
 		}
-		data, err := os.ReadFile(filepath.Join(root, entry.Name()))
+		// root and entry are constrained to the explicitly selected upstream
+		// documentation directory and entries returned by os.ReadDir.
+		data, err := os.ReadFile(filepath.Join(root, entry.Name())) //nolint:gosec
 		if err != nil {
 			return fmt.Errorf("cannot read %s: %w", entry.Name(), err)
 		}
@@ -60,7 +62,7 @@ func generate(root, out, provider string) error {
 	return nil
 }
 
-func parseResourceDoc(document string) (*registry.Resource, error) {
+func parseResourceDoc(document string) (*registry.Resource, error) { //nolint:gocyclo // upstream tfplugindocs sections are parsed in one ordered pass
 	lines := strings.Split(document, "\n")
 	if len(lines) == 0 {
 		return nil, fmt.Errorf("empty document")

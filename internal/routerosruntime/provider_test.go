@@ -22,11 +22,11 @@ func TestWrapProviderRestoresClientVersion(t *testing.T) {
 			if _, ok := meta.(*routeros.RestClient); !ok {
 				return diag.Errorf("callback received metadata %T", meta)
 			}
-			if routeros.RouterOSVersion != "7.20.1" {
+			if routeros.RouterOSVersion != testRouterOSVersion {
 				return diag.Errorf("callback observed RouterOS version %q", routeros.RouterOSVersion)
 			}
 			time.Sleep(time.Millisecond)
-			if routeros.RouterOSVersion != "7.20.1" {
+			if routeros.RouterOSVersion != testRouterOSVersion {
 				return diag.Errorf("RouterOS version changed during callback")
 			}
 			calls.Add(1)
@@ -34,7 +34,7 @@ func TestWrapProviderRestoresClientVersion(t *testing.T) {
 		},
 	}
 	p := WrapProvider(&schema.Provider{ResourcesMap: map[string]*schema.Resource{"test": r}})
-	meta := &Meta{Client: &routeros.RestClient{Client: &http.Client{}}, Version: "7.20.1"}
+	meta := &Meta{Client: &routeros.RestClient{Client: &http.Client{}}, Version: testRouterOSVersion}
 	d := schema.TestResourceDataRaw(t, r.Schema, map[string]any{})
 
 	var wg sync.WaitGroup

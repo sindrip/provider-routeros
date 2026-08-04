@@ -1,0 +1,886 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: wirelesssecurityprofiles.interface.routeros.m.sindrip.io
+spec:
+  group: interface.routeros.m.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: WirelessSecurityProfiles
+    listKind: WirelessSecurityProfilesList
+    plural: wirelesssecurityprofiles
+    singular: wirelesssecurityprofiles
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: WirelessSecurityProfiles is the Schema for the WirelessSecurityProfiless
+          API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: WirelessSecurityProfilesSpec defines the desired state of
+              WirelessSecurityProfiles
+            properties:
+              forProvider:
+                properties:
+                  authenticationTypes:
+                    description: |-
+                      (Set of String) Set of supported authentication types, multiple values can be selected. Access Point will advertise supported authentication types, and client will connect to Access Point only if it supports any of the advertised authentication types.
+                      Set of supported authentication types, multiple values can be selected. Access Point will advertise supported authentication types, and client will connect to Access Point only if it supports any of the advertised authentication types.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  comment:
+                    description: (String)
+                    type: string
+                  disablePmkid:
+                    description: |-
+                      removes PMKID from EAPOL frames (improves security, reduces compatibility). `no` - includes PMKID into EAPOL frames (reduces security, improves compatibility).This property only has effect on Access Points.
+                      Whether to include `PMKID` into the `EAPOL` frame sent out by the Access Point. Disabling PMKID can cause compatibility issues with devices that use the PMKID to connect to an Access Point. `yes` - removes PMKID from EAPOL frames (improves security, reduces compatibility). `no` - includes PMKID into EAPOL frames (reduces security, improves compatibility).This property only has effect on Access Points.
+                    type: boolean
+                  eapMethods:
+                    description: |-
+                      tls` - Use built-in EAP TLS authentication. Both client and server certificates are supported. See description of tls-mode and tls-certificate properties. `eap-ttls-mschapv2` - Use EAP-TTLS with MS-CHAPv2 authentication. `passthrough` - Access Point will relay authentication process to the RADIUS server. `peap` - Use Protected EAP authentication.
+                      Allowed types of authentication methods, multiple values can be selected. This property only has effect on Access Points. `eap-tls` - Use built-in EAP TLS authentication. Both client and server certificates are supported. See description of tls-mode and tls-certificate properties. `eap-ttls-mschapv2` - Use EAP-TTLS with MS-CHAPv2 authentication. `passthrough` - Access Point will relay authentication process to the RADIUS server. `peap` - Use Protected EAP authentication.
+                    type: string
+                  groupCiphers:
+                    description: |-
+                      Temporal Key Integrity Protocol - encryption protocol, compatible with legacy WEP equipment, but enhanced to correct some of the WEP flaws. `aes-ccm` - more secure WPA encryption protocol, based on the reliable AES (Advanced Encryption Standard). Networks free of WEP legacy should use only this cipher.
+                      Access Point advertises one of these ciphers, multiple values can be selected. Access Point uses it to encrypt all broadcast and multicast frames. Client attempts connection only to Access Points that use one of the specified group ciphers. `tkip` - Temporal Key Integrity Protocol - encryption protocol, compatible with legacy WEP equipment, but enhanced to correct some of the WEP flaws. `aes-ccm` - more secure WPA encryption protocol, based on the reliable AES (Advanced Encryption Standard). Networks free of WEP legacy should use only this cipher.
+                    type: string
+                  groupKeyUpdate:
+                    description: |-
+                      (String) Controls how often Access Point updates the group key. This key is used to encrypt all broadcast and multicast frames. property only has effect for Access Points.
+                      Controls how often Access Point updates the group key. This key is used to encrypt all broadcast and multicast frames. property only has effect for Access Points.
+                    type: string
+                  interimUpdate:
+                    description: |-
+                      Interim-Interval attribute.
+                      When RADIUS accounting is used, Access Point periodically sends accounting information updates to the RADIUS server. This property specifies default update interval that can be overridden by the RADIUS server using Acct-Interim-Interval attribute.
+                    type: string
+                  managementProtection:
+                    description: |-
+                      management protection is disabled (default), `allowed` - use management protection if supported by remote party (for AP - allow both, non-management protection and management protection clients, for client - connect both to APs with and without management protection), `required` - establish association only with remote devices that support management protection (for AP - accept only clients that support management protection, for client - connect only to APs that support management protection).
+                      Management frame protection. Used for: Deauthentication attack prevention, MAC address cloning issue. Possible values are: `disabled` - management protection is disabled (default), `allowed` - use management protection if supported by remote party (for AP - allow both, non-management protection and management protection clients, for client - connect both to APs with and without management protection), `required` - establish association only with remote devices that support management protection (for AP - accept only clients that support management protection, for client - connect only to APs that support management protection).
+                    type: string
+                  managementProtectionKeySecretRef:
+                    description: |-
+                      profile) can be overridden by key specified in access-list or RADIUS attribute.
+                      Management protection shared secret. When interface is in AP mode, default management protection key (configured in security-profile) can be overridden by key specified in access-list or RADIUS attribute.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  mode:
+                    description: |-
+                      Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
+                      Encryption mode for the security profile. `none` - Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
+                    type: string
+                  mschapv2Password:
+                    description: |-
+                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                      Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                    type: string
+                  mschapv2Username:
+                    description: |-
+                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                      Username to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                    type: string
+                  name:
+                    description: |-
+                      (String) Name of the security profile.
+                      Name of the security profile.
+                    type: string
+                  radiusCalledFormat:
+                    description: |-
+                      (String) mac | mac:ssid | ssid
+                      mac | mac:ssid | ssid
+                    type: string
+                  radiusEapAccounting:
+                    description: (Boolean)
+                    type: boolean
+                  radiusMacAccounting:
+                    description: (Boolean)
+                    type: boolean
+                  radiusMacAuthentication:
+                    description: |-
+                      allow or reject client authentication based on the value of default-authentication property of the Wireless interface.yes - Query RADIUS server using MAC address of client as user name. With this setting the value of default-authentication has no effect.
+                      This property affects the way how Access Point processes clients that are not found in the Access List.no - allow or reject client authentication based on the value of default-authentication property of the Wireless interface.yes - Query RADIUS server using MAC address of client as user name. With this setting the value of default-authentication has no effect.
+                    type: boolean
+                  radiusMacCaching:
+                    description: |-
+                      (String) If this value is set to time interval, the Access Point will cache RADIUS MAC authentication responses for specified time, and will not contact RADIUS server if matching cache entry already exists. Value disabled will disable cache, Access Point will always contact RADIUS server.
+                      If this value is set to time interval, the Access Point will cache RADIUS MAC authentication responses for specified time, and will not contact RADIUS server if matching cache entry already exists. Value disabled will disable cache, Access Point will always contact RADIUS server.
+                    type: string
+                  radiusMacFormat:
+                    description: |-
+                      Name attribute of the MAC authentication and MAC accounting RADIUS requests.
+                      Controls how MAC address of the client is encoded by Access Point in the User-Name attribute of the MAC authentication and MAC accounting RADIUS requests.
+                    type: string
+                  radiusMacMode:
+                    description: |-
+                      Request during MAC authentication. When this property is set to `as-username-and-password`, Access Point will use the same value for User-Password attribute as for the User-Name attribute.
+                      By default Access Point uses an empty password, when sending Access-Request during MAC authentication. When this property is set to `as-username-and-password`, Access Point will use the same value for User-Password attribute as for the User-Name attribute.
+                    type: string
+                  staticAlgo0:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo1:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo2:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo3:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticKey0SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticKey1SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticKey2SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticKey3SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticStaPrivateAlgo:
+                    description: |-
+                      algo property, or from Mikrotik-Wireless-Enc-Algo attribute. Station private key replaces key 0 for unicast frames. Station will not use private key to decrypt broadcast frames.
+                      Encryption algorithm to use with station private key. Value none disables use of the private key. This property is only used on Stations. Access Point has to get corresponding value either from private-algo property, or from Mikrotik-Wireless-Enc-Algo attribute. Station private key replaces key 0 for unicast frames. Station will not use private key to decrypt broadcast frames.
+                    type: string
+                  staticStaPrivateKeySecretRef:
+                    description: |-
+                      key property, or from Mikrotik-Wireless-Enc-Key attribute.
+                      Length of key must be appropriate for selected algorithm, see the Statically configured WEP keys section. This property is used only on Stations. Access Point uses corresponding key either from private-key property, or from Mikrotik-Wireless-Enc-Key attribute.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticTransmitKey:
+                    description: |-
+                      sta-private-algo is set to none. If corresponding static-algo-N property has value set to none, then frame will be sent unencrypted (when mode is set to static-keys-optional) or will not be sent at all (when mode is set to static-keys-required).
+                      Access Point will use the specified key to encrypt frames for clients that do not use private key. Access Point will also use this key to encrypt broadcast and multicast frames. Client will use the specified key to encrypt frames if static-sta-private-algo is set to none. If corresponding static-algo-N property has value set to none, then frame will be sent unencrypted (when mode is set to static-keys-optional) or will not be sent at all (when mode is set to static-keys-required).
+                    type: string
+                  supplicantIdentitySecretRef:
+                    description: |-
+                      Name attribute in RADIUS messages sent by RADIUS EAP accounting and RADIUS EAP pass-through authentication.
+                      EAP identity that is sent by client at the beginning of EAP authentication. This value is used as a value for User-Name attribute in RADIUS messages sent by RADIUS EAP accounting and RADIUS EAP pass-through authentication.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  tlsCertificate:
+                    description: |-
+                      mode is set to verify-certificate, or is set to dont-verify-certificate. Client needs a certificate only if Access Point is configured with tls-mode set to verify-certificate. In this case client needs a valid certificate that is signed by a CA known to the Access Point. This property only has effect when tls-mode is not set to no-certificates and eap-methods contains eap-tls.
+                      Access Point always needs a certificate when configured when tls-mode is set to verify-certificate, or is set to dont-verify-certificate. Client needs a certificate only if Access Point is configured with tls-mode set to verify-certificate. In this case client needs a valid certificate that is signed by a CA known to the Access Point. This property only has effect when tls-mode is not set to no-certificates and eap-methods contains eap-tls.
+                    type: string
+                  tlsMode:
+                    description: |-
+                      methods contains eap-tls. `verify-certificate` - Require remote device to have valid certificate. Check that it is signed by known certificate authority. No additional identity verification is done. Certificate may include information about time period during which it is valid. If router has incorrect time and date, it may reject valid certificate because router's clock is outside that period. See also the Certificates configuration. `dont-verify-certificate` - Do not check certificate of the remote device. Access Point will not require client to provide certificate. `no-certificates` - Do not use certificates. TLS session is established using 2048 bit anonymous Diffie-Hellman key exchange. `verify-certificate-with-crl` - Same as verify-certificate but also checks if the certificate is valid by checking the Certificate Revocation List.
+                      This property has effect only when eap-methods contains eap-tls. `verify-certificate` - Require remote device to have valid certificate. Check that it is signed by known certificate authority. No additional identity verification is done. Certificate may include information about time period during which it is valid. If router has incorrect time and date, it may reject valid certificate because router's clock is outside that period. See also the Certificates configuration. `dont-verify-certificate` - Do not check certificate of the remote device. Access Point will not require client to provide certificate. `no-certificates` - Do not use certificates. TLS session is established using 2048 bit anonymous Diffie-Hellman key exchange. `verify-certificate-with-crl` - Same as verify-certificate but also checks if the certificate is valid by checking the Certificate Revocation List.
+                    type: string
+                  unicastCiphers:
+                    description: |-
+                      (String) Access Point advertises that it supports specified ciphers, multiple values can be selected. Client attempts connection only to Access Points that supports at least one of the specified ciphers. One of the ciphers will be used to encrypt unicast frames that are sent between Access Point and Station.
+                      Access Point advertises that it supports specified ciphers, multiple values can be selected. Client attempts connection only to Access Points that supports at least one of the specified ciphers. One of the ciphers will be used to encrypt unicast frames that are sent between Access Point and Station.
+                    type: string
+                  wpa2PreSharedKeySecretRef:
+                    description: |-
+                      shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA2 mode. property only has effect when wpa2-psk is added to authentication-types.
+                      `WPA2` pre-shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA2 mode. property only has effect when wpa2-psk is added to authentication-types.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  wpaPreSharedKeySecretRef:
+                    description: |-
+                      shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA mode. property only has effect when wpa-psk is added to authentication-types.
+                      `WPA` pre-shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA mode. property only has effect when wpa-psk is added to authentication-types.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  authenticationTypes:
+                    description: |-
+                      (Set of String) Set of supported authentication types, multiple values can be selected. Access Point will advertise supported authentication types, and client will connect to Access Point only if it supports any of the advertised authentication types.
+                      Set of supported authentication types, multiple values can be selected. Access Point will advertise supported authentication types, and client will connect to Access Point only if it supports any of the advertised authentication types.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  comment:
+                    description: (String)
+                    type: string
+                  disablePmkid:
+                    description: |-
+                      removes PMKID from EAPOL frames (improves security, reduces compatibility). `no` - includes PMKID into EAPOL frames (reduces security, improves compatibility).This property only has effect on Access Points.
+                      Whether to include `PMKID` into the `EAPOL` frame sent out by the Access Point. Disabling PMKID can cause compatibility issues with devices that use the PMKID to connect to an Access Point. `yes` - removes PMKID from EAPOL frames (improves security, reduces compatibility). `no` - includes PMKID into EAPOL frames (reduces security, improves compatibility).This property only has effect on Access Points.
+                    type: boolean
+                  eapMethods:
+                    description: |-
+                      tls` - Use built-in EAP TLS authentication. Both client and server certificates are supported. See description of tls-mode and tls-certificate properties. `eap-ttls-mschapv2` - Use EAP-TTLS with MS-CHAPv2 authentication. `passthrough` - Access Point will relay authentication process to the RADIUS server. `peap` - Use Protected EAP authentication.
+                      Allowed types of authentication methods, multiple values can be selected. This property only has effect on Access Points. `eap-tls` - Use built-in EAP TLS authentication. Both client and server certificates are supported. See description of tls-mode and tls-certificate properties. `eap-ttls-mschapv2` - Use EAP-TTLS with MS-CHAPv2 authentication. `passthrough` - Access Point will relay authentication process to the RADIUS server. `peap` - Use Protected EAP authentication.
+                    type: string
+                  groupCiphers:
+                    description: |-
+                      Temporal Key Integrity Protocol - encryption protocol, compatible with legacy WEP equipment, but enhanced to correct some of the WEP flaws. `aes-ccm` - more secure WPA encryption protocol, based on the reliable AES (Advanced Encryption Standard). Networks free of WEP legacy should use only this cipher.
+                      Access Point advertises one of these ciphers, multiple values can be selected. Access Point uses it to encrypt all broadcast and multicast frames. Client attempts connection only to Access Points that use one of the specified group ciphers. `tkip` - Temporal Key Integrity Protocol - encryption protocol, compatible with legacy WEP equipment, but enhanced to correct some of the WEP flaws. `aes-ccm` - more secure WPA encryption protocol, based on the reliable AES (Advanced Encryption Standard). Networks free of WEP legacy should use only this cipher.
+                    type: string
+                  groupKeyUpdate:
+                    description: |-
+                      (String) Controls how often Access Point updates the group key. This key is used to encrypt all broadcast and multicast frames. property only has effect for Access Points.
+                      Controls how often Access Point updates the group key. This key is used to encrypt all broadcast and multicast frames. property only has effect for Access Points.
+                    type: string
+                  interimUpdate:
+                    description: |-
+                      Interim-Interval attribute.
+                      When RADIUS accounting is used, Access Point periodically sends accounting information updates to the RADIUS server. This property specifies default update interval that can be overridden by the RADIUS server using Acct-Interim-Interval attribute.
+                    type: string
+                  managementProtection:
+                    description: |-
+                      management protection is disabled (default), `allowed` - use management protection if supported by remote party (for AP - allow both, non-management protection and management protection clients, for client - connect both to APs with and without management protection), `required` - establish association only with remote devices that support management protection (for AP - accept only clients that support management protection, for client - connect only to APs that support management protection).
+                      Management frame protection. Used for: Deauthentication attack prevention, MAC address cloning issue. Possible values are: `disabled` - management protection is disabled (default), `allowed` - use management protection if supported by remote party (for AP - allow both, non-management protection and management protection clients, for client - connect both to APs with and without management protection), `required` - establish association only with remote devices that support management protection (for AP - accept only clients that support management protection, for client - connect only to APs that support management protection).
+                    type: string
+                  managementProtectionKeySecretRef:
+                    description: |-
+                      profile) can be overridden by key specified in access-list or RADIUS attribute.
+                      Management protection shared secret. When interface is in AP mode, default management protection key (configured in security-profile) can be overridden by key specified in access-list or RADIUS attribute.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  mode:
+                    description: |-
+                      Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
+                      Encryption mode for the security profile. `none` - Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
+                    type: string
+                  mschapv2Password:
+                    description: |-
+                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                      Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                    type: string
+                  mschapv2Username:
+                    description: |-
+                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                      Username to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                    type: string
+                  name:
+                    description: |-
+                      (String) Name of the security profile.
+                      Name of the security profile.
+                    type: string
+                  radiusCalledFormat:
+                    description: |-
+                      (String) mac | mac:ssid | ssid
+                      mac | mac:ssid | ssid
+                    type: string
+                  radiusEapAccounting:
+                    description: (Boolean)
+                    type: boolean
+                  radiusMacAccounting:
+                    description: (Boolean)
+                    type: boolean
+                  radiusMacAuthentication:
+                    description: |-
+                      allow or reject client authentication based on the value of default-authentication property of the Wireless interface.yes - Query RADIUS server using MAC address of client as user name. With this setting the value of default-authentication has no effect.
+                      This property affects the way how Access Point processes clients that are not found in the Access List.no - allow or reject client authentication based on the value of default-authentication property of the Wireless interface.yes - Query RADIUS server using MAC address of client as user name. With this setting the value of default-authentication has no effect.
+                    type: boolean
+                  radiusMacCaching:
+                    description: |-
+                      (String) If this value is set to time interval, the Access Point will cache RADIUS MAC authentication responses for specified time, and will not contact RADIUS server if matching cache entry already exists. Value disabled will disable cache, Access Point will always contact RADIUS server.
+                      If this value is set to time interval, the Access Point will cache RADIUS MAC authentication responses for specified time, and will not contact RADIUS server if matching cache entry already exists. Value disabled will disable cache, Access Point will always contact RADIUS server.
+                    type: string
+                  radiusMacFormat:
+                    description: |-
+                      Name attribute of the MAC authentication and MAC accounting RADIUS requests.
+                      Controls how MAC address of the client is encoded by Access Point in the User-Name attribute of the MAC authentication and MAC accounting RADIUS requests.
+                    type: string
+                  radiusMacMode:
+                    description: |-
+                      Request during MAC authentication. When this property is set to `as-username-and-password`, Access Point will use the same value for User-Password attribute as for the User-Name attribute.
+                      By default Access Point uses an empty password, when sending Access-Request during MAC authentication. When this property is set to `as-username-and-password`, Access Point will use the same value for User-Password attribute as for the User-Name attribute.
+                    type: string
+                  staticAlgo0:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo1:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo2:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo3:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticKey0SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticKey1SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticKey2SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticKey3SecretRef:
+                    description: |-
+                      (String, Sensitive) Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                      Hexadecimal representation of the key. Length of key must be appropriate for selected algorithm. See the Statically configured WEP keys section.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticStaPrivateAlgo:
+                    description: |-
+                      algo property, or from Mikrotik-Wireless-Enc-Algo attribute. Station private key replaces key 0 for unicast frames. Station will not use private key to decrypt broadcast frames.
+                      Encryption algorithm to use with station private key. Value none disables use of the private key. This property is only used on Stations. Access Point has to get corresponding value either from private-algo property, or from Mikrotik-Wireless-Enc-Algo attribute. Station private key replaces key 0 for unicast frames. Station will not use private key to decrypt broadcast frames.
+                    type: string
+                  staticStaPrivateKeySecretRef:
+                    description: |-
+                      key property, or from Mikrotik-Wireless-Enc-Key attribute.
+                      Length of key must be appropriate for selected algorithm, see the Statically configured WEP keys section. This property is used only on Stations. Access Point uses corresponding key either from private-key property, or from Mikrotik-Wireless-Enc-Key attribute.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  staticTransmitKey:
+                    description: |-
+                      sta-private-algo is set to none. If corresponding static-algo-N property has value set to none, then frame will be sent unencrypted (when mode is set to static-keys-optional) or will not be sent at all (when mode is set to static-keys-required).
+                      Access Point will use the specified key to encrypt frames for clients that do not use private key. Access Point will also use this key to encrypt broadcast and multicast frames. Client will use the specified key to encrypt frames if static-sta-private-algo is set to none. If corresponding static-algo-N property has value set to none, then frame will be sent unencrypted (when mode is set to static-keys-optional) or will not be sent at all (when mode is set to static-keys-required).
+                    type: string
+                  supplicantIdentitySecretRef:
+                    description: |-
+                      Name attribute in RADIUS messages sent by RADIUS EAP accounting and RADIUS EAP pass-through authentication.
+                      EAP identity that is sent by client at the beginning of EAP authentication. This value is used as a value for User-Name attribute in RADIUS messages sent by RADIUS EAP accounting and RADIUS EAP pass-through authentication.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  tlsCertificate:
+                    description: |-
+                      mode is set to verify-certificate, or is set to dont-verify-certificate. Client needs a certificate only if Access Point is configured with tls-mode set to verify-certificate. In this case client needs a valid certificate that is signed by a CA known to the Access Point. This property only has effect when tls-mode is not set to no-certificates and eap-methods contains eap-tls.
+                      Access Point always needs a certificate when configured when tls-mode is set to verify-certificate, or is set to dont-verify-certificate. Client needs a certificate only if Access Point is configured with tls-mode set to verify-certificate. In this case client needs a valid certificate that is signed by a CA known to the Access Point. This property only has effect when tls-mode is not set to no-certificates and eap-methods contains eap-tls.
+                    type: string
+                  tlsMode:
+                    description: |-
+                      methods contains eap-tls. `verify-certificate` - Require remote device to have valid certificate. Check that it is signed by known certificate authority. No additional identity verification is done. Certificate may include information about time period during which it is valid. If router has incorrect time and date, it may reject valid certificate because router's clock is outside that period. See also the Certificates configuration. `dont-verify-certificate` - Do not check certificate of the remote device. Access Point will not require client to provide certificate. `no-certificates` - Do not use certificates. TLS session is established using 2048 bit anonymous Diffie-Hellman key exchange. `verify-certificate-with-crl` - Same as verify-certificate but also checks if the certificate is valid by checking the Certificate Revocation List.
+                      This property has effect only when eap-methods contains eap-tls. `verify-certificate` - Require remote device to have valid certificate. Check that it is signed by known certificate authority. No additional identity verification is done. Certificate may include information about time period during which it is valid. If router has incorrect time and date, it may reject valid certificate because router's clock is outside that period. See also the Certificates configuration. `dont-verify-certificate` - Do not check certificate of the remote device. Access Point will not require client to provide certificate. `no-certificates` - Do not use certificates. TLS session is established using 2048 bit anonymous Diffie-Hellman key exchange. `verify-certificate-with-crl` - Same as verify-certificate but also checks if the certificate is valid by checking the Certificate Revocation List.
+                    type: string
+                  unicastCiphers:
+                    description: |-
+                      (String) Access Point advertises that it supports specified ciphers, multiple values can be selected. Client attempts connection only to Access Points that supports at least one of the specified ciphers. One of the ciphers will be used to encrypt unicast frames that are sent between Access Point and Station.
+                      Access Point advertises that it supports specified ciphers, multiple values can be selected. Client attempts connection only to Access Points that supports at least one of the specified ciphers. One of the ciphers will be used to encrypt unicast frames that are sent between Access Point and Station.
+                    type: string
+                  wpa2PreSharedKeySecretRef:
+                    description: |-
+                      shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA2 mode. property only has effect when wpa2-psk is added to authentication-types.
+                      `WPA2` pre-shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA2 mode. property only has effect when wpa2-psk is added to authentication-types.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  wpaPreSharedKeySecretRef:
+                    description: |-
+                      shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA mode. property only has effect when wpa-psk is added to authentication-types.
+                      `WPA` pre-shared key mode requires all devices in a BSS to have common secret key. Value of this key can be an arbitrary text. Commonly referred to as the network password for WPA mode. property only has effect when wpa-psk is added to authentication-types.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  kind: ClusterProviderConfig
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  kind:
+                    description: Kind of the referenced object.
+                    type: string
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                required:
+                - name
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || (has(self.initProvider) && has(self.initProvider.name))'
+          status:
+            description: WirelessSecurityProfilesStatus defines the observed state
+              of WirelessSecurityProfiles.
+            properties:
+              atProvider:
+                properties:
+                  authenticationTypes:
+                    description: |-
+                      (Set of String) Set of supported authentication types, multiple values can be selected. Access Point will advertise supported authentication types, and client will connect to Access Point only if it supports any of the advertised authentication types.
+                      Set of supported authentication types, multiple values can be selected. Access Point will advertise supported authentication types, and client will connect to Access Point only if it supports any of the advertised authentication types.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  comment:
+                    description: (String)
+                    type: string
+                  default:
+                    description: |-
+                      (Boolean) It's the default item.
+                      It's the default item.
+                    type: boolean
+                  disablePmkid:
+                    description: |-
+                      removes PMKID from EAPOL frames (improves security, reduces compatibility). `no` - includes PMKID into EAPOL frames (reduces security, improves compatibility).This property only has effect on Access Points.
+                      Whether to include `PMKID` into the `EAPOL` frame sent out by the Access Point. Disabling PMKID can cause compatibility issues with devices that use the PMKID to connect to an Access Point. `yes` - removes PMKID from EAPOL frames (improves security, reduces compatibility). `no` - includes PMKID into EAPOL frames (reduces security, improves compatibility).This property only has effect on Access Points.
+                    type: boolean
+                  eapMethods:
+                    description: |-
+                      tls` - Use built-in EAP TLS authentication. Both client and server certificates are supported. See description of tls-mode and tls-certificate properties. `eap-ttls-mschapv2` - Use EAP-TTLS with MS-CHAPv2 authentication. `passthrough` - Access Point will relay authentication process to the RADIUS server. `peap` - Use Protected EAP authentication.
+                      Allowed types of authentication methods, multiple values can be selected. This property only has effect on Access Points. `eap-tls` - Use built-in EAP TLS authentication. Both client and server certificates are supported. See description of tls-mode and tls-certificate properties. `eap-ttls-mschapv2` - Use EAP-TTLS with MS-CHAPv2 authentication. `passthrough` - Access Point will relay authentication process to the RADIUS server. `peap` - Use Protected EAP authentication.
+                    type: string
+                  groupCiphers:
+                    description: |-
+                      Temporal Key Integrity Protocol - encryption protocol, compatible with legacy WEP equipment, but enhanced to correct some of the WEP flaws. `aes-ccm` - more secure WPA encryption protocol, based on the reliable AES (Advanced Encryption Standard). Networks free of WEP legacy should use only this cipher.
+                      Access Point advertises one of these ciphers, multiple values can be selected. Access Point uses it to encrypt all broadcast and multicast frames. Client attempts connection only to Access Points that use one of the specified group ciphers. `tkip` - Temporal Key Integrity Protocol - encryption protocol, compatible with legacy WEP equipment, but enhanced to correct some of the WEP flaws. `aes-ccm` - more secure WPA encryption protocol, based on the reliable AES (Advanced Encryption Standard). Networks free of WEP legacy should use only this cipher.
+                    type: string
+                  groupKeyUpdate:
+                    description: |-
+                      (String) Controls how often Access Point updates the group key. This key is used to encrypt all broadcast and multicast frames. property only has effect for Access Points.
+                      Controls how often Access Point updates the group key. This key is used to encrypt all broadcast and multicast frames. property only has effect for Access Points.
+                    type: string
+                  id:
+                    description: (String) The ID of this resource.
+                    type: string
+                  interimUpdate:
+                    description: |-
+                      Interim-Interval attribute.
+                      When RADIUS accounting is used, Access Point periodically sends accounting information updates to the RADIUS server. This property specifies default update interval that can be overridden by the RADIUS server using Acct-Interim-Interval attribute.
+                    type: string
+                  managementProtection:
+                    description: |-
+                      management protection is disabled (default), `allowed` - use management protection if supported by remote party (for AP - allow both, non-management protection and management protection clients, for client - connect both to APs with and without management protection), `required` - establish association only with remote devices that support management protection (for AP - accept only clients that support management protection, for client - connect only to APs that support management protection).
+                      Management frame protection. Used for: Deauthentication attack prevention, MAC address cloning issue. Possible values are: `disabled` - management protection is disabled (default), `allowed` - use management protection if supported by remote party (for AP - allow both, non-management protection and management protection clients, for client - connect both to APs with and without management protection), `required` - establish association only with remote devices that support management protection (for AP - accept only clients that support management protection, for client - connect only to APs that support management protection).
+                    type: string
+                  mode:
+                    description: |-
+                      Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
+                      Encryption mode for the security profile. `none` - Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
+                    type: string
+                  mschapv2Password:
+                    description: |-
+                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                      Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                    type: string
+                  mschapv2Username:
+                    description: |-
+                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                      Username to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
+                    type: string
+                  name:
+                    description: |-
+                      (String) Name of the security profile.
+                      Name of the security profile.
+                    type: string
+                  radiusCalledFormat:
+                    description: |-
+                      (String) mac | mac:ssid | ssid
+                      mac | mac:ssid | ssid
+                    type: string
+                  radiusEapAccounting:
+                    description: (Boolean)
+                    type: boolean
+                  radiusMacAccounting:
+                    description: (Boolean)
+                    type: boolean
+                  radiusMacAuthentication:
+                    description: |-
+                      allow or reject client authentication based on the value of default-authentication property of the Wireless interface.yes - Query RADIUS server using MAC address of client as user name. With this setting the value of default-authentication has no effect.
+                      This property affects the way how Access Point processes clients that are not found in the Access List.no - allow or reject client authentication based on the value of default-authentication property of the Wireless interface.yes - Query RADIUS server using MAC address of client as user name. With this setting the value of default-authentication has no effect.
+                    type: boolean
+                  radiusMacCaching:
+                    description: |-
+                      (String) If this value is set to time interval, the Access Point will cache RADIUS MAC authentication responses for specified time, and will not contact RADIUS server if matching cache entry already exists. Value disabled will disable cache, Access Point will always contact RADIUS server.
+                      If this value is set to time interval, the Access Point will cache RADIUS MAC authentication responses for specified time, and will not contact RADIUS server if matching cache entry already exists. Value disabled will disable cache, Access Point will always contact RADIUS server.
+                    type: string
+                  radiusMacFormat:
+                    description: |-
+                      Name attribute of the MAC authentication and MAC accounting RADIUS requests.
+                      Controls how MAC address of the client is encoded by Access Point in the User-Name attribute of the MAC authentication and MAC accounting RADIUS requests.
+                    type: string
+                  radiusMacMode:
+                    description: |-
+                      Request during MAC authentication. When this property is set to `as-username-and-password`, Access Point will use the same value for User-Password attribute as for the User-Name attribute.
+                      By default Access Point uses an empty password, when sending Access-Request during MAC authentication. When this property is set to `as-username-and-password`, Access Point will use the same value for User-Password attribute as for the User-Name attribute.
+                    type: string
+                  staticAlgo0:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo1:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo2:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticAlgo3:
+                    description: |-
+                      (String) Encryption algorithm to use with the corresponding key.
+                      Encryption algorithm to use with the corresponding key.
+                    type: string
+                  staticStaPrivateAlgo:
+                    description: |-
+                      algo property, or from Mikrotik-Wireless-Enc-Algo attribute. Station private key replaces key 0 for unicast frames. Station will not use private key to decrypt broadcast frames.
+                      Encryption algorithm to use with station private key. Value none disables use of the private key. This property is only used on Stations. Access Point has to get corresponding value either from private-algo property, or from Mikrotik-Wireless-Enc-Algo attribute. Station private key replaces key 0 for unicast frames. Station will not use private key to decrypt broadcast frames.
+                    type: string
+                  staticTransmitKey:
+                    description: |-
+                      sta-private-algo is set to none. If corresponding static-algo-N property has value set to none, then frame will be sent unencrypted (when mode is set to static-keys-optional) or will not be sent at all (when mode is set to static-keys-required).
+                      Access Point will use the specified key to encrypt frames for clients that do not use private key. Access Point will also use this key to encrypt broadcast and multicast frames. Client will use the specified key to encrypt frames if static-sta-private-algo is set to none. If corresponding static-algo-N property has value set to none, then frame will be sent unencrypted (when mode is set to static-keys-optional) or will not be sent at all (when mode is set to static-keys-required).
+                    type: string
+                  tlsCertificate:
+                    description: |-
+                      mode is set to verify-certificate, or is set to dont-verify-certificate. Client needs a certificate only if Access Point is configured with tls-mode set to verify-certificate. In this case client needs a valid certificate that is signed by a CA known to the Access Point. This property only has effect when tls-mode is not set to no-certificates and eap-methods contains eap-tls.
+                      Access Point always needs a certificate when configured when tls-mode is set to verify-certificate, or is set to dont-verify-certificate. Client needs a certificate only if Access Point is configured with tls-mode set to verify-certificate. In this case client needs a valid certificate that is signed by a CA known to the Access Point. This property only has effect when tls-mode is not set to no-certificates and eap-methods contains eap-tls.
+                    type: string
+                  tlsMode:
+                    description: |-
+                      methods contains eap-tls. `verify-certificate` - Require remote device to have valid certificate. Check that it is signed by known certificate authority. No additional identity verification is done. Certificate may include information about time period during which it is valid. If router has incorrect time and date, it may reject valid certificate because router's clock is outside that period. See also the Certificates configuration. `dont-verify-certificate` - Do not check certificate of the remote device. Access Point will not require client to provide certificate. `no-certificates` - Do not use certificates. TLS session is established using 2048 bit anonymous Diffie-Hellman key exchange. `verify-certificate-with-crl` - Same as verify-certificate but also checks if the certificate is valid by checking the Certificate Revocation List.
+                      This property has effect only when eap-methods contains eap-tls. `verify-certificate` - Require remote device to have valid certificate. Check that it is signed by known certificate authority. No additional identity verification is done. Certificate may include information about time period during which it is valid. If router has incorrect time and date, it may reject valid certificate because router's clock is outside that period. See also the Certificates configuration. `dont-verify-certificate` - Do not check certificate of the remote device. Access Point will not require client to provide certificate. `no-certificates` - Do not use certificates. TLS session is established using 2048 bit anonymous Diffie-Hellman key exchange. `verify-certificate-with-crl` - Same as verify-certificate but also checks if the certificate is valid by checking the Certificate Revocation List.
+                    type: string
+                  unicastCiphers:
+                    description: |-
+                      (String) Access Point advertises that it supports specified ciphers, multiple values can be selected. Client attempts connection only to Access Points that supports at least one of the specified ciphers. One of the ciphers will be used to encrypt unicast frames that are sent between Access Point and Station.
+                      Access Point advertises that it supports specified ciphers, multiple values can be selected. Client attempts connection only to Access Points that supports at least one of the specified ciphers. One of the ciphers will be used to encrypt unicast frames that are sent between Access Point and Station.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

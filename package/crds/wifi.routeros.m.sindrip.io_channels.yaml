@@ -1,0 +1,396 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: channels.wifi.routeros.m.sindrip.io
+spec:
+  group: wifi.routeros.m.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: Channel
+    listKind: ChannelList
+    plural: channels
+    singular: channel
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Channel is the Schema for the Channels API. *<span style="color:red">This
+          resource requires a minimum version of RouterOS 7.13.</span>*
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ChannelSpec defines the desired state of Channel
+            properties:
+              forProvider:
+                properties:
+                  band:
+                    description: |-
+                      (String) Frequency band and wireless standard that will be used by the AP.
+                      Frequency band and wireless standard that will be used by the AP.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  deprioritizeUnii34:
+                    description: |-
+                      5885 MHz. These channels are unsupported by some client devices, making their automatic selection undesirable. Defaults to `yes` in ETSI regulatory domains, elsewhere to `no`.
+                      Whether to assign lower priority to channels with a control frequency of 5720 or 5825-5885 MHz. These channels are unsupported by some client devices, making their automatic selection undesirable. Defaults to `yes` in ETSI regulatory domains, elsewhere to `no`.
+                    type: boolean
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  frequency:
+                    description: |-
+                      (List of String) Channel frequency value or range in MHz on which AP or station will operate.
+                      Channel frequency value or range in MHz on which AP or station will operate.
+                    items:
+                      type: string
+                    type: array
+                  name:
+                    description: |-
+                      (String) Name of the channel.
+                      Name of the channel.
+                    type: string
+                  reselectInterval:
+                    description: |-
+                      (String) An option that specifies when the interface should rescan channel availability and select the most appropriate one to use.
+                      An option that specifies when the interface should rescan channel availability and select the most appropriate one to use.
+                    type: string
+                  reselectTime:
+                    description: |-
+                      time uses a background scan.
+                      Specifies the clock time when the interface should run "rescan channel availability" and select the most appropriate one to use. Specifying the clock time will allow the system to select this time dynamically and randomly. This helps to avoid a situation when many APs at the same time scan the network, select the same channel, and prefer to use it at the same time. reselect-time uses a background scan.
+                      The reselect process will choose the most suitable channel considering the number of networks in the channel, channel usage, and overlap with networks in adjacent channels. It can be used with a list of frequencies defined, or with frequency not set - using all supported frequencies.
+                      Example:
+
+                      - 01:00..01:30 → Would set the rescan of channels to run every night, once, randomly, between 01:00 AM to 01:30 AM, system clock time.
+                      - 14:00..14:30 → Would set the rescan of channels to run every day (after midday), once, randomly between 14:00:00 to 14:30:00 (or 2 PM to 2:30 PM), system clock time.
+                    type: string
+                  secondaryFrequency:
+                    description: |-
+                      (List of String) Specifies the second frequency that will be used for 80+80MHz configuration. Set it to `disabled` in order to disable 80+80MHz capability.
+                      Specifies the second frequency that will be used for 80+80MHz configuration. Set it to `disabled` in order to disable 80+80MHz capability.
+                    items:
+                      type: string
+                    type: array
+                  skipDfsChannels:
+                    description: |-
+                      (String) An option to avoid using channels on which channel availability check (listening for the presence of radar signals) is required.
+                      An option to avoid using channels on which channel availability check (listening for the presence of radar signals) is required.
+                    type: string
+                  width:
+                    description: |-
+                      (String) Channel width.
+                      Channel width.
+                    type: string
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  band:
+                    description: |-
+                      (String) Frequency band and wireless standard that will be used by the AP.
+                      Frequency band and wireless standard that will be used by the AP.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  deprioritizeUnii34:
+                    description: |-
+                      5885 MHz. These channels are unsupported by some client devices, making their automatic selection undesirable. Defaults to `yes` in ETSI regulatory domains, elsewhere to `no`.
+                      Whether to assign lower priority to channels with a control frequency of 5720 or 5825-5885 MHz. These channels are unsupported by some client devices, making their automatic selection undesirable. Defaults to `yes` in ETSI regulatory domains, elsewhere to `no`.
+                    type: boolean
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  frequency:
+                    description: |-
+                      (List of String) Channel frequency value or range in MHz on which AP or station will operate.
+                      Channel frequency value or range in MHz on which AP or station will operate.
+                    items:
+                      type: string
+                    type: array
+                  name:
+                    description: |-
+                      (String) Name of the channel.
+                      Name of the channel.
+                    type: string
+                  reselectInterval:
+                    description: |-
+                      (String) An option that specifies when the interface should rescan channel availability and select the most appropriate one to use.
+                      An option that specifies when the interface should rescan channel availability and select the most appropriate one to use.
+                    type: string
+                  reselectTime:
+                    description: |-
+                      time uses a background scan.
+                      Specifies the clock time when the interface should run "rescan channel availability" and select the most appropriate one to use. Specifying the clock time will allow the system to select this time dynamically and randomly. This helps to avoid a situation when many APs at the same time scan the network, select the same channel, and prefer to use it at the same time. reselect-time uses a background scan.
+                      The reselect process will choose the most suitable channel considering the number of networks in the channel, channel usage, and overlap with networks in adjacent channels. It can be used with a list of frequencies defined, or with frequency not set - using all supported frequencies.
+                      Example:
+
+                      - 01:00..01:30 → Would set the rescan of channels to run every night, once, randomly, between 01:00 AM to 01:30 AM, system clock time.
+                      - 14:00..14:30 → Would set the rescan of channels to run every day (after midday), once, randomly between 14:00:00 to 14:30:00 (or 2 PM to 2:30 PM), system clock time.
+                    type: string
+                  secondaryFrequency:
+                    description: |-
+                      (List of String) Specifies the second frequency that will be used for 80+80MHz configuration. Set it to `disabled` in order to disable 80+80MHz capability.
+                      Specifies the second frequency that will be used for 80+80MHz configuration. Set it to `disabled` in order to disable 80+80MHz capability.
+                    items:
+                      type: string
+                    type: array
+                  skipDfsChannels:
+                    description: |-
+                      (String) An option to avoid using channels on which channel availability check (listening for the presence of radar signals) is required.
+                      An option to avoid using channels on which channel availability check (listening for the presence of radar signals) is required.
+                    type: string
+                  width:
+                    description: |-
+                      (String) Channel width.
+                      Channel width.
+                    type: string
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  kind: ClusterProviderConfig
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  kind:
+                    description: Kind of the referenced object.
+                    type: string
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                required:
+                - name
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || (has(self.initProvider) && has(self.initProvider.name))'
+          status:
+            description: ChannelStatus defines the observed state of Channel.
+            properties:
+              atProvider:
+                properties:
+                  band:
+                    description: |-
+                      (String) Frequency band and wireless standard that will be used by the AP.
+                      Frequency band and wireless standard that will be used by the AP.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  deprioritizeUnii34:
+                    description: |-
+                      5885 MHz. These channels are unsupported by some client devices, making their automatic selection undesirable. Defaults to `yes` in ETSI regulatory domains, elsewhere to `no`.
+                      Whether to assign lower priority to channels with a control frequency of 5720 or 5825-5885 MHz. These channels are unsupported by some client devices, making their automatic selection undesirable. Defaults to `yes` in ETSI regulatory domains, elsewhere to `no`.
+                    type: boolean
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  frequency:
+                    description: |-
+                      (List of String) Channel frequency value or range in MHz on which AP or station will operate.
+                      Channel frequency value or range in MHz on which AP or station will operate.
+                    items:
+                      type: string
+                    type: array
+                  id:
+                    description: (String) The ID of this resource.
+                    type: string
+                  name:
+                    description: |-
+                      (String) Name of the channel.
+                      Name of the channel.
+                    type: string
+                  reselectInterval:
+                    description: |-
+                      (String) An option that specifies when the interface should rescan channel availability and select the most appropriate one to use.
+                      An option that specifies when the interface should rescan channel availability and select the most appropriate one to use.
+                    type: string
+                  reselectTime:
+                    description: |-
+                      time uses a background scan.
+                      Specifies the clock time when the interface should run "rescan channel availability" and select the most appropriate one to use. Specifying the clock time will allow the system to select this time dynamically and randomly. This helps to avoid a situation when many APs at the same time scan the network, select the same channel, and prefer to use it at the same time. reselect-time uses a background scan.
+                      The reselect process will choose the most suitable channel considering the number of networks in the channel, channel usage, and overlap with networks in adjacent channels. It can be used with a list of frequencies defined, or with frequency not set - using all supported frequencies.
+                      Example:
+
+                      - 01:00..01:30 → Would set the rescan of channels to run every night, once, randomly, between 01:00 AM to 01:30 AM, system clock time.
+                      - 14:00..14:30 → Would set the rescan of channels to run every day (after midday), once, randomly between 14:00:00 to 14:30:00 (or 2 PM to 2:30 PM), system clock time.
+                    type: string
+                  secondaryFrequency:
+                    description: |-
+                      (List of String) Specifies the second frequency that will be used for 80+80MHz configuration. Set it to `disabled` in order to disable 80+80MHz capability.
+                      Specifies the second frequency that will be used for 80+80MHz configuration. Set it to `disabled` in order to disable 80+80MHz capability.
+                    items:
+                      type: string
+                    type: array
+                  skipDfsChannels:
+                    description: |-
+                      (String) An option to avoid using channels on which channel availability check (listening for the presence of radar signals) is required.
+                      An option to avoid using channels on which channel availability check (listening for the presence of radar signals) is required.
+                    type: string
+                  width:
+                    description: |-
+                      (String) Channel width.
+                      Channel width.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

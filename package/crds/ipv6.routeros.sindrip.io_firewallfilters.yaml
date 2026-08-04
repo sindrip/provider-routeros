@@ -1,0 +1,1100 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: firewallfilters.ipv6.routeros.sindrip.io
+spec:
+  group: ipv6.routeros.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: FirewallFilter
+    listKind: FirewallFilterList
+    plural: firewallfilters
+    singular: firewallfilter
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: FirewallFilter is the Schema for the FirewallFilters API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: FirewallFilterSpec defines the desired state of FirewallFilter
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  action:
+                    description: |-
+                      (String) Action to take if a packet is matched by the rule
+                      Action to take if a packet is matched by the rule
+                    type: string
+                  addressListTimeout:
+                    description: |-
+                      list parameter. Used in conjunction with add-dst-to-address-list or add-src-to-address-list actions.
+                      Time interval after which the address will be removed from the address list specified by address-list parameter. Used in conjunction with add-dst-to-address-list or add-src-to-address-list actions.
+                    type: string
+                  chain:
+                    description: |-
+                      (String) Specifies to which chain rule will be added. If the input does not match the name of an already defined chain, a new chain will be created.
+                      Specifies to which chain rule will be added. If the input does not match the name of an already defined chain, a new chain will be created.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  connectionBytes:
+                    description: |-
+                      (String) Matches packets only if a given amount of bytes has been transfered through the particular connection.
+                      Matches packets only if a given amount of bytes has been transfered through the particular connection.
+                    type: string
+                  connectionLimit:
+                    description: |-
+                      state=new and/or with tcp-flags=syn because matcher is very resource intensive.
+                      Matches connections per address or address block after given value is reached. Should be used together with connection-state=new and/or with tcp-flags=syn because matcher is very resource intensive.
+                    type: string
+                  connectionMark:
+                    description: |-
+                      mark is set, rule will match any unmarked connection.
+                      Matches packets marked via mangle facility with particular connection mark. If no-mark is set, rule will match any unmarked connection.
+                    type: string
+                  connectionRate:
+                    description: |-
+                      (String) Connection Rate is a firewall matcher that allow to capture traffic based on present speed of the connection (0..4294967295).
+                      Connection Rate is a firewall matcher that allow to capture traffic based on present speed of the connection (0..4294967295).
+                    type: string
+                  connectionState:
+                    description: |-
+                      (String) Interprets the connection tracking analysis data for a particular packet.
+                      Interprets the connection tracking analysis data for a particular packet.
+                    type: string
+                  connectionType:
+                    description: |-
+                      (String) Matches packets from related connections based on information from their connection tracking helpers.
+                      Matches packets from related connections based on information from their connection tracking helpers.
+                    type: string
+                  content:
+                    description: |-
+                      (String) Match packets that contain specified text.
+                      Match packets that contain specified text.
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dscp:
+                    description: |-
+                      (Number) Matches DSCP IP header field.
+                      Matches DSCP IP header field.
+                    format: int64
+                    type: integer
+                  dstAddress:
+                    description: |-
+                      (String) Matches packets which destination is equal to specified IP or falls into specified IP range.
+                      Matches packets which destination is equal to specified IP or falls into specified IP range.
+                    type: string
+                  dstAddressList:
+                    description: |-
+                      defined address list.
+                      Matches destination address of a packet against user-defined address list.
+                    type: string
+                  dstAddressType:
+                    description: |-
+                      (String) Matches destination address type.
+                      Matches destination address type.
+                    type: string
+                  dstLimit:
+                    description: |-
+                      (String) Matches packets until a given rate is exceeded.
+                      Matches packets until a given rate is exceeded.
+                    type: string
+                  dstPort:
+                    description: |-
+                      (String) List of destination port numbers or port number ranges.
+                      List of destination port numbers or port number ranges.
+                    type: string
+                  headers:
+                    description: |-
+                      (String) Extension headers. Look at the Extras tab in the v6 filter rules.
+                      Extension headers. Look at the Extras tab in the v6 filter rules.
+                    type: string
+                  hopLimit:
+                    description: |-
+                      (String) IPv6 TTL. Look at the Extras tab in the v6 filter rules.
+                      IPv6 TTL. Look at the Extras tab in the v6 filter rules.
+                    type: string
+                  icmpOptions:
+                    description: |-
+                      (String) Matches ICMP type: code fields.
+                      Matches ICMP type: code fields.
+                    type: string
+                  inBridgePort:
+                    description: |-
+                      ip-firewall is enabled in bridge settings.
+                      Actual interface the packet has entered the router if the incoming interface is a bridge. Works only if use-ip-firewall is enabled in bridge settings.
+                    type: string
+                  inBridgePortList:
+                    description: |-
+                      bridge-port.
+                      Set of interfaces defined in interface list. Works the same as in-bridge-port.
+                    type: string
+                  inInterface:
+                    description: |-
+                      (String) Interface the packet has entered the router.
+                      Interface the packet has entered the router.
+                    type: string
+                  inInterfaceList:
+                    description: |-
+                      interface.
+                      Set of interfaces defined in interface list. Works the same as in-interface.
+                    type: string
+                  ingressPriority:
+                    description: |-
+                      (Number) Matches the priority of an ingress packet. Priority may be derived from VLAN, WMM, DSCP, or MPLS EXP bit.
+                      Matches the priority of an ingress packet. Priority may be derived from VLAN, WMM, DSCP, or MPLS EXP bit.
+                    format: int64
+                    type: integer
+                  ipsecPolicy:
+                    description: |-
+                      (String) Matches the policy used by IPsec. Value is written in the following format: direction, policy.
+                      Matches the policy used by IPsec. Value is written in the following format: direction, policy.
+                    type: string
+                  jumpTarget:
+                    description: |-
+                      (String) Name of the target chain to jump to. Applicable only if action=jump.
+                      Name of the target chain to jump to. Applicable only if action=jump.
+                    type: string
+                  limit:
+                    description: |-
+                      (String) Matches packets up to a limited rate (packet rate or bit rate). A rule using this matcher will match until this limit is reached. Parameters are written in the following format: rate[/time],burst:mode.
+                      Matches packets up to a limited rate (packet rate or bit rate). A rule using this matcher will match until this limit is reached. Parameters are written in the following format: rate[/time],burst:mode.
+                    type: string
+                  log:
+                    description: |-
+                      (Boolean) Add a message to the system log.
+                      Add a message to the system log.
+                    type: boolean
+                  logPrefix:
+                    description: |-
+                      (String) Adds specified text at the beginning of every log message. Applicable if action=log or log=yes configured.
+                      Adds specified text at the beginning of every log message. Applicable if action=log or log=yes configured.
+                    type: string
+                  nth:
+                    description: |-
+                      (String) Matches every nth packet: nth=2,1 rule will match every first packet of 2, hence, 50% of all the traffic that is matched by the rule
+                      Matches every nth packet: nth=2,1 rule will match every first packet of 2, hence, 50% of all the traffic that is matched by the rule
+                    type: string
+                  outBridgePort:
+                    description: |-
+                      ip-firewall is enabled in bridge settings.
+                      Actual interface the packet is leaving the router if the outgoing interface is a bridge. Works only if use-ip-firewall is enabled in bridge settings.
+                    type: string
+                  outBridgePortList:
+                    description: |-
+                      bridge-port.
+                      Set of interfaces defined in interface list. Works the same as out-bridge-port.
+                    type: string
+                  outInterface:
+                    description: |-
+                      (String) Interface the packet is leaving the router.
+                      Interface the packet is leaving the router.
+                    type: string
+                  outInterfaceList:
+                    description: |-
+                      interface.
+                      Set of interfaces defined in interface list. Works the same as out-interface.
+                    type: string
+                  packetMark:
+                    description: |-
+                      mark is set, the rule will match any unmarked packet.
+                      Matches packets marked via mangle facility with particular packet mark. If no-mark is set, the rule will match any unmarked packet.
+                    type: string
+                  packetSize:
+                    description: |-
+                      (String) Matches packets of specified size or size range in bytes.
+                      Matches packets of specified size or size range in bytes.
+                    type: string
+                  perConnectionClassifier:
+                    description: |-
+                      (String) PCC matcher allows dividing traffic into equal streams with the ability to keep packets with a specific set of options in one particular stream.
+                      PCC matcher allows dividing traffic into equal streams with the ability to keep packets with a specific set of options in one particular stream.
+                    type: string
+                  placeBefore:
+                    description: |-
+                      (String) Before which position the rule will be inserted.
+                      Before which position the rule will be inserted.
+                      > Please check the effect of this option, as it does not work as you think!
+                      > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
+                    type: string
+                  port:
+                    description: |-
+                      (String) Matches if any (source or destination) port matches the specified list of ports or port ranges. Applicable only if protocol is TCP or UDP
+                      Matches if any (source or destination) port matches the specified list of ports or port ranges. Applicable only if protocol is TCP or UDP
+                    type: string
+                  priority:
+                    description: |-
+                      priority action.
+                      Matches the packet's priority after a new priority has been set. Priority may be derived from VLAN, WMM, DSCP, MPLS EXP bit, or from the priority that has been set using the set-priority action.
+                    format: int64
+                    type: integer
+                  protocol:
+                    description: |-
+                      (String) Matches particular IP protocol specified by protocol name or number.
+                      Matches particular IP protocol specified by protocol name or number.
+                    type: string
+                  random:
+                    description: |-
+                      (Number) Matches packets randomly with a given probability.
+                      Matches packets randomly with a given probability.
+                    format: int64
+                    type: integer
+                  rejectWith:
+                    description: |-
+                      (String) Specifies ICMP error to be sent back if the packet is rejected. Applicable if action=reject.
+                      Specifies ICMP error to be sent back if the packet is rejected. Applicable if action=reject.
+                    type: string
+                  routingMark:
+                    description: |-
+                      (String) Matches packets marked by mangle facility with particular routing mark.
+                      Matches packets marked by mangle facility with particular routing mark.
+                    type: string
+                  srcAddress:
+                    description: |-
+                      (String) Matches packets which source is equal to specified IP or falls into a specified IP range.
+                      Matches packets which source is equal to specified IP or falls into a specified IP range.
+                    type: string
+                  srcAddressList:
+                    description: |-
+                      defined address list.
+                      Matches source address of a packet against user-defined address list.
+                    type: string
+                  srcAddressType:
+                    description: |-
+                      (String) Matches source address type.
+                      Matches source address type.
+                    type: string
+                  srcMacAddress:
+                    description: |-
+                      (String) Matches source MAC address of the packet.
+                      Matches source MAC address of the packet.
+                    type: string
+                  srcPort:
+                    description: |-
+                      (String) List of source ports and ranges of source ports. Applicable only if a protocol is TCP or UDP.
+                      List of source ports and ranges of source ports. Applicable only if a protocol is TCP or UDP.
+                    type: string
+                  tcpFlags:
+                    description: |-
+                      (String) Matches specified TCP flags.
+                      Matches specified TCP flags.
+                    type: string
+                  tcpMss:
+                    description: |-
+                      (String) Matches TCP MSS value of an IP packet.
+                      Matches TCP MSS value of an IP packet.
+                    type: string
+                  time:
+                    description: |-
+                      (String) Allows to create a filter based on the packets' arrival time and date or, for locally generated packets, departure time and date.
+                      Allows to create a filter based on the packets' arrival time and date or, for locally generated packets, departure time and date.
+                    type: string
+                  tlsHost:
+                    description: |-
+                      (String) Allows matching HTTPS traffic based on TLS SNI hostname.
+                      Allows matching HTTPS traffic based on TLS SNI hostname.
+                    type: string
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  action:
+                    description: |-
+                      (String) Action to take if a packet is matched by the rule
+                      Action to take if a packet is matched by the rule
+                    type: string
+                  addressListTimeout:
+                    description: |-
+                      list parameter. Used in conjunction with add-dst-to-address-list or add-src-to-address-list actions.
+                      Time interval after which the address will be removed from the address list specified by address-list parameter. Used in conjunction with add-dst-to-address-list or add-src-to-address-list actions.
+                    type: string
+                  chain:
+                    description: |-
+                      (String) Specifies to which chain rule will be added. If the input does not match the name of an already defined chain, a new chain will be created.
+                      Specifies to which chain rule will be added. If the input does not match the name of an already defined chain, a new chain will be created.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  connectionBytes:
+                    description: |-
+                      (String) Matches packets only if a given amount of bytes has been transfered through the particular connection.
+                      Matches packets only if a given amount of bytes has been transfered through the particular connection.
+                    type: string
+                  connectionLimit:
+                    description: |-
+                      state=new and/or with tcp-flags=syn because matcher is very resource intensive.
+                      Matches connections per address or address block after given value is reached. Should be used together with connection-state=new and/or with tcp-flags=syn because matcher is very resource intensive.
+                    type: string
+                  connectionMark:
+                    description: |-
+                      mark is set, rule will match any unmarked connection.
+                      Matches packets marked via mangle facility with particular connection mark. If no-mark is set, rule will match any unmarked connection.
+                    type: string
+                  connectionRate:
+                    description: |-
+                      (String) Connection Rate is a firewall matcher that allow to capture traffic based on present speed of the connection (0..4294967295).
+                      Connection Rate is a firewall matcher that allow to capture traffic based on present speed of the connection (0..4294967295).
+                    type: string
+                  connectionState:
+                    description: |-
+                      (String) Interprets the connection tracking analysis data for a particular packet.
+                      Interprets the connection tracking analysis data for a particular packet.
+                    type: string
+                  connectionType:
+                    description: |-
+                      (String) Matches packets from related connections based on information from their connection tracking helpers.
+                      Matches packets from related connections based on information from their connection tracking helpers.
+                    type: string
+                  content:
+                    description: |-
+                      (String) Match packets that contain specified text.
+                      Match packets that contain specified text.
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dscp:
+                    description: |-
+                      (Number) Matches DSCP IP header field.
+                      Matches DSCP IP header field.
+                    format: int64
+                    type: integer
+                  dstAddress:
+                    description: |-
+                      (String) Matches packets which destination is equal to specified IP or falls into specified IP range.
+                      Matches packets which destination is equal to specified IP or falls into specified IP range.
+                    type: string
+                  dstAddressList:
+                    description: |-
+                      defined address list.
+                      Matches destination address of a packet against user-defined address list.
+                    type: string
+                  dstAddressType:
+                    description: |-
+                      (String) Matches destination address type.
+                      Matches destination address type.
+                    type: string
+                  dstLimit:
+                    description: |-
+                      (String) Matches packets until a given rate is exceeded.
+                      Matches packets until a given rate is exceeded.
+                    type: string
+                  dstPort:
+                    description: |-
+                      (String) List of destination port numbers or port number ranges.
+                      List of destination port numbers or port number ranges.
+                    type: string
+                  headers:
+                    description: |-
+                      (String) Extension headers. Look at the Extras tab in the v6 filter rules.
+                      Extension headers. Look at the Extras tab in the v6 filter rules.
+                    type: string
+                  hopLimit:
+                    description: |-
+                      (String) IPv6 TTL. Look at the Extras tab in the v6 filter rules.
+                      IPv6 TTL. Look at the Extras tab in the v6 filter rules.
+                    type: string
+                  icmpOptions:
+                    description: |-
+                      (String) Matches ICMP type: code fields.
+                      Matches ICMP type: code fields.
+                    type: string
+                  inBridgePort:
+                    description: |-
+                      ip-firewall is enabled in bridge settings.
+                      Actual interface the packet has entered the router if the incoming interface is a bridge. Works only if use-ip-firewall is enabled in bridge settings.
+                    type: string
+                  inBridgePortList:
+                    description: |-
+                      bridge-port.
+                      Set of interfaces defined in interface list. Works the same as in-bridge-port.
+                    type: string
+                  inInterface:
+                    description: |-
+                      (String) Interface the packet has entered the router.
+                      Interface the packet has entered the router.
+                    type: string
+                  inInterfaceList:
+                    description: |-
+                      interface.
+                      Set of interfaces defined in interface list. Works the same as in-interface.
+                    type: string
+                  ingressPriority:
+                    description: |-
+                      (Number) Matches the priority of an ingress packet. Priority may be derived from VLAN, WMM, DSCP, or MPLS EXP bit.
+                      Matches the priority of an ingress packet. Priority may be derived from VLAN, WMM, DSCP, or MPLS EXP bit.
+                    format: int64
+                    type: integer
+                  ipsecPolicy:
+                    description: |-
+                      (String) Matches the policy used by IPsec. Value is written in the following format: direction, policy.
+                      Matches the policy used by IPsec. Value is written in the following format: direction, policy.
+                    type: string
+                  jumpTarget:
+                    description: |-
+                      (String) Name of the target chain to jump to. Applicable only if action=jump.
+                      Name of the target chain to jump to. Applicable only if action=jump.
+                    type: string
+                  limit:
+                    description: |-
+                      (String) Matches packets up to a limited rate (packet rate or bit rate). A rule using this matcher will match until this limit is reached. Parameters are written in the following format: rate[/time],burst:mode.
+                      Matches packets up to a limited rate (packet rate or bit rate). A rule using this matcher will match until this limit is reached. Parameters are written in the following format: rate[/time],burst:mode.
+                    type: string
+                  log:
+                    description: |-
+                      (Boolean) Add a message to the system log.
+                      Add a message to the system log.
+                    type: boolean
+                  logPrefix:
+                    description: |-
+                      (String) Adds specified text at the beginning of every log message. Applicable if action=log or log=yes configured.
+                      Adds specified text at the beginning of every log message. Applicable if action=log or log=yes configured.
+                    type: string
+                  nth:
+                    description: |-
+                      (String) Matches every nth packet: nth=2,1 rule will match every first packet of 2, hence, 50% of all the traffic that is matched by the rule
+                      Matches every nth packet: nth=2,1 rule will match every first packet of 2, hence, 50% of all the traffic that is matched by the rule
+                    type: string
+                  outBridgePort:
+                    description: |-
+                      ip-firewall is enabled in bridge settings.
+                      Actual interface the packet is leaving the router if the outgoing interface is a bridge. Works only if use-ip-firewall is enabled in bridge settings.
+                    type: string
+                  outBridgePortList:
+                    description: |-
+                      bridge-port.
+                      Set of interfaces defined in interface list. Works the same as out-bridge-port.
+                    type: string
+                  outInterface:
+                    description: |-
+                      (String) Interface the packet is leaving the router.
+                      Interface the packet is leaving the router.
+                    type: string
+                  outInterfaceList:
+                    description: |-
+                      interface.
+                      Set of interfaces defined in interface list. Works the same as out-interface.
+                    type: string
+                  packetMark:
+                    description: |-
+                      mark is set, the rule will match any unmarked packet.
+                      Matches packets marked via mangle facility with particular packet mark. If no-mark is set, the rule will match any unmarked packet.
+                    type: string
+                  packetSize:
+                    description: |-
+                      (String) Matches packets of specified size or size range in bytes.
+                      Matches packets of specified size or size range in bytes.
+                    type: string
+                  perConnectionClassifier:
+                    description: |-
+                      (String) PCC matcher allows dividing traffic into equal streams with the ability to keep packets with a specific set of options in one particular stream.
+                      PCC matcher allows dividing traffic into equal streams with the ability to keep packets with a specific set of options in one particular stream.
+                    type: string
+                  placeBefore:
+                    description: |-
+                      (String) Before which position the rule will be inserted.
+                      Before which position the rule will be inserted.
+                      > Please check the effect of this option, as it does not work as you think!
+                      > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
+                    type: string
+                  port:
+                    description: |-
+                      (String) Matches if any (source or destination) port matches the specified list of ports or port ranges. Applicable only if protocol is TCP or UDP
+                      Matches if any (source or destination) port matches the specified list of ports or port ranges. Applicable only if protocol is TCP or UDP
+                    type: string
+                  priority:
+                    description: |-
+                      priority action.
+                      Matches the packet's priority after a new priority has been set. Priority may be derived from VLAN, WMM, DSCP, MPLS EXP bit, or from the priority that has been set using the set-priority action.
+                    format: int64
+                    type: integer
+                  protocol:
+                    description: |-
+                      (String) Matches particular IP protocol specified by protocol name or number.
+                      Matches particular IP protocol specified by protocol name or number.
+                    type: string
+                  random:
+                    description: |-
+                      (Number) Matches packets randomly with a given probability.
+                      Matches packets randomly with a given probability.
+                    format: int64
+                    type: integer
+                  rejectWith:
+                    description: |-
+                      (String) Specifies ICMP error to be sent back if the packet is rejected. Applicable if action=reject.
+                      Specifies ICMP error to be sent back if the packet is rejected. Applicable if action=reject.
+                    type: string
+                  routingMark:
+                    description: |-
+                      (String) Matches packets marked by mangle facility with particular routing mark.
+                      Matches packets marked by mangle facility with particular routing mark.
+                    type: string
+                  srcAddress:
+                    description: |-
+                      (String) Matches packets which source is equal to specified IP or falls into a specified IP range.
+                      Matches packets which source is equal to specified IP or falls into a specified IP range.
+                    type: string
+                  srcAddressList:
+                    description: |-
+                      defined address list.
+                      Matches source address of a packet against user-defined address list.
+                    type: string
+                  srcAddressType:
+                    description: |-
+                      (String) Matches source address type.
+                      Matches source address type.
+                    type: string
+                  srcMacAddress:
+                    description: |-
+                      (String) Matches source MAC address of the packet.
+                      Matches source MAC address of the packet.
+                    type: string
+                  srcPort:
+                    description: |-
+                      (String) List of source ports and ranges of source ports. Applicable only if a protocol is TCP or UDP.
+                      List of source ports and ranges of source ports. Applicable only if a protocol is TCP or UDP.
+                    type: string
+                  tcpFlags:
+                    description: |-
+                      (String) Matches specified TCP flags.
+                      Matches specified TCP flags.
+                    type: string
+                  tcpMss:
+                    description: |-
+                      (String) Matches TCP MSS value of an IP packet.
+                      Matches TCP MSS value of an IP packet.
+                    type: string
+                  time:
+                    description: |-
+                      (String) Allows to create a filter based on the packets' arrival time and date or, for locally generated packets, departure time and date.
+                      Allows to create a filter based on the packets' arrival time and date or, for locally generated packets, departure time and date.
+                    type: string
+                  tlsHost:
+                    description: |-
+                      (String) Allows matching HTTPS traffic based on TLS SNI hostname.
+                      Allows matching HTTPS traffic based on TLS SNI hostname.
+                    type: string
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.action is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.action)
+                || (has(self.initProvider) && has(self.initProvider.action))'
+            - message: spec.forProvider.chain is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.chain)
+                || (has(self.initProvider) && has(self.initProvider.chain))'
+          status:
+            description: FirewallFilterStatus defines the observed state of FirewallFilter.
+            properties:
+              atProvider:
+                properties:
+                  action:
+                    description: |-
+                      (String) Action to take if a packet is matched by the rule
+                      Action to take if a packet is matched by the rule
+                    type: string
+                  addressListTimeout:
+                    description: |-
+                      list parameter. Used in conjunction with add-dst-to-address-list or add-src-to-address-list actions.
+                      Time interval after which the address will be removed from the address list specified by address-list parameter. Used in conjunction with add-dst-to-address-list or add-src-to-address-list actions.
+                    type: string
+                  chain:
+                    description: |-
+                      (String) Specifies to which chain rule will be added. If the input does not match the name of an already defined chain, a new chain will be created.
+                      Specifies to which chain rule will be added. If the input does not match the name of an already defined chain, a new chain will be created.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  connectionBytes:
+                    description: |-
+                      (String) Matches packets only if a given amount of bytes has been transfered through the particular connection.
+                      Matches packets only if a given amount of bytes has been transfered through the particular connection.
+                    type: string
+                  connectionLimit:
+                    description: |-
+                      state=new and/or with tcp-flags=syn because matcher is very resource intensive.
+                      Matches connections per address or address block after given value is reached. Should be used together with connection-state=new and/or with tcp-flags=syn because matcher is very resource intensive.
+                    type: string
+                  connectionMark:
+                    description: |-
+                      mark is set, rule will match any unmarked connection.
+                      Matches packets marked via mangle facility with particular connection mark. If no-mark is set, rule will match any unmarked connection.
+                    type: string
+                  connectionRate:
+                    description: |-
+                      (String) Connection Rate is a firewall matcher that allow to capture traffic based on present speed of the connection (0..4294967295).
+                      Connection Rate is a firewall matcher that allow to capture traffic based on present speed of the connection (0..4294967295).
+                    type: string
+                  connectionState:
+                    description: |-
+                      (String) Interprets the connection tracking analysis data for a particular packet.
+                      Interprets the connection tracking analysis data for a particular packet.
+                    type: string
+                  connectionType:
+                    description: |-
+                      (String) Matches packets from related connections based on information from their connection tracking helpers.
+                      Matches packets from related connections based on information from their connection tracking helpers.
+                    type: string
+                  content:
+                    description: |-
+                      (String) Match packets that contain specified text.
+                      Match packets that contain specified text.
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dscp:
+                    description: |-
+                      (Number) Matches DSCP IP header field.
+                      Matches DSCP IP header field.
+                    format: int64
+                    type: integer
+                  dstAddress:
+                    description: |-
+                      (String) Matches packets which destination is equal to specified IP or falls into specified IP range.
+                      Matches packets which destination is equal to specified IP or falls into specified IP range.
+                    type: string
+                  dstAddressList:
+                    description: |-
+                      defined address list.
+                      Matches destination address of a packet against user-defined address list.
+                    type: string
+                  dstAddressType:
+                    description: |-
+                      (String) Matches destination address type.
+                      Matches destination address type.
+                    type: string
+                  dstLimit:
+                    description: |-
+                      (String) Matches packets until a given rate is exceeded.
+                      Matches packets until a given rate is exceeded.
+                    type: string
+                  dstPort:
+                    description: |-
+                      (String) List of destination port numbers or port number ranges.
+                      List of destination port numbers or port number ranges.
+                    type: string
+                  dynamic:
+                    description: |-
+                      (Boolean) Configuration item created by software, not by management interface. It is not exported, and cannot be directly modified.
+                      Configuration item created by software, not by management interface. It is not exported, and cannot be directly modified.
+                    type: boolean
+                  headers:
+                    description: |-
+                      (String) Extension headers. Look at the Extras tab in the v6 filter rules.
+                      Extension headers. Look at the Extras tab in the v6 filter rules.
+                    type: string
+                  hopLimit:
+                    description: |-
+                      (String) IPv6 TTL. Look at the Extras tab in the v6 filter rules.
+                      IPv6 TTL. Look at the Extras tab in the v6 filter rules.
+                    type: string
+                  icmpOptions:
+                    description: |-
+                      (String) Matches ICMP type: code fields.
+                      Matches ICMP type: code fields.
+                    type: string
+                  id:
+                    description: (String) The ID of this resource.
+                    type: string
+                  inBridgePort:
+                    description: |-
+                      ip-firewall is enabled in bridge settings.
+                      Actual interface the packet has entered the router if the incoming interface is a bridge. Works only if use-ip-firewall is enabled in bridge settings.
+                    type: string
+                  inBridgePortList:
+                    description: |-
+                      bridge-port.
+                      Set of interfaces defined in interface list. Works the same as in-bridge-port.
+                    type: string
+                  inInterface:
+                    description: |-
+                      (String) Interface the packet has entered the router.
+                      Interface the packet has entered the router.
+                    type: string
+                  inInterfaceList:
+                    description: |-
+                      interface.
+                      Set of interfaces defined in interface list. Works the same as in-interface.
+                    type: string
+                  ingressPriority:
+                    description: |-
+                      (Number) Matches the priority of an ingress packet. Priority may be derived from VLAN, WMM, DSCP, or MPLS EXP bit.
+                      Matches the priority of an ingress packet. Priority may be derived from VLAN, WMM, DSCP, or MPLS EXP bit.
+                    format: int64
+                    type: integer
+                  invalid:
+                    description: (Boolean)
+                    type: boolean
+                  ipsecPolicy:
+                    description: |-
+                      (String) Matches the policy used by IPsec. Value is written in the following format: direction, policy.
+                      Matches the policy used by IPsec. Value is written in the following format: direction, policy.
+                    type: string
+                  jumpTarget:
+                    description: |-
+                      (String) Name of the target chain to jump to. Applicable only if action=jump.
+                      Name of the target chain to jump to. Applicable only if action=jump.
+                    type: string
+                  limit:
+                    description: |-
+                      (String) Matches packets up to a limited rate (packet rate or bit rate). A rule using this matcher will match until this limit is reached. Parameters are written in the following format: rate[/time],burst:mode.
+                      Matches packets up to a limited rate (packet rate or bit rate). A rule using this matcher will match until this limit is reached. Parameters are written in the following format: rate[/time],burst:mode.
+                    type: string
+                  log:
+                    description: |-
+                      (Boolean) Add a message to the system log.
+                      Add a message to the system log.
+                    type: boolean
+                  logPrefix:
+                    description: |-
+                      (String) Adds specified text at the beginning of every log message. Applicable if action=log or log=yes configured.
+                      Adds specified text at the beginning of every log message. Applicable if action=log or log=yes configured.
+                    type: string
+                  nth:
+                    description: |-
+                      (String) Matches every nth packet: nth=2,1 rule will match every first packet of 2, hence, 50% of all the traffic that is matched by the rule
+                      Matches every nth packet: nth=2,1 rule will match every first packet of 2, hence, 50% of all the traffic that is matched by the rule
+                    type: string
+                  outBridgePort:
+                    description: |-
+                      ip-firewall is enabled in bridge settings.
+                      Actual interface the packet is leaving the router if the outgoing interface is a bridge. Works only if use-ip-firewall is enabled in bridge settings.
+                    type: string
+                  outBridgePortList:
+                    description: |-
+                      bridge-port.
+                      Set of interfaces defined in interface list. Works the same as out-bridge-port.
+                    type: string
+                  outInterface:
+                    description: |-
+                      (String) Interface the packet is leaving the router.
+                      Interface the packet is leaving the router.
+                    type: string
+                  outInterfaceList:
+                    description: |-
+                      interface.
+                      Set of interfaces defined in interface list. Works the same as out-interface.
+                    type: string
+                  packetMark:
+                    description: |-
+                      mark is set, the rule will match any unmarked packet.
+                      Matches packets marked via mangle facility with particular packet mark. If no-mark is set, the rule will match any unmarked packet.
+                    type: string
+                  packetSize:
+                    description: |-
+                      (String) Matches packets of specified size or size range in bytes.
+                      Matches packets of specified size or size range in bytes.
+                    type: string
+                  perConnectionClassifier:
+                    description: |-
+                      (String) PCC matcher allows dividing traffic into equal streams with the ability to keep packets with a specific set of options in one particular stream.
+                      PCC matcher allows dividing traffic into equal streams with the ability to keep packets with a specific set of options in one particular stream.
+                    type: string
+                  placeBefore:
+                    description: |-
+                      (String) Before which position the rule will be inserted.
+                      Before which position the rule will be inserted.
+                      > Please check the effect of this option, as it does not work as you think!
+                      > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
+                    type: string
+                  port:
+                    description: |-
+                      (String) Matches if any (source or destination) port matches the specified list of ports or port ranges. Applicable only if protocol is TCP or UDP
+                      Matches if any (source or destination) port matches the specified list of ports or port ranges. Applicable only if protocol is TCP or UDP
+                    type: string
+                  priority:
+                    description: |-
+                      priority action.
+                      Matches the packet's priority after a new priority has been set. Priority may be derived from VLAN, WMM, DSCP, MPLS EXP bit, or from the priority that has been set using the set-priority action.
+                    format: int64
+                    type: integer
+                  protocol:
+                    description: |-
+                      (String) Matches particular IP protocol specified by protocol name or number.
+                      Matches particular IP protocol specified by protocol name or number.
+                    type: string
+                  random:
+                    description: |-
+                      (Number) Matches packets randomly with a given probability.
+                      Matches packets randomly with a given probability.
+                    format: int64
+                    type: integer
+                  rejectWith:
+                    description: |-
+                      (String) Specifies ICMP error to be sent back if the packet is rejected. Applicable if action=reject.
+                      Specifies ICMP error to be sent back if the packet is rejected. Applicable if action=reject.
+                    type: string
+                  routingMark:
+                    description: |-
+                      (String) Matches packets marked by mangle facility with particular routing mark.
+                      Matches packets marked by mangle facility with particular routing mark.
+                    type: string
+                  srcAddress:
+                    description: |-
+                      (String) Matches packets which source is equal to specified IP or falls into a specified IP range.
+                      Matches packets which source is equal to specified IP or falls into a specified IP range.
+                    type: string
+                  srcAddressList:
+                    description: |-
+                      defined address list.
+                      Matches source address of a packet against user-defined address list.
+                    type: string
+                  srcAddressType:
+                    description: |-
+                      (String) Matches source address type.
+                      Matches source address type.
+                    type: string
+                  srcMacAddress:
+                    description: |-
+                      (String) Matches source MAC address of the packet.
+                      Matches source MAC address of the packet.
+                    type: string
+                  srcPort:
+                    description: |-
+                      (String) List of source ports and ranges of source ports. Applicable only if a protocol is TCP or UDP.
+                      List of source ports and ranges of source ports. Applicable only if a protocol is TCP or UDP.
+                    type: string
+                  tcpFlags:
+                    description: |-
+                      (String) Matches specified TCP flags.
+                      Matches specified TCP flags.
+                    type: string
+                  tcpMss:
+                    description: |-
+                      (String) Matches TCP MSS value of an IP packet.
+                      Matches TCP MSS value of an IP packet.
+                    type: string
+                  time:
+                    description: |-
+                      (String) Allows to create a filter based on the packets' arrival time and date or, for locally generated packets, departure time and date.
+                      Allows to create a filter based on the packets' arrival time and date or, for locally generated packets, departure time and date.
+                    type: string
+                  tlsHost:
+                    description: |-
+                      (String) Allows matching HTTPS traffic based on TLS SNI hostname.
+                      Allows matching HTTPS traffic based on TLS SNI hostname.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

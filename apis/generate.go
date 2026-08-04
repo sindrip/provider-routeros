@@ -14,8 +14,8 @@
 //go:generate bash -c "find ../internal/controller -type d -empty -delete"
 //go:generate rm -rf ../examples-generated
 
-// Generate documentation from Terraform docs.
-//go:generate go run github.com/crossplane/upjet/v2/cmd/scraper -n ${TERRAFORM_PROVIDER_SOURCE} -r ../.work/${TERRAFORM_PROVIDER_SOURCE}/${TERRAFORM_DOCS_PATH} -o ../config/provider-metadata.yaml
+// Generate documentation from upstream tfplugindocs Markdown.
+//go:generate go run ../cmd/provider-metadata/main.go -provider ${TERRAFORM_PROVIDER_SOURCE} -root ../.work/${TERRAFORM_PROVIDER_SOURCE}/${TERRAFORM_DOCS_PATH} -out ../config/provider-metadata.yaml
 
 // Run Upjet generator
 //go:generate go run ../cmd/generator/main.go ..

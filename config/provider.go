@@ -1,18 +1,18 @@
 package config
 
 import (
-	// Note(turkenh): we are importing this to embed provider schema document
 	_ "embed"
 
 	ujconfig "github.com/crossplane/upjet/v2/pkg/config"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/terraform-routeros/terraform-provider-routeros/routeros"
 
-	nullCluster "github.com/crossplane/upjet-provider-template/config/cluster/null"
-	nullNamespaced "github.com/crossplane/upjet-provider-template/config/namespaced/null"
+	"github.com/sindrip/provider-routeros/internal/routerosruntime"
 )
 
 const (
-	resourcePrefix = "template"
-	modulePath     = "github.com/crossplane/upjet-provider-template"
+	resourcePrefix = "routeros"
+	modulePath     = "github.com/sindrip/provider-routeros"
 )
 
 //go:embed schema.json
@@ -21,47 +21,83 @@ var providerSchema string
 //go:embed provider-metadata.yaml
 var providerMetadata string
 
-// GetProvider returns provider configuration
+// GetProvider returns the cluster-scoped provider configuration used for code
+// generation. Generation uses a mechanically adapted copy of the upstream
+// schema so Terraform names that Kubernetes cannot represent remain available
+// through valid JSON field names and their original Terraform struct tags.
 func GetProvider() *ujconfig.Provider {
-	pc := ujconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata),
-		ujconfig.WithRootGroup("template.crossplane.io"),
-		ujconfig.WithIncludeList(ExternalNameConfigured()),
-		ujconfig.WithFeaturesPackage("internal/features"),
-		ujconfig.WithDefaultResourceOptions(
-			ExternalNameConfigurations(),
-		))
-
-	for _, configure := range []func(provider *ujconfig.Provider){
-		// add custom config functions
-		nullCluster.Configure,
-	} {
-		configure(pc)
-	}
-
-	pc.ConfigureResources()
-	return pc
+	return newProvider("routeros.sindrip.io", false, providerForGeneration())
 }
 
-// GetProviderNamespaced returns the namespaced provider configuration
+// GetProviderNamespaced returns the namespaced provider configuration used for
+// code generation.
 func GetProviderNamespaced() *ujconfig.Provider {
-	pc := ujconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata),
-		ujconfig.WithRootGroup("template.m.crossplane.io"),
-		ujconfig.WithIncludeList(ExternalNameConfigured()),
+	return newProvider("routeros.m.sindrip.io", true, providerForGeneration())
+}
+
+// GetProviderRuntime returns the cluster-scoped provider configuration used by
+// the controller. The runtime always uses the untouched upstream schemas.
+func GetProviderRuntime() *ujconfig.Provider {
+	return newProvider("routeros.sindrip.io", false, routerosruntime.WrapProvider(routeros.Provider()))
+}
+
+// GetProviderNamespacedRuntime returns the namespaced runtime provider.
+func GetProviderNamespacedRuntime() *ujconfig.Provider {
+	return newProvider("routeros.m.sindrip.io", true, routerosruntime.WrapProvider(routeros.Provider()))
+}
+
+func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Provider) *ujconfig.Provider {
+	opts := []ujconfig.ProviderOption{
+		ujconfig.WithRootGroup(rootGroup),
+		ujconfig.WithIncludeList([]string{}),
+		ujconfig.WithTerraformPluginSDKIncludeList([]string{".+"}),
+		ujconfig.WithTerraformProvider(terraformProvider),
 		ujconfig.WithFeaturesPackage("internal/features"),
 		ujconfig.WithDefaultResourceOptions(
-			ExternalNameConfigurations(),
+			ExternalNameConfiguration(),
+			func(r *ujconfig.Resource) {
+				switch r.Name {
+				case "routeros_ip_dhcp_server_option_set":
+					// Upstream retains this singular resource as an alias for
+					// routeros_ip_dhcp_server_option_sets. Both default to the
+					// same Kubernetes plural, so the alias needs a unique path.
+					r.Path = "dhcpserveroptionsetaliases"
+				case "routeros_interface_6to4":
+					r.Kind = "SixToFour"
+				case "routeros_capsman_interface":
+					r.Kind = "CAPsMANInterface"
+				case "routeros_queue_type":
+					r.Kind = "QueueType"
+				case "routeros_zerotier_interface":
+					r.Kind = "ZeroTierInterface"
+				case "routeros_zerotier_controller":
+					r.Kind = "ZeroTierController"
+				}
+			},
 		),
-		ujconfig.WithExampleManifestConfiguration(ujconfig.ExampleManifestConfiguration{
+	}
+	if namespaced {
+		opts = append(opts, ujconfig.WithExampleManifestConfiguration(ujconfig.ExampleManifestConfiguration{
 			ManagedResourceNamespace: "crossplane-system",
 		}))
-
-	for _, configure := range []func(provider *ujconfig.Provider){
-		// add custom config functions
-		nullNamespaced.Configure,
-	} {
-		configure(pc)
 	}
 
-	pc.ConfigureResources()
-	return pc
+	p := ujconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata), opts...)
+	p.ConfigureResources()
+	return p
+}
+
+func providerForGeneration() *schema.Provider {
+	p := routeros.Provider()
+	renameFieldForGeneration(p, "routeros_ipv6_nd_prefix", "6to4_interface", "six_to_four_interface")
+	renameFieldForGeneration(p, "routeros_wifi_interworking", "3gpp_info", "three_gpp_info")
+	renameFieldForGeneration(p, "routeros_wifi_interworking", "3gpp_raw", "three_gpp_raw")
+	return p
+}
+
+func renameFieldForGeneration(p *schema.Provider, resource, terraformName, generatedName string) {
+	s := p.ResourcesMap[resource].Schema[terraformName]
+	delete(p.ResourcesMap[resource].Schema, terraformName)
+	s.Description += "\n+upjet:crd:field:TFTag=" + terraformName + ",omitempty"
+	p.ResourcesMap[resource].Schema[generatedName] = s
 }

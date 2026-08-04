@@ -1,0 +1,492 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: peers.wireguard.routeros.m.sindrip.io
+spec:
+  group: wireguard.routeros.m.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: Peer
+    listKind: PeerList
+    plural: peers
+    singular: peer
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: 'Peer is the Schema for the Peers API. #### This is an alias
+          for backwards compatibility between plugin versions. Please see documentation
+          for [routeros_interface_wireguard_peer](interface_wireguard_peer.md)'
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PeerSpec defines the desired state of Peer
+            properties:
+              forProvider:
+                properties:
+                  allowedAddress:
+                    description: List of IP (v4 or v6) addresses with CIDR masks from
+                      which incoming traffic for this peer is allowed and to which
+                      outgoing traffic for this peer is directed. The catch-all 0.0.0.0/0
+                      may be specified for matching all IPv4 addresses, and ::/0 may
+                      be specified for matching all IPv6 addresses.
+                    items:
+                      type: string
+                    type: array
+                  clientAddress:
+                    description: When imported using a qr code for a client (for example,
+                      a phone), then this address for the wg interface is set on that
+                      device.
+                    type: string
+                  clientDns:
+                    description: Specify when using WireGuard Server as a VPN gateway
+                      for peer traffic.
+                    type: string
+                  clientEndpoint:
+                    description: The IP address and port number of the WireGuard Server.
+                    type: string
+                  clientKeepalive:
+                    description: Same as persistent-keepalive but from peer side.
+                    type: string
+                  clientListenPort:
+                    description: The local port upon which this WireGuard tunnel will
+                      listen for incoming traffic from peers, and the port from which
+                      it will source outgoing packets.
+                    format: int64
+                    type: integer
+                  comment:
+                    type: string
+                  disabled:
+                    type: boolean
+                  endpointAddress:
+                    description: An endpoint IP or hostname can be left blank to allow
+                      remote connection from any address.
+                    type: string
+                  endpointPort:
+                    description: An endpoint port can be left blank to allow remote
+                      connection from any port.
+                    type: string
+                  interface:
+                    description: Name of the interface.
+                    type: string
+                  isResponder:
+                    description: Specifies if peer is intended to be connection initiator
+                      or only responder. Should be used on WireGuard devices that
+                      are used as `servers` for other devices as clients to connect
+                      to. Otherwise router will all repeatedly try to connect `endpoint-address`
+                      or `current-endpoint-address` causing unnecessary system logs
+                      to be written.
+                    type: boolean
+                  name:
+                    description: Name of the tunnel.
+                    type: string
+                  persistentKeepalive:
+                    description: A seconds interval, between 1 and 65535 inclusive,
+                      of how often to send an authenticated empty packet to the peer
+                      for the purpose of keeping a stateful firewall or NAT mapping
+                      valid persistently. For example, if the interface very rarely
+                      sends traffic, but it might at anytime receive traffic from
+                      a peer, and it is behind NAT, the interface might benefit from
+                      having a persistent keepalive interval of 25 seconds.
+                    type: string
+                  presharedKeySecretRef:
+                    description: A **base64** preshared key. Optional, and may be
+                      omitted. This option adds an additional layer of symmetric-key
+                      cryptography to be mixed into the already existing public-key
+                      cryptography, for post-quantum resistance.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  privateKey:
+                    description: A base64 private key. If not specified, it will be
+                      automatically generated upon interface creation.
+                    type: string
+                  publicKey:
+                    description: The remote peer's calculated public key.
+                    type: string
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  allowedAddress:
+                    description: List of IP (v4 or v6) addresses with CIDR masks from
+                      which incoming traffic for this peer is allowed and to which
+                      outgoing traffic for this peer is directed. The catch-all 0.0.0.0/0
+                      may be specified for matching all IPv4 addresses, and ::/0 may
+                      be specified for matching all IPv6 addresses.
+                    items:
+                      type: string
+                    type: array
+                  clientAddress:
+                    description: When imported using a qr code for a client (for example,
+                      a phone), then this address for the wg interface is set on that
+                      device.
+                    type: string
+                  clientDns:
+                    description: Specify when using WireGuard Server as a VPN gateway
+                      for peer traffic.
+                    type: string
+                  clientEndpoint:
+                    description: The IP address and port number of the WireGuard Server.
+                    type: string
+                  clientKeepalive:
+                    description: Same as persistent-keepalive but from peer side.
+                    type: string
+                  clientListenPort:
+                    description: The local port upon which this WireGuard tunnel will
+                      listen for incoming traffic from peers, and the port from which
+                      it will source outgoing packets.
+                    format: int64
+                    type: integer
+                  comment:
+                    type: string
+                  disabled:
+                    type: boolean
+                  endpointAddress:
+                    description: An endpoint IP or hostname can be left blank to allow
+                      remote connection from any address.
+                    type: string
+                  endpointPort:
+                    description: An endpoint port can be left blank to allow remote
+                      connection from any port.
+                    type: string
+                  interface:
+                    description: Name of the interface.
+                    type: string
+                  isResponder:
+                    description: Specifies if peer is intended to be connection initiator
+                      or only responder. Should be used on WireGuard devices that
+                      are used as `servers` for other devices as clients to connect
+                      to. Otherwise router will all repeatedly try to connect `endpoint-address`
+                      or `current-endpoint-address` causing unnecessary system logs
+                      to be written.
+                    type: boolean
+                  name:
+                    description: Name of the tunnel.
+                    type: string
+                  persistentKeepalive:
+                    description: A seconds interval, between 1 and 65535 inclusive,
+                      of how often to send an authenticated empty packet to the peer
+                      for the purpose of keeping a stateful firewall or NAT mapping
+                      valid persistently. For example, if the interface very rarely
+                      sends traffic, but it might at anytime receive traffic from
+                      a peer, and it is behind NAT, the interface might benefit from
+                      having a persistent keepalive interval of 25 seconds.
+                    type: string
+                  presharedKeySecretRef:
+                    description: A **base64** preshared key. Optional, and may be
+                      omitted. This option adds an additional layer of symmetric-key
+                      cryptography to be mixed into the already existing public-key
+                      cryptography, for post-quantum resistance.
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  privateKey:
+                    description: A base64 private key. If not specified, it will be
+                      automatically generated upon interface creation.
+                    type: string
+                  publicKey:
+                    description: The remote peer's calculated public key.
+                    type: string
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  kind: ClusterProviderConfig
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  kind:
+                    description: Kind of the referenced object.
+                    type: string
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                required:
+                - name
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.allowedAddress is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.allowedAddress)
+                || (has(self.initProvider) && has(self.initProvider.allowedAddress))'
+            - message: spec.forProvider.interface is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.interface)
+                || (has(self.initProvider) && has(self.initProvider.interface))'
+            - message: spec.forProvider.publicKey is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.publicKey)
+                || (has(self.initProvider) && has(self.initProvider.publicKey))'
+          status:
+            description: PeerStatus defines the observed state of Peer.
+            properties:
+              atProvider:
+                properties:
+                  allowedAddress:
+                    description: List of IP (v4 or v6) addresses with CIDR masks from
+                      which incoming traffic for this peer is allowed and to which
+                      outgoing traffic for this peer is directed. The catch-all 0.0.0.0/0
+                      may be specified for matching all IPv4 addresses, and ::/0 may
+                      be specified for matching all IPv6 addresses.
+                    items:
+                      type: string
+                    type: array
+                  clientAddress:
+                    description: When imported using a qr code for a client (for example,
+                      a phone), then this address for the wg interface is set on that
+                      device.
+                    type: string
+                  clientDns:
+                    description: Specify when using WireGuard Server as a VPN gateway
+                      for peer traffic.
+                    type: string
+                  clientEndpoint:
+                    description: The IP address and port number of the WireGuard Server.
+                    type: string
+                  clientKeepalive:
+                    description: Same as persistent-keepalive but from peer side.
+                    type: string
+                  clientListenPort:
+                    description: The local port upon which this WireGuard tunnel will
+                      listen for incoming traffic from peers, and the port from which
+                      it will source outgoing packets.
+                    format: int64
+                    type: integer
+                  comment:
+                    type: string
+                  currentEndpointAddress:
+                    description: The most recent source IP address of correctly authenticated
+                      packets from the peer.
+                    type: string
+                  currentEndpointPort:
+                    description: The most recent source IP port of correctly authenticated
+                      packets from the peer.
+                    format: int64
+                    type: integer
+                  disabled:
+                    type: boolean
+                  dynamic:
+                    description: Configuration item created by software, not by management
+                      interface. It is not exported, and cannot be directly modified.
+                    type: boolean
+                  endpointAddress:
+                    description: An endpoint IP or hostname can be left blank to allow
+                      remote connection from any address.
+                    type: string
+                  endpointPort:
+                    description: An endpoint port can be left blank to allow remote
+                      connection from any port.
+                    type: string
+                  id:
+                    type: string
+                  interface:
+                    description: Name of the interface.
+                    type: string
+                  isResponder:
+                    description: Specifies if peer is intended to be connection initiator
+                      or only responder. Should be used on WireGuard devices that
+                      are used as `servers` for other devices as clients to connect
+                      to. Otherwise router will all repeatedly try to connect `endpoint-address`
+                      or `current-endpoint-address` causing unnecessary system logs
+                      to be written.
+                    type: boolean
+                  lastHandshake:
+                    description: Time in seconds after the last successful handshake.
+                    type: string
+                  name:
+                    description: Name of the tunnel.
+                    type: string
+                  persistentKeepalive:
+                    description: A seconds interval, between 1 and 65535 inclusive,
+                      of how often to send an authenticated empty packet to the peer
+                      for the purpose of keeping a stateful firewall or NAT mapping
+                      valid persistently. For example, if the interface very rarely
+                      sends traffic, but it might at anytime receive traffic from
+                      a peer, and it is behind NAT, the interface might benefit from
+                      having a persistent keepalive interval of 25 seconds.
+                    type: string
+                  privateKey:
+                    description: A base64 private key. If not specified, it will be
+                      automatically generated upon interface creation.
+                    type: string
+                  publicKey:
+                    description: The remote peer's calculated public key.
+                    type: string
+                  rx:
+                    description: The total amount of bytes received from the peer.
+                    type: string
+                  tx:
+                    description: The total amount of bytes transmitted to the peer.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -19,7 +19,6 @@ import (
 	"github.com/crossplane/crossplane-runtime/v2/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/v2/pkg/statemetrics"
 	tjcontroller "github.com/crossplane/upjet/v2/pkg/controller"
-	"github.com/crossplane/upjet/v2/pkg/terraform"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	authv1 "k8s.io/api/authorization/v1"
@@ -34,14 +33,15 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
-	apisCluster "github.com/crossplane/upjet-provider-template/apis/cluster"
-	apisNamespaced "github.com/crossplane/upjet-provider-template/apis/namespaced"
-	"github.com/crossplane/upjet-provider-template/config"
-	"github.com/crossplane/upjet-provider-template/internal/clients"
-	controllerCluster "github.com/crossplane/upjet-provider-template/internal/controller/cluster"
-	controllerNamespaced "github.com/crossplane/upjet-provider-template/internal/controller/namespaced"
-	"github.com/crossplane/upjet-provider-template/internal/features"
-	"github.com/crossplane/upjet-provider-template/internal/version"
+	apisCluster "github.com/sindrip/provider-routeros/apis/cluster"
+	apisNamespaced "github.com/sindrip/provider-routeros/apis/namespaced"
+	"github.com/sindrip/provider-routeros/config"
+	"github.com/sindrip/provider-routeros/internal/clients"
+	controllerCluster "github.com/sindrip/provider-routeros/internal/controller/cluster"
+	controllerNamespaced "github.com/sindrip/provider-routeros/internal/controller/namespaced"
+	"github.com/sindrip/provider-routeros/internal/features"
+	"github.com/sindrip/provider-routeros/internal/routerosruntime"
+	"github.com/sindrip/provider-routeros/internal/version"
 )
 
 const (
@@ -53,7 +53,7 @@ const (
 
 func main() {
 	var (
-		app                     = kingpin.New(filepath.Base(os.Args[0]), "Terraform based Crossplane provider for Template").DefaultEnvars()
+		app                     = kingpin.New(filepath.Base(os.Args[0]), "Terraform based Crossplane provider for RouterOS").DefaultEnvars()
 		debug                   = app.Flag("debug", "Run with debug logging.").Short('d').Bool()
 		syncPeriod              = app.Flag("sync", "Controller manager sync period such as 300ms, 1.5h, or 2h45m").Short('s').Default("1h").Duration()
 		pollInterval            = app.Flag("poll", "Poll interval controls how often an individual resource should be checked for drift.").Default("10m").Duration()
@@ -64,10 +64,6 @@ func main() {
 		webhookPort          = app.Flag("webhook-port", "The port the webhook listens on").Default("9443").Envar("WEBHOOK_PORT").Int()
 		metricsBindAddress   = app.Flag("metrics-bind-address", "The address the metrics server listens on").Default(":8080").Envar("METRICS_BIND_ADDRESS").String()
 		changelogsSocketPath = app.Flag("changelogs-socket-path", "Path for changelogs socket (if enabled)").Default("/var/run/changelogs/changelogs.sock").Envar("CHANGELOGS_SOCKET_PATH").String()
-
-		terraformVersion = app.Flag("terraform-version", "Terraform version.").Required().Envar("TERRAFORM_VERSION").String()
-		providerSource   = app.Flag("terraform-provider-source", "Terraform provider source.").Required().Envar("TERRAFORM_PROVIDER_SOURCE").String()
-		providerVersion  = app.Flag("terraform-provider-version", "Terraform provider version.").Required().Envar("TERRAFORM_PROVIDER_VERSION").String()
 
 		enableManagementPolicies = app.Flag("enable-management-policies", "Enable support for Management Policies.").Default("true").Envar("ENABLE_MANAGEMENT_POLICIES").Bool()
 		enableChangeLogs         = app.Flag("enable-changelogs", "Enable support for capturing change logs during reconciliation.").Default("false").Envar("ENABLE_CHANGE_LOGS").Bool()
@@ -84,7 +80,7 @@ func main() {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	zl := zap.New(zap.UseDevMode(*debug))
-	log := logging.NewLogrLogger(zl.WithName("upjet-provider-template"))
+	log := logging.NewLogrLogger(zl.WithName("provider-routeros"))
 	if *debug {
 		// The controller-runtime runs with a no-op logger by default. It is
 		// *very* verbose even at info level, so we only provide it a real
@@ -121,7 +117,7 @@ func main() {
 
 	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 		LeaderElection:   *leaderElection,
-		LeaderElectionID: "crossplane-leader-election-upjet-provider-template",
+		LeaderElectionID: "crossplane-leader-election-provider-routeros",
 		Cache: cache.Options{
 			SyncPeriod: syncPeriod,
 		},
@@ -138,8 +134,8 @@ func main() {
 		RenewDeadline:              func() *time.Duration { d := 50 * time.Second; return &d }(),
 	})
 	kingpin.FatalIfError(err, "Cannot create controller manager")
-	kingpin.FatalIfError(apisCluster.AddToScheme(mgr.GetScheme()), "Cannot add cluster-scoped Template APIs to scheme")
-	kingpin.FatalIfError(apisNamespaced.AddToScheme(mgr.GetScheme()), "Cannot add namespaced Template APIs to scheme")
+	kingpin.FatalIfError(apisCluster.AddToScheme(mgr.GetScheme()), "Cannot add cluster-scoped RouterOS APIs to scheme")
+	kingpin.FatalIfError(apisNamespaced.AddToScheme(mgr.GetScheme()), "Cannot add namespaced RouterOS APIs to scheme")
 	kingpin.FatalIfError(apiextensionsv1.AddToScheme(mgr.GetScheme()), "Cannot add api-extensions APIs to scheme")
 	kingpin.FatalIfError(authv1.AddToScheme(mgr.GetScheme()), "Cannot add k8s authorization APIs to scheme")
 
@@ -148,6 +144,10 @@ func main() {
 
 	metrics.Registry.MustRegister(metricRecorder)
 	metrics.Registry.MustRegister(stateMetrics)
+	signalCtx := ctrl.SetupSignalHandler()
+	operationStore := tjcontroller.NewOperationStore(log)
+	clientCache := routerosruntime.NewClientCache(signalCtx)
+	setupFn := clients.TerraformSetupBuilder(clientCache)
 
 	clusterOpts := tjcontroller.Options{
 		Options: xpcontroller.Options{
@@ -162,12 +162,10 @@ func main() {
 				MRStateMetrics:          stateMetrics,
 			},
 		},
-		Provider: config.GetProvider(),
-		// use the following WorkspaceStoreOption to enable the shared gRPC mode
-		// terraform.WithProviderRunner(terraform.NewSharedProvider(log, os.Getenv("TERRAFORM_NATIVE_PROVIDER_PATH"), terraform.WithNativeProviderArgs("-debuggable")))
-		WorkspaceStore: terraform.NewWorkspaceStore(log),
-		SetupFn:        clients.TerraformSetupBuilder(*terraformVersion, *providerSource, *providerVersion),
-		StartWebhooks:  *certsDir != "",
+		Provider:              config.GetProviderRuntime(),
+		OperationTrackerStore: operationStore,
+		SetupFn:               setupFn,
+		StartWebhooks:         *certsDir != "",
 	}
 
 	namespacedOpts := tjcontroller.Options{
@@ -183,12 +181,10 @@ func main() {
 				MRStateMetrics:          stateMetrics,
 			},
 		},
-		Provider: config.GetProviderNamespaced(),
-		// use the following WorkspaceStoreOption to enable the shared gRPC mode
-		// terraform.WithProviderRunner(terraform.NewSharedProvider(log, os.Getenv("TERRAFORM_NATIVE_PROVIDER_PATH"), terraform.WithNativeProviderArgs("-debuggable")))
-		WorkspaceStore: terraform.NewWorkspaceStore(log),
-		SetupFn:        clients.TerraformSetupBuilder(*terraformVersion, *providerSource, *providerVersion),
-		StartWebhooks:  *certsDir != "",
+		Provider:              config.GetProviderNamespacedRuntime(),
+		OperationTrackerStore: operationStore,
+		SetupFn:               setupFn,
+		StartWebhooks:         *certsDir != "",
 	}
 
 	if *enableManagementPolicies {
@@ -208,7 +204,7 @@ func main() {
 		clo := xpcontroller.ChangeLogOptions{
 			ChangeLogger: managed.NewGRPCChangeLogger(
 				changelogsv1alpha1.NewChangeLogServiceClient(conn),
-				managed.WithProviderVersion(fmt.Sprintf("provider-upjet-aws:%s", version.Version))),
+				managed.WithProviderVersion(fmt.Sprintf("provider-routeros:%s", version.Version))),
 		}
 		clusterOpts.ChangeLogOptions = &clo
 		namespacedOpts.ChangeLogOptions = &clo
@@ -225,15 +221,15 @@ func main() {
 			Gate:                    crdGate,
 			MaxConcurrentReconciles: 1,
 		}), "Cannot setup CRD gate")
-		kingpin.FatalIfError(controllerCluster.SetupGated(mgr, clusterOpts), "Cannot setup cluster-scoped Template controllers")
-		kingpin.FatalIfError(controllerNamespaced.SetupGated(mgr, namespacedOpts), "Cannot setup namespaced Template controllers")
+		kingpin.FatalIfError(controllerCluster.SetupGated(mgr, clusterOpts), "Cannot setup cluster-scoped RouterOS controllers")
+		kingpin.FatalIfError(controllerNamespaced.SetupGated(mgr, namespacedOpts), "Cannot setup namespaced RouterOS controllers")
 	} else {
 		log.Info("Provider has missing RBAC permissions for watching CRDs, controller SafeStart capability will be disabled")
-		kingpin.FatalIfError(controllerCluster.Setup(mgr, clusterOpts), "Cannot setup cluster-scoped Template controllers")
-		kingpin.FatalIfError(controllerNamespaced.Setup(mgr, namespacedOpts), "Cannot setup namespaced Template controllers")
+		kingpin.FatalIfError(controllerCluster.Setup(mgr, clusterOpts), "Cannot setup cluster-scoped RouterOS controllers")
+		kingpin.FatalIfError(controllerNamespaced.Setup(mgr, namespacedOpts), "Cannot setup namespaced RouterOS controllers")
 	}
 
-	kingpin.FatalIfError(mgr.Start(ctrl.SetupSignalHandler()), "Cannot start controller manager")
+	kingpin.FatalIfError(mgr.Start(signalCtx), "Cannot start controller manager")
 }
 
 func canWatchCRD(ctx context.Context, mgr manager.Manager) (bool, error) {

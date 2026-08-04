@@ -1,0 +1,700 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: hotspotprofiles.ip.routeros.sindrip.io
+spec:
+  group: ip.routeros.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: HotspotProfile
+    listKind: HotspotProfileList
+    plural: hotspotprofiles
+    singular: hotspotprofile
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: HotspotProfile is the Schema for the HotspotProfiles API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: HotspotProfileSpec defines the desired state of HotspotProfile
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  dnsName:
+                    description: |-
+                      (String) DNS name of the HotSpot server (it appears as the location of the login page). This name will automatically be added as a static DNS entry in the DNS cache. Name can affect if Hotspot is automatically detected by client device. For example, iOS devices may not detect Hotspot that has a name which includes `.local`.
+                      DNS name of the HotSpot server (it appears as the location of the login page). This name will automatically be added as a static DNS entry in the DNS cache. Name can affect if Hotspot is automatically detected by client device. For example, iOS devices may not detect Hotspot that has a name which includes `.local`.
+                    type: string
+                  hotspotAddress:
+                    description: |-
+                      (String) IP address of HotSpot service.
+                      IP address of HotSpot service.
+                    type: string
+                  htmlDirectory:
+                    description: |-
+                      directory field, including `/flash/(hotspot_dir)`.
+                      Directory name in which HotSpot HTML pages are stored (by default hotspot directory). It is possible to specify different directory with modified HTML pages. To change HotSpot login page, connect to the router with FTP and download hotspot directory contents. v6.31 and older software builds: For devices where `flash` directory is present, hotspot html directory must be stored there and path must be typed in as follows: `/(hotspot_dir)`. This must be done in this order as hotspot sees `flash` directory as root location. v6.32 and newer software builds: full path must be typed in html-directory field, including `/flash/(hotspot_dir)`.
+                    type: string
+                  htmlDirectoryOverride:
+                    description: |-
+                      directory path if override path becomes non-available for some reason.
+                      Alternative path for hotspot html files. It should be used only if customized hotspot html files are stored on external storage(attached usb, hdd, etc). If configured then hotspot will switch to this html path as soon at it becomes available and switch back to html-directory path if override path becomes non-available for some reason.
+                    type: string
+                  httpCookieLifetime:
+                    description: |-
+                      (String) HTTP cookie validity time, the option is related to cookie HotSpot login method.
+                      HTTP cookie validity time, the option is related to cookie HotSpot login method.
+                    type: string
+                  httpProxy:
+                    description: |-
+                      (String) Address and port of the proxy server for HotSpot service, when default value is used all request are resolved by the local `/ip proxy`.
+                      Address and port of the proxy server for HotSpot service, when default value is used all request are resolved by the local `/ip proxy`.
+                    type: string
+                  httpsRedirect:
+                    description: |-
+                      (Boolean) Whether to redirect unauthenticated user to hotspot login page, if he is visiting a https:// url. Since certificate domain name will mismatch, often this leads to errors, so you can set this parameter to `no` and all https requests will simply be rejected and user will have to visit a http page.
+                      Whether to redirect unauthenticated user to hotspot login page, if he is visiting a https:// url. Since certificate domain name will mismatch, often this leads to errors, so you can set this parameter to `no` and all https requests will simply be rejected and user will have to visit a http page.
+                    type: boolean
+                  loginBy:
+                    description: |-
+                      (Set of String) Used HotSpot authentication method
+                      Used HotSpot authentication method
+                      * mac-cookie - enables login by mac cookie method.
+                      * cookie - may only be used with other HTTP authentication method. HTTP cookie is generated, when user authenticates in HotSpot for the first time. User is not asked for the login/password and authenticated automatically, until cookie-lifetime is active.
+                      * http-chap - login/password is required for the user to authenticate in HotSpot. CHAP challenge-response method with MD5 hashing algorithm is used for protecting passwords.
+                      * http-pap - login/password is required for user to authenticate in HotSpot. Username and password are sent over network in plain text.
+                      * https - login/password is required for user to authenticate in HotSpot. Client login/password exchange between client and server is encrypted with SSL tunnel.
+                      * mac - client is authenticated without asking login form. Client MAC-address is added to `/ip hotspot user` database, client is authenticated as soon as connected to the HotSpot
+                      * trial - client is allowed to use internet without HotSpot login for the specified amount of time.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  macAuthMode:
+                    description: |-
+                      Name and User-Password RADIUS attributes when using MAC authentication.
+                      Allows to control User-Name and User-Password RADIUS attributes when using MAC authentication.
+                    type: string
+                  macAuthPasswordSecretRef:
+                    description: |-
+                      (String, Sensitive) Used together with MAC authentication, field used to specify password for the users to be authenticated by their MAC addresses. The following option is required, when specific RADIUS server rejects authentication for the clients with blank password.
+                      Used together with MAC authentication, field used to specify password for the users to be authenticated by their MAC addresses. The following option is required, when specific RADIUS server rejects authentication for the clients with blank password.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  name:
+                    description: |-
+                      (String) Descriptive name of the profile.
+                      Descriptive name of the profile.
+                    type: string
+                  nasPortType:
+                    description: |-
+                      Port-Type` value to be sent to RADIUS server, `NAS-Port-Type` values are described in the RADIUS RFC 2865. This optional value attribute indicates the type of the physical port of the HotSpot server.
+                      `NAS-Port-Type` value to be sent to RADIUS server, `NAS-Port-Type` values are described in the RADIUS RFC 2865. This optional value attribute indicates the type of the physical port of the HotSpot server.
+                    type: string
+                  radiusAccounting:
+                    description: |-
+                      (Boolean) Send RADIUS server accounting information for each user, when yes is used.
+                      Send RADIUS server accounting information for each user, when yes is used.
+                    type: boolean
+                  radiusDefaultDomain:
+                    description: |-
+                      (String) Default domain to use for RADIUS requests. Allows to use separate RADIUS server per `/ip hotspot profile`. If used, same domain name should be specified under `/radius domain` value.
+                      Default domain to use for RADIUS requests. Allows to use separate RADIUS server per `/ip hotspot profile`. If used, same domain name should be specified under `/radius domain` value.
+                    type: string
+                  radiusInterimUpdate:
+                    description: |-
+                      time is used from RADIUS server. 0s is the same as received.
+                      How often to send accounting updates . When received is set, interim-time is used from RADIUS server. 0s is the same as received.
+                    type: string
+                  radiusLocationId:
+                    description: |-
+                      Location-Id` property.
+                      `RADIUS-Location-Id` property.
+                    type: string
+                  radiusLocationName:
+                    description: |-
+                      Location-Id` to be sent to RADIUS server. Used to identify location of the HotSpot server during the communication with RADIUS server. Value is optional and used together with RADIUS server.
+                      `RADIUS-Location-Id` to be sent to RADIUS server. Used to identify location of the HotSpot server during the communication with RADIUS server. Value is optional and used together with RADIUS server.
+                    type: string
+                  radiusMacFormat:
+                    description: |-
+                      Name` and `User-Password` attributes when using MAC authentication.
+                      Controls how the MAC address of the client is encoded in the `User-Name` and `User-Password` attributes when using MAC authentication.
+                    type: string
+                  rateLimit:
+                    description: |-
+                      rate[/tx-rate] [rx-burst-rate[/tx-burst-rate] [rx-burst-threshold[/tx-burst-threshold] [rx-burst-time[/tx-burst-time]]]] [priority] [rx-rate-min[/tx-rate-min]] from the point of view of the router (so `rx` is client upload, and `tx` is client download). All rates should be numbers with optional 'k' (1,000s) or 'M' (1,000,000s). If tx-rate is not specified, rx-rate is as tx-rate too. Same goes for tx-burst-rate and tx-burst-threshold and tx-burst-time. If both rx-burst-threshold and tx-burst-threshold are not specified (but burst-rate is specified), rx-rate and tx-rate is used as burst thresholds. If both rx-burst-time and tx-burst-time are not specified, 1s is used as default. rx-rate-min and tx-rate min are the values of limit-at properties.
+                      Rate limitation in form of rx-rate[/tx-rate] [rx-burst-rate[/tx-burst-rate] [rx-burst-threshold[/tx-burst-threshold] [rx-burst-time[/tx-burst-time]]]] [priority] [rx-rate-min[/tx-rate-min]] from the point of view of the router (so `rx` is client upload, and `tx` is client download). All rates should be numbers with optional 'k' (1,000s) or 'M' (1,000,000s). If tx-rate is not specified, rx-rate is as tx-rate too. Same goes for tx-burst-rate and tx-burst-threshold and tx-burst-time. If both rx-burst-threshold and tx-burst-threshold are not specified (but burst-rate is specified), rx-rate and tx-rate is used as burst thresholds. If both rx-burst-time and tx-burst-time are not specified, 1s is used as default. rx-rate-min and tx-rate min are the values of limit-at properties.
+                    type: string
+                  smtpServer:
+                    description: |-
+                      (String) SMTP server address to be used to redirect HotSpot users SMTP requests.
+                      SMTP server address to be used to redirect HotSpot users SMTP requests.
+                    type: string
+                  splitUserDomain:
+                    description: |-
+                      (Boolean) Split username from domain name when the username is given in `user@domain` or in `domain\user` format from RADIUS server.
+                      Split username from domain name when the username is given in `user@domain` or in `domain\user` format from RADIUS server.
+                    type: boolean
+                  sslCertificate:
+                    description: |-
+                      (String) Name of the SSL certificate on the router to to use only for HTTPS authentication.
+                      Name of the SSL certificate on the router to to use only for HTTPS authentication.
+                    type: string
+                  trialUptimeLimit:
+                    description: |-
+                      (String) Used only with trial authentication method. Time value specifies, how long trial user identified by MAC address can use access to public networks without HotSpot authentication.
+                      Used only with trial authentication method. Time value specifies, how long trial user identified by MAC address can use access to public networks without HotSpot authentication.
+                    type: string
+                  trialUptimeReset:
+                    description: |-
+                      (String) Used only with trial authentication method.
+                      Used only with trial authentication method.
+                    type: string
+                  trialUserProfile:
+                    description: |-
+                      (String) Specifies hotspot user profile for trial users.
+                      Specifies hotspot user profile for trial users.
+                    type: string
+                  useRadius:
+                    description: |-
+                      (Boolean) Use RADIUS to authenticate HotSpot users.
+                      Use RADIUS to authenticate HotSpot users.
+                    type: boolean
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  dnsName:
+                    description: |-
+                      (String) DNS name of the HotSpot server (it appears as the location of the login page). This name will automatically be added as a static DNS entry in the DNS cache. Name can affect if Hotspot is automatically detected by client device. For example, iOS devices may not detect Hotspot that has a name which includes `.local`.
+                      DNS name of the HotSpot server (it appears as the location of the login page). This name will automatically be added as a static DNS entry in the DNS cache. Name can affect if Hotspot is automatically detected by client device. For example, iOS devices may not detect Hotspot that has a name which includes `.local`.
+                    type: string
+                  hotspotAddress:
+                    description: |-
+                      (String) IP address of HotSpot service.
+                      IP address of HotSpot service.
+                    type: string
+                  htmlDirectory:
+                    description: |-
+                      directory field, including `/flash/(hotspot_dir)`.
+                      Directory name in which HotSpot HTML pages are stored (by default hotspot directory). It is possible to specify different directory with modified HTML pages. To change HotSpot login page, connect to the router with FTP and download hotspot directory contents. v6.31 and older software builds: For devices where `flash` directory is present, hotspot html directory must be stored there and path must be typed in as follows: `/(hotspot_dir)`. This must be done in this order as hotspot sees `flash` directory as root location. v6.32 and newer software builds: full path must be typed in html-directory field, including `/flash/(hotspot_dir)`.
+                    type: string
+                  htmlDirectoryOverride:
+                    description: |-
+                      directory path if override path becomes non-available for some reason.
+                      Alternative path for hotspot html files. It should be used only if customized hotspot html files are stored on external storage(attached usb, hdd, etc). If configured then hotspot will switch to this html path as soon at it becomes available and switch back to html-directory path if override path becomes non-available for some reason.
+                    type: string
+                  httpCookieLifetime:
+                    description: |-
+                      (String) HTTP cookie validity time, the option is related to cookie HotSpot login method.
+                      HTTP cookie validity time, the option is related to cookie HotSpot login method.
+                    type: string
+                  httpProxy:
+                    description: |-
+                      (String) Address and port of the proxy server for HotSpot service, when default value is used all request are resolved by the local `/ip proxy`.
+                      Address and port of the proxy server for HotSpot service, when default value is used all request are resolved by the local `/ip proxy`.
+                    type: string
+                  httpsRedirect:
+                    description: |-
+                      (Boolean) Whether to redirect unauthenticated user to hotspot login page, if he is visiting a https:// url. Since certificate domain name will mismatch, often this leads to errors, so you can set this parameter to `no` and all https requests will simply be rejected and user will have to visit a http page.
+                      Whether to redirect unauthenticated user to hotspot login page, if he is visiting a https:// url. Since certificate domain name will mismatch, often this leads to errors, so you can set this parameter to `no` and all https requests will simply be rejected and user will have to visit a http page.
+                    type: boolean
+                  loginBy:
+                    description: |-
+                      (Set of String) Used HotSpot authentication method
+                      Used HotSpot authentication method
+                      * mac-cookie - enables login by mac cookie method.
+                      * cookie - may only be used with other HTTP authentication method. HTTP cookie is generated, when user authenticates in HotSpot for the first time. User is not asked for the login/password and authenticated automatically, until cookie-lifetime is active.
+                      * http-chap - login/password is required for the user to authenticate in HotSpot. CHAP challenge-response method with MD5 hashing algorithm is used for protecting passwords.
+                      * http-pap - login/password is required for user to authenticate in HotSpot. Username and password are sent over network in plain text.
+                      * https - login/password is required for user to authenticate in HotSpot. Client login/password exchange between client and server is encrypted with SSL tunnel.
+                      * mac - client is authenticated without asking login form. Client MAC-address is added to `/ip hotspot user` database, client is authenticated as soon as connected to the HotSpot
+                      * trial - client is allowed to use internet without HotSpot login for the specified amount of time.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  macAuthMode:
+                    description: |-
+                      Name and User-Password RADIUS attributes when using MAC authentication.
+                      Allows to control User-Name and User-Password RADIUS attributes when using MAC authentication.
+                    type: string
+                  macAuthPasswordSecretRef:
+                    description: |-
+                      (String, Sensitive) Used together with MAC authentication, field used to specify password for the users to be authenticated by their MAC addresses. The following option is required, when specific RADIUS server rejects authentication for the clients with blank password.
+                      Used together with MAC authentication, field used to specify password for the users to be authenticated by their MAC addresses. The following option is required, when specific RADIUS server rejects authentication for the clients with blank password.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  name:
+                    description: |-
+                      (String) Descriptive name of the profile.
+                      Descriptive name of the profile.
+                    type: string
+                  nasPortType:
+                    description: |-
+                      Port-Type` value to be sent to RADIUS server, `NAS-Port-Type` values are described in the RADIUS RFC 2865. This optional value attribute indicates the type of the physical port of the HotSpot server.
+                      `NAS-Port-Type` value to be sent to RADIUS server, `NAS-Port-Type` values are described in the RADIUS RFC 2865. This optional value attribute indicates the type of the physical port of the HotSpot server.
+                    type: string
+                  radiusAccounting:
+                    description: |-
+                      (Boolean) Send RADIUS server accounting information for each user, when yes is used.
+                      Send RADIUS server accounting information for each user, when yes is used.
+                    type: boolean
+                  radiusDefaultDomain:
+                    description: |-
+                      (String) Default domain to use for RADIUS requests. Allows to use separate RADIUS server per `/ip hotspot profile`. If used, same domain name should be specified under `/radius domain` value.
+                      Default domain to use for RADIUS requests. Allows to use separate RADIUS server per `/ip hotspot profile`. If used, same domain name should be specified under `/radius domain` value.
+                    type: string
+                  radiusInterimUpdate:
+                    description: |-
+                      time is used from RADIUS server. 0s is the same as received.
+                      How often to send accounting updates . When received is set, interim-time is used from RADIUS server. 0s is the same as received.
+                    type: string
+                  radiusLocationId:
+                    description: |-
+                      Location-Id` property.
+                      `RADIUS-Location-Id` property.
+                    type: string
+                  radiusLocationName:
+                    description: |-
+                      Location-Id` to be sent to RADIUS server. Used to identify location of the HotSpot server during the communication with RADIUS server. Value is optional and used together with RADIUS server.
+                      `RADIUS-Location-Id` to be sent to RADIUS server. Used to identify location of the HotSpot server during the communication with RADIUS server. Value is optional and used together with RADIUS server.
+                    type: string
+                  radiusMacFormat:
+                    description: |-
+                      Name` and `User-Password` attributes when using MAC authentication.
+                      Controls how the MAC address of the client is encoded in the `User-Name` and `User-Password` attributes when using MAC authentication.
+                    type: string
+                  rateLimit:
+                    description: |-
+                      rate[/tx-rate] [rx-burst-rate[/tx-burst-rate] [rx-burst-threshold[/tx-burst-threshold] [rx-burst-time[/tx-burst-time]]]] [priority] [rx-rate-min[/tx-rate-min]] from the point of view of the router (so `rx` is client upload, and `tx` is client download). All rates should be numbers with optional 'k' (1,000s) or 'M' (1,000,000s). If tx-rate is not specified, rx-rate is as tx-rate too. Same goes for tx-burst-rate and tx-burst-threshold and tx-burst-time. If both rx-burst-threshold and tx-burst-threshold are not specified (but burst-rate is specified), rx-rate and tx-rate is used as burst thresholds. If both rx-burst-time and tx-burst-time are not specified, 1s is used as default. rx-rate-min and tx-rate min are the values of limit-at properties.
+                      Rate limitation in form of rx-rate[/tx-rate] [rx-burst-rate[/tx-burst-rate] [rx-burst-threshold[/tx-burst-threshold] [rx-burst-time[/tx-burst-time]]]] [priority] [rx-rate-min[/tx-rate-min]] from the point of view of the router (so `rx` is client upload, and `tx` is client download). All rates should be numbers with optional 'k' (1,000s) or 'M' (1,000,000s). If tx-rate is not specified, rx-rate is as tx-rate too. Same goes for tx-burst-rate and tx-burst-threshold and tx-burst-time. If both rx-burst-threshold and tx-burst-threshold are not specified (but burst-rate is specified), rx-rate and tx-rate is used as burst thresholds. If both rx-burst-time and tx-burst-time are not specified, 1s is used as default. rx-rate-min and tx-rate min are the values of limit-at properties.
+                    type: string
+                  smtpServer:
+                    description: |-
+                      (String) SMTP server address to be used to redirect HotSpot users SMTP requests.
+                      SMTP server address to be used to redirect HotSpot users SMTP requests.
+                    type: string
+                  splitUserDomain:
+                    description: |-
+                      (Boolean) Split username from domain name when the username is given in `user@domain` or in `domain\user` format from RADIUS server.
+                      Split username from domain name when the username is given in `user@domain` or in `domain\user` format from RADIUS server.
+                    type: boolean
+                  sslCertificate:
+                    description: |-
+                      (String) Name of the SSL certificate on the router to to use only for HTTPS authentication.
+                      Name of the SSL certificate on the router to to use only for HTTPS authentication.
+                    type: string
+                  trialUptimeLimit:
+                    description: |-
+                      (String) Used only with trial authentication method. Time value specifies, how long trial user identified by MAC address can use access to public networks without HotSpot authentication.
+                      Used only with trial authentication method. Time value specifies, how long trial user identified by MAC address can use access to public networks without HotSpot authentication.
+                    type: string
+                  trialUptimeReset:
+                    description: |-
+                      (String) Used only with trial authentication method.
+                      Used only with trial authentication method.
+                    type: string
+                  trialUserProfile:
+                    description: |-
+                      (String) Specifies hotspot user profile for trial users.
+                      Specifies hotspot user profile for trial users.
+                    type: string
+                  useRadius:
+                    description: |-
+                      (Boolean) Use RADIUS to authenticate HotSpot users.
+                      Use RADIUS to authenticate HotSpot users.
+                    type: boolean
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || (has(self.initProvider) && has(self.initProvider.name))'
+          status:
+            description: HotspotProfileStatus defines the observed state of HotspotProfile.
+            properties:
+              atProvider:
+                properties:
+                  dnsName:
+                    description: |-
+                      (String) DNS name of the HotSpot server (it appears as the location of the login page). This name will automatically be added as a static DNS entry in the DNS cache. Name can affect if Hotspot is automatically detected by client device. For example, iOS devices may not detect Hotspot that has a name which includes `.local`.
+                      DNS name of the HotSpot server (it appears as the location of the login page). This name will automatically be added as a static DNS entry in the DNS cache. Name can affect if Hotspot is automatically detected by client device. For example, iOS devices may not detect Hotspot that has a name which includes `.local`.
+                    type: string
+                  hotspotAddress:
+                    description: |-
+                      (String) IP address of HotSpot service.
+                      IP address of HotSpot service.
+                    type: string
+                  htmlDirectory:
+                    description: |-
+                      directory field, including `/flash/(hotspot_dir)`.
+                      Directory name in which HotSpot HTML pages are stored (by default hotspot directory). It is possible to specify different directory with modified HTML pages. To change HotSpot login page, connect to the router with FTP and download hotspot directory contents. v6.31 and older software builds: For devices where `flash` directory is present, hotspot html directory must be stored there and path must be typed in as follows: `/(hotspot_dir)`. This must be done in this order as hotspot sees `flash` directory as root location. v6.32 and newer software builds: full path must be typed in html-directory field, including `/flash/(hotspot_dir)`.
+                    type: string
+                  htmlDirectoryOverride:
+                    description: |-
+                      directory path if override path becomes non-available for some reason.
+                      Alternative path for hotspot html files. It should be used only if customized hotspot html files are stored on external storage(attached usb, hdd, etc). If configured then hotspot will switch to this html path as soon at it becomes available and switch back to html-directory path if override path becomes non-available for some reason.
+                    type: string
+                  httpCookieLifetime:
+                    description: |-
+                      (String) HTTP cookie validity time, the option is related to cookie HotSpot login method.
+                      HTTP cookie validity time, the option is related to cookie HotSpot login method.
+                    type: string
+                  httpProxy:
+                    description: |-
+                      (String) Address and port of the proxy server for HotSpot service, when default value is used all request are resolved by the local `/ip proxy`.
+                      Address and port of the proxy server for HotSpot service, when default value is used all request are resolved by the local `/ip proxy`.
+                    type: string
+                  httpsRedirect:
+                    description: |-
+                      (Boolean) Whether to redirect unauthenticated user to hotspot login page, if he is visiting a https:// url. Since certificate domain name will mismatch, often this leads to errors, so you can set this parameter to `no` and all https requests will simply be rejected and user will have to visit a http page.
+                      Whether to redirect unauthenticated user to hotspot login page, if he is visiting a https:// url. Since certificate domain name will mismatch, often this leads to errors, so you can set this parameter to `no` and all https requests will simply be rejected and user will have to visit a http page.
+                    type: boolean
+                  id:
+                    description: (String) The ID of this resource.
+                    type: string
+                  loginBy:
+                    description: |-
+                      (Set of String) Used HotSpot authentication method
+                      Used HotSpot authentication method
+                      * mac-cookie - enables login by mac cookie method.
+                      * cookie - may only be used with other HTTP authentication method. HTTP cookie is generated, when user authenticates in HotSpot for the first time. User is not asked for the login/password and authenticated automatically, until cookie-lifetime is active.
+                      * http-chap - login/password is required for the user to authenticate in HotSpot. CHAP challenge-response method with MD5 hashing algorithm is used for protecting passwords.
+                      * http-pap - login/password is required for user to authenticate in HotSpot. Username and password are sent over network in plain text.
+                      * https - login/password is required for user to authenticate in HotSpot. Client login/password exchange between client and server is encrypted with SSL tunnel.
+                      * mac - client is authenticated without asking login form. Client MAC-address is added to `/ip hotspot user` database, client is authenticated as soon as connected to the HotSpot
+                      * trial - client is allowed to use internet without HotSpot login for the specified amount of time.
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  macAuthMode:
+                    description: |-
+                      Name and User-Password RADIUS attributes when using MAC authentication.
+                      Allows to control User-Name and User-Password RADIUS attributes when using MAC authentication.
+                    type: string
+                  name:
+                    description: |-
+                      (String) Descriptive name of the profile.
+                      Descriptive name of the profile.
+                    type: string
+                  nasPortType:
+                    description: |-
+                      Port-Type` value to be sent to RADIUS server, `NAS-Port-Type` values are described in the RADIUS RFC 2865. This optional value attribute indicates the type of the physical port of the HotSpot server.
+                      `NAS-Port-Type` value to be sent to RADIUS server, `NAS-Port-Type` values are described in the RADIUS RFC 2865. This optional value attribute indicates the type of the physical port of the HotSpot server.
+                    type: string
+                  radiusAccounting:
+                    description: |-
+                      (Boolean) Send RADIUS server accounting information for each user, when yes is used.
+                      Send RADIUS server accounting information for each user, when yes is used.
+                    type: boolean
+                  radiusDefaultDomain:
+                    description: |-
+                      (String) Default domain to use for RADIUS requests. Allows to use separate RADIUS server per `/ip hotspot profile`. If used, same domain name should be specified under `/radius domain` value.
+                      Default domain to use for RADIUS requests. Allows to use separate RADIUS server per `/ip hotspot profile`. If used, same domain name should be specified under `/radius domain` value.
+                    type: string
+                  radiusInterimUpdate:
+                    description: |-
+                      time is used from RADIUS server. 0s is the same as received.
+                      How often to send accounting updates . When received is set, interim-time is used from RADIUS server. 0s is the same as received.
+                    type: string
+                  radiusLocationId:
+                    description: |-
+                      Location-Id` property.
+                      `RADIUS-Location-Id` property.
+                    type: string
+                  radiusLocationName:
+                    description: |-
+                      Location-Id` to be sent to RADIUS server. Used to identify location of the HotSpot server during the communication with RADIUS server. Value is optional and used together with RADIUS server.
+                      `RADIUS-Location-Id` to be sent to RADIUS server. Used to identify location of the HotSpot server during the communication with RADIUS server. Value is optional and used together with RADIUS server.
+                    type: string
+                  radiusMacFormat:
+                    description: |-
+                      Name` and `User-Password` attributes when using MAC authentication.
+                      Controls how the MAC address of the client is encoded in the `User-Name` and `User-Password` attributes when using MAC authentication.
+                    type: string
+                  rateLimit:
+                    description: |-
+                      rate[/tx-rate] [rx-burst-rate[/tx-burst-rate] [rx-burst-threshold[/tx-burst-threshold] [rx-burst-time[/tx-burst-time]]]] [priority] [rx-rate-min[/tx-rate-min]] from the point of view of the router (so `rx` is client upload, and `tx` is client download). All rates should be numbers with optional 'k' (1,000s) or 'M' (1,000,000s). If tx-rate is not specified, rx-rate is as tx-rate too. Same goes for tx-burst-rate and tx-burst-threshold and tx-burst-time. If both rx-burst-threshold and tx-burst-threshold are not specified (but burst-rate is specified), rx-rate and tx-rate is used as burst thresholds. If both rx-burst-time and tx-burst-time are not specified, 1s is used as default. rx-rate-min and tx-rate min are the values of limit-at properties.
+                      Rate limitation in form of rx-rate[/tx-rate] [rx-burst-rate[/tx-burst-rate] [rx-burst-threshold[/tx-burst-threshold] [rx-burst-time[/tx-burst-time]]]] [priority] [rx-rate-min[/tx-rate-min]] from the point of view of the router (so `rx` is client upload, and `tx` is client download). All rates should be numbers with optional 'k' (1,000s) or 'M' (1,000,000s). If tx-rate is not specified, rx-rate is as tx-rate too. Same goes for tx-burst-rate and tx-burst-threshold and tx-burst-time. If both rx-burst-threshold and tx-burst-threshold are not specified (but burst-rate is specified), rx-rate and tx-rate is used as burst thresholds. If both rx-burst-time and tx-burst-time are not specified, 1s is used as default. rx-rate-min and tx-rate min are the values of limit-at properties.
+                    type: string
+                  smtpServer:
+                    description: |-
+                      (String) SMTP server address to be used to redirect HotSpot users SMTP requests.
+                      SMTP server address to be used to redirect HotSpot users SMTP requests.
+                    type: string
+                  splitUserDomain:
+                    description: |-
+                      (Boolean) Split username from domain name when the username is given in `user@domain` or in `domain\user` format from RADIUS server.
+                      Split username from domain name when the username is given in `user@domain` or in `domain\user` format from RADIUS server.
+                    type: boolean
+                  sslCertificate:
+                    description: |-
+                      (String) Name of the SSL certificate on the router to to use only for HTTPS authentication.
+                      Name of the SSL certificate on the router to to use only for HTTPS authentication.
+                    type: string
+                  trialUptimeLimit:
+                    description: |-
+                      (String) Used only with trial authentication method. Time value specifies, how long trial user identified by MAC address can use access to public networks without HotSpot authentication.
+                      Used only with trial authentication method. Time value specifies, how long trial user identified by MAC address can use access to public networks without HotSpot authentication.
+                    type: string
+                  trialUptimeReset:
+                    description: |-
+                      (String) Used only with trial authentication method.
+                      Used only with trial authentication method.
+                    type: string
+                  trialUserProfile:
+                    description: |-
+                      (String) Specifies hotspot user profile for trial users.
+                      Specifies hotspot user profile for trial users.
+                    type: string
+                  useRadius:
+                    description: |-
+                      (Boolean) Use RADIUS to authenticate HotSpot users.
+                      Use RADIUS to authenticate HotSpot users.
+                    type: boolean
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

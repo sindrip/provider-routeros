@@ -1,0 +1,553 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: eoips.interface.routeros.sindrip.io
+spec:
+  group: interface.routeros.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: Eoip
+    listKind: EoipList
+    plural: eoips
+    singular: eoip
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Eoip is the Schema for the Eoips API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EoipSpec defines the desired state of Eoip
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  allowFastPath:
+                    description: |-
+                      (Boolean) Whether to allow FastPath processing. Must be disabled if IPsec tunneling is used.
+                      Whether to allow FastPath processing. Must be disabled if IPsec tunneling is used.
+                    type: boolean
+                  arp:
+                    description: |-
+                      (String) Address Resolution Protocol mode:
+                      Address Resolution Protocol mode:
+                      * disabled - the interface will not use ARP
+                      * enabled - the interface will use ARP
+                      * local-proxy-arp - the router performs proxy ARP on the interface and sends replies to the same interface
+                      * proxy-arp - the router performs proxy ARP on the interface and sends replies to other interfaces
+                      * reply-only - the interface will only reply to requests originated from matching IP address/MAC address combinations which are entered as static entries in the ARP table. No dynamic entries will be automatically stored in the ARP table. Therefore for communications to be successful, a valid static entry must already exist.
+                    type: string
+                  arpTimeout:
+                    description: |-
+                      timeout in IP/Settings, default is 30s. Can use postfix `ms`, `s`, `m`, `h`, `d` for milliseconds, seconds, minutes, hours or days. If no postfix is set then seconds (s) is used.
+                      ARP timeout is time how long ARP record is kept in ARP table after no packets are received from IP. Value auto equals to the value of arp-timeout in IP/Settings, default is 30s. Can use postfix `ms`, `s`, `m`, `h`, `d` for milliseconds, seconds, minutes, hours or days. If no postfix is set then seconds (s) is used.
+                    type: string
+                  clampTcpMss:
+                    description: |-
+                      (Boolean) Controls whether to change MSS size for received TCP SYN packets. When enabled, a router will change the MSS size for received TCP SYN packets if the current MSS size exceeds the tunnel interface MTU (taking into account the TCP/IP overhead). The received encapsulated packet will still contain the original MSS, and only after decapsulation the MSS is changed.
+                      Controls whether to change MSS size for received TCP SYN packets. When enabled, a router will change the MSS size for received TCP SYN packets if the current MSS size exceeds the tunnel interface MTU (taking into account the TCP/IP overhead). The received encapsulated packet will still contain the original MSS, and only after decapsulation the MSS is changed.
+                    type: boolean
+                  comment:
+                    description: (String)
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dontFragment:
+                    description: (String)
+                    type: string
+                  dscp:
+                    description: |-
+                      (String) Set dscp value in GRE header to a fixed value '0..63' or 'inherit' from dscp value taken from tunnelled traffic.
+                      Set dscp value in GRE header to a fixed value '0..63' or 'inherit' from dscp value taken from tunnelled traffic.
+                    type: string
+                  ipsecSecretSecretRef:
+                    description: |-
+                      address with pre-shared key and policy (by default phase2 uses sha1/aes128cbc).
+                      When secret is specified, router adds dynamic IPsec peer to remote-address with pre-shared key and policy (by default phase2 uses sha1/aes128cbc).
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  keepalive:
+                    description: |-
+                      number of retry attempts. `KeepaliveInterval` is integer 0..4294967295
+                      Tunnel keepalive parameter sets the time interval in which the tunnel running flag will remain even if the remote end of tunnel goes down. If configured time,retries fail, interface running flag is removed. Parameters are written in following format: `KeepaliveInterval,KeepaliveRetries` where `KeepaliveInterval` is time interval and `KeepaliveRetries` - number of retry attempts. `KeepaliveInterval` is integer 0..4294967295
+                    type: string
+                  localAddress:
+                    description: |-
+                      (String) Source address of the tunnel packets, local on the router.
+                      Source address of the tunnel packets, local on the router.
+                    type: string
+                  loopProtect:
+                    description: (String)
+                    type: string
+                  loopProtectDisableTime:
+                    description: (String)
+                    type: string
+                  loopProtectSendInterval:
+                    description: (String)
+                    type: string
+                  mtu:
+                    description: |-
+                      (String) Layer3 Maximum transmission unit ('auto', 0 .. 65535). Look for the exact minimum value in the MikroTik documentation
+                      Layer3 Maximum transmission unit ('auto', 0 .. 65535). Look for the exact minimum value in the MikroTik documentation
+                    type: string
+                  name:
+                    description: |-
+                      (String) Changing the name of this resource will force it to be recreated.
+                      Changing the name of this resource will force it to be recreated
+                    type: string
+                  remoteAddress:
+                    description: |-
+                      (String) IP address of the remote end of the tunnel.
+                      IP address of the remote end of the tunnel.
+                    type: string
+                  tunnelId:
+                    description: |-
+                      (Number) Unique tunnel identifier, which must match the other side of the tunnel.
+                      Unique tunnel identifier, which must match the other side of the tunnel.
+                    format: int64
+                    type: integer
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  allowFastPath:
+                    description: |-
+                      (Boolean) Whether to allow FastPath processing. Must be disabled if IPsec tunneling is used.
+                      Whether to allow FastPath processing. Must be disabled if IPsec tunneling is used.
+                    type: boolean
+                  arp:
+                    description: |-
+                      (String) Address Resolution Protocol mode:
+                      Address Resolution Protocol mode:
+                      * disabled - the interface will not use ARP
+                      * enabled - the interface will use ARP
+                      * local-proxy-arp - the router performs proxy ARP on the interface and sends replies to the same interface
+                      * proxy-arp - the router performs proxy ARP on the interface and sends replies to other interfaces
+                      * reply-only - the interface will only reply to requests originated from matching IP address/MAC address combinations which are entered as static entries in the ARP table. No dynamic entries will be automatically stored in the ARP table. Therefore for communications to be successful, a valid static entry must already exist.
+                    type: string
+                  arpTimeout:
+                    description: |-
+                      timeout in IP/Settings, default is 30s. Can use postfix `ms`, `s`, `m`, `h`, `d` for milliseconds, seconds, minutes, hours or days. If no postfix is set then seconds (s) is used.
+                      ARP timeout is time how long ARP record is kept in ARP table after no packets are received from IP. Value auto equals to the value of arp-timeout in IP/Settings, default is 30s. Can use postfix `ms`, `s`, `m`, `h`, `d` for milliseconds, seconds, minutes, hours or days. If no postfix is set then seconds (s) is used.
+                    type: string
+                  clampTcpMss:
+                    description: |-
+                      (Boolean) Controls whether to change MSS size for received TCP SYN packets. When enabled, a router will change the MSS size for received TCP SYN packets if the current MSS size exceeds the tunnel interface MTU (taking into account the TCP/IP overhead). The received encapsulated packet will still contain the original MSS, and only after decapsulation the MSS is changed.
+                      Controls whether to change MSS size for received TCP SYN packets. When enabled, a router will change the MSS size for received TCP SYN packets if the current MSS size exceeds the tunnel interface MTU (taking into account the TCP/IP overhead). The received encapsulated packet will still contain the original MSS, and only after decapsulation the MSS is changed.
+                    type: boolean
+                  comment:
+                    description: (String)
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dontFragment:
+                    description: (String)
+                    type: string
+                  dscp:
+                    description: |-
+                      (String) Set dscp value in GRE header to a fixed value '0..63' or 'inherit' from dscp value taken from tunnelled traffic.
+                      Set dscp value in GRE header to a fixed value '0..63' or 'inherit' from dscp value taken from tunnelled traffic.
+                    type: string
+                  ipsecSecretSecretRef:
+                    description: |-
+                      address with pre-shared key and policy (by default phase2 uses sha1/aes128cbc).
+                      When secret is specified, router adds dynamic IPsec peer to remote-address with pre-shared key and policy (by default phase2 uses sha1/aes128cbc).
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  keepalive:
+                    description: |-
+                      number of retry attempts. `KeepaliveInterval` is integer 0..4294967295
+                      Tunnel keepalive parameter sets the time interval in which the tunnel running flag will remain even if the remote end of tunnel goes down. If configured time,retries fail, interface running flag is removed. Parameters are written in following format: `KeepaliveInterval,KeepaliveRetries` where `KeepaliveInterval` is time interval and `KeepaliveRetries` - number of retry attempts. `KeepaliveInterval` is integer 0..4294967295
+                    type: string
+                  localAddress:
+                    description: |-
+                      (String) Source address of the tunnel packets, local on the router.
+                      Source address of the tunnel packets, local on the router.
+                    type: string
+                  loopProtect:
+                    description: (String)
+                    type: string
+                  loopProtectDisableTime:
+                    description: (String)
+                    type: string
+                  loopProtectSendInterval:
+                    description: (String)
+                    type: string
+                  mtu:
+                    description: |-
+                      (String) Layer3 Maximum transmission unit ('auto', 0 .. 65535). Look for the exact minimum value in the MikroTik documentation
+                      Layer3 Maximum transmission unit ('auto', 0 .. 65535). Look for the exact minimum value in the MikroTik documentation
+                    type: string
+                  name:
+                    description: |-
+                      (String) Changing the name of this resource will force it to be recreated.
+                      Changing the name of this resource will force it to be recreated
+                    type: string
+                  remoteAddress:
+                    description: |-
+                      (String) IP address of the remote end of the tunnel.
+                      IP address of the remote end of the tunnel.
+                    type: string
+                  tunnelId:
+                    description: |-
+                      (Number) Unique tunnel identifier, which must match the other side of the tunnel.
+                      Unique tunnel identifier, which must match the other side of the tunnel.
+                    format: int64
+                    type: integer
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || (has(self.initProvider) && has(self.initProvider.name))'
+          status:
+            description: EoipStatus defines the observed state of Eoip.
+            properties:
+              atProvider:
+                properties:
+                  actualMtu:
+                    description: (Number)
+                    format: int64
+                    type: integer
+                  allowFastPath:
+                    description: |-
+                      (Boolean) Whether to allow FastPath processing. Must be disabled if IPsec tunneling is used.
+                      Whether to allow FastPath processing. Must be disabled if IPsec tunneling is used.
+                    type: boolean
+                  arp:
+                    description: |-
+                      (String) Address Resolution Protocol mode:
+                      Address Resolution Protocol mode:
+                      * disabled - the interface will not use ARP
+                      * enabled - the interface will use ARP
+                      * local-proxy-arp - the router performs proxy ARP on the interface and sends replies to the same interface
+                      * proxy-arp - the router performs proxy ARP on the interface and sends replies to other interfaces
+                      * reply-only - the interface will only reply to requests originated from matching IP address/MAC address combinations which are entered as static entries in the ARP table. No dynamic entries will be automatically stored in the ARP table. Therefore for communications to be successful, a valid static entry must already exist.
+                    type: string
+                  arpTimeout:
+                    description: |-
+                      timeout in IP/Settings, default is 30s. Can use postfix `ms`, `s`, `m`, `h`, `d` for milliseconds, seconds, minutes, hours or days. If no postfix is set then seconds (s) is used.
+                      ARP timeout is time how long ARP record is kept in ARP table after no packets are received from IP. Value auto equals to the value of arp-timeout in IP/Settings, default is 30s. Can use postfix `ms`, `s`, `m`, `h`, `d` for milliseconds, seconds, minutes, hours or days. If no postfix is set then seconds (s) is used.
+                    type: string
+                  clampTcpMss:
+                    description: |-
+                      (Boolean) Controls whether to change MSS size for received TCP SYN packets. When enabled, a router will change the MSS size for received TCP SYN packets if the current MSS size exceeds the tunnel interface MTU (taking into account the TCP/IP overhead). The received encapsulated packet will still contain the original MSS, and only after decapsulation the MSS is changed.
+                      Controls whether to change MSS size for received TCP SYN packets. When enabled, a router will change the MSS size for received TCP SYN packets if the current MSS size exceeds the tunnel interface MTU (taking into account the TCP/IP overhead). The received encapsulated packet will still contain the original MSS, and only after decapsulation the MSS is changed.
+                    type: boolean
+                  comment:
+                    description: (String)
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dontFragment:
+                    description: (String)
+                    type: string
+                  dscp:
+                    description: |-
+                      (String) Set dscp value in GRE header to a fixed value '0..63' or 'inherit' from dscp value taken from tunnelled traffic.
+                      Set dscp value in GRE header to a fixed value '0..63' or 'inherit' from dscp value taken from tunnelled traffic.
+                    type: string
+                  id:
+                    description: (String) The ID of this resource.
+                    type: string
+                  keepalive:
+                    description: |-
+                      number of retry attempts. `KeepaliveInterval` is integer 0..4294967295
+                      Tunnel keepalive parameter sets the time interval in which the tunnel running flag will remain even if the remote end of tunnel goes down. If configured time,retries fail, interface running flag is removed. Parameters are written in following format: `KeepaliveInterval,KeepaliveRetries` where `KeepaliveInterval` is time interval and `KeepaliveRetries` - number of retry attempts. `KeepaliveInterval` is integer 0..4294967295
+                    type: string
+                  l2mtu:
+                    description: |-
+                      (Number) Layer2 Maximum transmission unit. [See](https://wiki.mikrotik.com/wiki/Maximum_Transmission_Unit_on_RouterBoards).
+                      Layer2 Maximum transmission unit. [See](https://wiki.mikrotik.com/wiki/Maximum_Transmission_Unit_on_RouterBoards).
+                    format: int64
+                    type: integer
+                  localAddress:
+                    description: |-
+                      (String) Source address of the tunnel packets, local on the router.
+                      Source address of the tunnel packets, local on the router.
+                    type: string
+                  loopProtect:
+                    description: (String)
+                    type: string
+                  loopProtectDisableTime:
+                    description: (String)
+                    type: string
+                  loopProtectSendInterval:
+                    description: (String)
+                    type: string
+                  loopProtectStatus:
+                    description: (String)
+                    type: string
+                  macAddress:
+                    description: |-
+                      (String) Current mac address.
+                      Current mac address.
+                    type: string
+                  mtu:
+                    description: |-
+                      (String) Layer3 Maximum transmission unit ('auto', 0 .. 65535). Look for the exact minimum value in the MikroTik documentation
+                      Layer3 Maximum transmission unit ('auto', 0 .. 65535). Look for the exact minimum value in the MikroTik documentation
+                    type: string
+                  name:
+                    description: |-
+                      (String) Changing the name of this resource will force it to be recreated.
+                      Changing the name of this resource will force it to be recreated
+                    type: string
+                  remoteAddress:
+                    description: |-
+                      (String) IP address of the remote end of the tunnel.
+                      IP address of the remote end of the tunnel.
+                    type: string
+                  running:
+                    description: (Boolean)
+                    type: boolean
+                  tunnelId:
+                    description: |-
+                      (Number) Unique tunnel identifier, which must match the other side of the tunnel.
+                      Unique tunnel identifier, which must match the other side of the tunnel.
+                    format: int64
+                    type: integer
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

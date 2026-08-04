@@ -1,0 +1,614 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: ipsecidentities.ip.routeros.sindrip.io
+spec:
+  group: ip.routeros.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - managed
+    - routeros
+    kind: IpsecIdentity
+    listKind: IpsecIdentityList
+    plural: ipsecidentities
+    singular: ipsecidentity
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Synced')].status
+      name: SYNCED
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    - jsonPath: .metadata.annotations.crossplane\.io/external-name
+      name: EXTERNAL-NAME
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: IpsecIdentity is the Schema for the IpsecIdentitys API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: IpsecIdentitySpec defines the desired state of IpsecIdentity
+            properties:
+              deletionPolicy:
+                default: Delete
+                description: |-
+                  DeletionPolicy specifies what will happen to the underlying external
+                  when this managed resource is deleted - either "Delete" or "Orphan" the
+                  external resource.
+                  This field is planned to be deprecated in favor of the ManagementPolicies
+                  field in a future release. Currently, both could be set independently and
+                  non-default values would be honored if the feature flag is enabled.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              forProvider:
+                properties:
+                  authMethod:
+                    description: |-
+                      (String) Authentication method:
+                      Authentication method:
+                      * digital-signature - authenticate using a pair of RSA certificates;
+                      * eap - IKEv2 EAP authentication for initiator (peer with a netmask of `/32`). Must be used together with eap-methods;
+                      * eap-radius - IKEv2 EAP RADIUS passthrough authentication for the responder (RFC 3579). A server certificate in this case is required. If a server certificate is not specified then only clients supporting EAP-only (RFC 5998) will be able to connect. Note that the EAP method should be compatible with EAP-only;
+                      * pre-shared-key - authenticate by a password (pre-shared secret) string shared between the peers (not recommended since an offline attack on the pre-shared key is possible);
+                      * rsa-key - authenticate using an RSA key imported in keys menu. Only supported in IKEv1;
+                      * pre-shared-key-xauth - authenticate by a password (pre-shared secret) string shared between the peers + XAuth username and password. Only supported in IKEv1;
+                      * rsa-signature-hybrid - responder certificate authentication with initiator XAuth. Only supported in IKEv1.
+                    type: string
+                  certificate:
+                    description: |-
+                      method=digital-signature`) or EAP (a`uth-method=eap`) is used.
+                      Name of a certificate listed in System/Certificates (signing packets; the certificate must have the private key). Applicable if digital signature authentication method (`auth-method=digital-signature`) or EAP (a`uth-method=eap`) is used.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  eapMethods:
+                    description: |-
+                      (String) All EAP methods requires whole certificate chain including intermediate and root CA certificates to be present in System/Certificates menu. Also, the username and password (if required by the authentication server) must be specified. Multiple EAP methods may be specified and will be used in a specified order. Currently supported EAP methods:
+                      All EAP methods requires whole certificate chain including intermediate and root CA certificates to be present in System/Certificates menu. Also, the username and password (if required by the authentication server) must be specified. Multiple EAP methods may be specified and will be used in a specified order. Currently supported EAP methods:
+                      * eap-mschapv2;
+                      * eap-peap - also known as PEAPv0/EAP-MSCHAPv2;
+                      * eap-tls - requires additional client certificate specified under certificate parameter;
+                      * eap-ttls.
+                    type: string
+                  generatePolicy:
+                    description: |-
+                      existing policies. Such policies are created dynamically for the lifetime of SA. Automatic policies allows, for example, to create IPsec secured L2TP tunnels, or any other setup where remote peer's IP address is not known at the configuration time. `no` - do not generate policies; `port-override` - generate policies and force policy to use any port (old behavior); `port-strict` - use ports from peer's proposal, which should match peer's policy.
+                      Allow this peer to establish SA for non-existing policies. Such policies are created dynamically for the lifetime of SA. Automatic policies allows, for example, to create IPsec secured L2TP tunnels, or any other setup where remote peer's IP address is not known at the configuration time. `no` - do not generate policies; `port-override` - generate policies and force policy to use any port (old behavior); `port-strict` - use ports from peer's proposal, which should match peer's policy.
+                    type: string
+                  key:
+                    description: |-
+                      method=rsa-key`) is used.
+                      Name of the private key from keys menu. Applicable if RSA key authentication method (`auth-method=rsa-key`) is used.
+                    type: string
+                  matchBy:
+                    description: |-
+                      id` - will verify the peer's ID according to remote-id setting. `certificate` will verify the peer's certificate with what is specified under remote-certificate setting.
+                      Defines the logic used for peer's identity validation. `remote-id` - will verify the peer's ID according to remote-id setting. `certificate` will verify the peer's certificate with what is specified under remote-certificate setting.
+                    type: string
+                  modeConfig:
+                    description: |-
+                      config menu. When parameter is set mode-config is enabled.
+                      Name of the configuration parameters from mode-config menu. When parameter is set mode-config is enabled.
+                    type: string
+                  myId:
+                    description: |-
+                      tries to use correct ID automatically: IP for pre-shared key, SAN (DN if not present) for certificate based connections; `address` - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name; `key-id` - use the specified key ID for the identity; `user-fqdn` - specifies a fully-qualified username string, for example, `user@domain.com`.
+                      On initiator, this controls what ID_i is sent to the responder. On responder, this controls what ID_r is sent to the initiator. In IKEv2, responder also expects this ID in received ID_r from initiator. `auto` - tries to use correct ID automatically: IP for pre-shared key, SAN (DN if not present) for certificate based connections; `address` - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name; `key-id` - use the specified key ID for the identity; `user-fqdn` - specifies a fully-qualified username string, for example, `user@domain.com`.
+                    type: string
+                  notrackChain:
+                    description: |-
+                      policy.
+                      Adds IP/Firewall/Raw rules matching IPsec policy to a specified chain. Use together with generate-policy.
+                    type: string
+                  passwordSecretRef:
+                    description: |-
+                      shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                      XAuth or EAP password. Applicable if pre-shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  peer:
+                    description: |-
+                      (String) Name of the peer on which the identity applies.
+                      Name of the peer on which the identity applies.
+                    type: string
+                  policyTemplateGroup:
+                    description: |-
+                      policy is enabled, traffic selectors are checked against templates from the same group. If none of the templates match, Phase 2 SA will not be established.
+                      If generate-policy is enabled, traffic selectors are checked against templates from the same group. If none of the templates match, Phase 2 SA will not be established.
+                    type: string
+                  remoteCertificate:
+                    description: |-
+                      certificate is not specified then the received certificate from a remote peer is used and checked against CA in the certificate menu. Proper CA must be imported in a certificate store. If remote-certificate and match-by=certificate is specified, only the specific client certificate will be matched. Applicable if digital signature authentication method (`auth-method=digital-signature`) is used.
+                      Name of a certificate (listed in `System/Certificates`) for authenticating the remote side (validating packets; no private key required). If a remote-certificate is not specified then the received certificate from a remote peer is used and checked against CA in the certificate menu. Proper CA must be imported in a certificate store. If remote-certificate and match-by=certificate is specified, only the specific client certificate will be matched. Applicable if digital signature authentication method (`auth-method=digital-signature`) is used.
+                    type: string
+                  remoteId:
+                    description: |-
+                      accept all ID's;address - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name. Only supported in IKEv2; `user-fqdn` - a fully-qualified username string, for example, `user@domain.com`. Only supported in IKEv2; `key-id` - specific key ID for the identity. Only supported in IKEv2; `ignore` - do not verify received ID with certificate (dangerous). * Wildcard key ID matching **is not supported**, for example `remote-id=`key-id:CN=*.domain.com`.
+                      This parameter controls what ID value to expect from the remote peer. Note that all types except for ignoring will verify remote peer's ID with a received certificate. In case when the peer sends the certificate name as its ID, it is checked against the certificate, else the ID is checked against Subject Alt. Name. `auto` - accept all ID's;address - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name. Only supported in IKEv2; `user-fqdn` - a fully-qualified username string, for example, `user@domain.com`. Only supported in IKEv2; `key-id` - specific key ID for the identity. Only supported in IKEv2; `ignore` - do not verify received ID with certificate (dangerous). * Wildcard key ID matching **is not supported**, for example `remote-id=`key-id:CN=*.domain.com`.
+                    type: string
+                  remoteKey:
+                    description: |-
+                      method=rsa-key`) is used.
+                      Name of the public key from keys menu. Applicable if RSA key authentication method (`auth-method=rsa-key`) is used.
+                    type: string
+                  secretSecretRef:
+                    description: |-
+                      shared key authentication method (`auth-method=pre-shared-key` and `auth-method=pre-shared-key-xauth`) is used.
+                      Secret string. If it starts with '0x', it is parsed as a hexadecimal value. Applicable if pre-shared key authentication method (`auth-method=pre-shared-key` and `auth-method=pre-shared-key-xauth`) is used.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  username:
+                    description: |-
+                      shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                      XAuth or EAP username. Applicable if pre-shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                    type: string
+                type: object
+              initProvider:
+                description: |-
+                  THIS IS A BETA FIELD. It will be honored
+                  unless the Management Policies feature flag is disabled.
+                  InitProvider holds the same fields as ForProvider, with the exception
+                  of Identifier and other resource reference fields. The fields that are
+                  in InitProvider are merged into ForProvider when the resource is created.
+                  The same fields are also added to the terraform ignore_changes hook, to
+                  avoid updating them after creation. This is useful for fields that are
+                  required on creation, but we do not desire to update them after creation,
+                  for example because of an external controller is managing them, like an
+                  autoscaler.
+                properties:
+                  authMethod:
+                    description: |-
+                      (String) Authentication method:
+                      Authentication method:
+                      * digital-signature - authenticate using a pair of RSA certificates;
+                      * eap - IKEv2 EAP authentication for initiator (peer with a netmask of `/32`). Must be used together with eap-methods;
+                      * eap-radius - IKEv2 EAP RADIUS passthrough authentication for the responder (RFC 3579). A server certificate in this case is required. If a server certificate is not specified then only clients supporting EAP-only (RFC 5998) will be able to connect. Note that the EAP method should be compatible with EAP-only;
+                      * pre-shared-key - authenticate by a password (pre-shared secret) string shared between the peers (not recommended since an offline attack on the pre-shared key is possible);
+                      * rsa-key - authenticate using an RSA key imported in keys menu. Only supported in IKEv1;
+                      * pre-shared-key-xauth - authenticate by a password (pre-shared secret) string shared between the peers + XAuth username and password. Only supported in IKEv1;
+                      * rsa-signature-hybrid - responder certificate authentication with initiator XAuth. Only supported in IKEv1.
+                    type: string
+                  certificate:
+                    description: |-
+                      method=digital-signature`) or EAP (a`uth-method=eap`) is used.
+                      Name of a certificate listed in System/Certificates (signing packets; the certificate must have the private key). Applicable if digital signature authentication method (`auth-method=digital-signature`) or EAP (a`uth-method=eap`) is used.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  eapMethods:
+                    description: |-
+                      (String) All EAP methods requires whole certificate chain including intermediate and root CA certificates to be present in System/Certificates menu. Also, the username and password (if required by the authentication server) must be specified. Multiple EAP methods may be specified and will be used in a specified order. Currently supported EAP methods:
+                      All EAP methods requires whole certificate chain including intermediate and root CA certificates to be present in System/Certificates menu. Also, the username and password (if required by the authentication server) must be specified. Multiple EAP methods may be specified and will be used in a specified order. Currently supported EAP methods:
+                      * eap-mschapv2;
+                      * eap-peap - also known as PEAPv0/EAP-MSCHAPv2;
+                      * eap-tls - requires additional client certificate specified under certificate parameter;
+                      * eap-ttls.
+                    type: string
+                  generatePolicy:
+                    description: |-
+                      existing policies. Such policies are created dynamically for the lifetime of SA. Automatic policies allows, for example, to create IPsec secured L2TP tunnels, or any other setup where remote peer's IP address is not known at the configuration time. `no` - do not generate policies; `port-override` - generate policies and force policy to use any port (old behavior); `port-strict` - use ports from peer's proposal, which should match peer's policy.
+                      Allow this peer to establish SA for non-existing policies. Such policies are created dynamically for the lifetime of SA. Automatic policies allows, for example, to create IPsec secured L2TP tunnels, or any other setup where remote peer's IP address is not known at the configuration time. `no` - do not generate policies; `port-override` - generate policies and force policy to use any port (old behavior); `port-strict` - use ports from peer's proposal, which should match peer's policy.
+                    type: string
+                  key:
+                    description: |-
+                      method=rsa-key`) is used.
+                      Name of the private key from keys menu. Applicable if RSA key authentication method (`auth-method=rsa-key`) is used.
+                    type: string
+                  matchBy:
+                    description: |-
+                      id` - will verify the peer's ID according to remote-id setting. `certificate` will verify the peer's certificate with what is specified under remote-certificate setting.
+                      Defines the logic used for peer's identity validation. `remote-id` - will verify the peer's ID according to remote-id setting. `certificate` will verify the peer's certificate with what is specified under remote-certificate setting.
+                    type: string
+                  modeConfig:
+                    description: |-
+                      config menu. When parameter is set mode-config is enabled.
+                      Name of the configuration parameters from mode-config menu. When parameter is set mode-config is enabled.
+                    type: string
+                  myId:
+                    description: |-
+                      tries to use correct ID automatically: IP for pre-shared key, SAN (DN if not present) for certificate based connections; `address` - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name; `key-id` - use the specified key ID for the identity; `user-fqdn` - specifies a fully-qualified username string, for example, `user@domain.com`.
+                      On initiator, this controls what ID_i is sent to the responder. On responder, this controls what ID_r is sent to the initiator. In IKEv2, responder also expects this ID in received ID_r from initiator. `auto` - tries to use correct ID automatically: IP for pre-shared key, SAN (DN if not present) for certificate based connections; `address` - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name; `key-id` - use the specified key ID for the identity; `user-fqdn` - specifies a fully-qualified username string, for example, `user@domain.com`.
+                    type: string
+                  notrackChain:
+                    description: |-
+                      policy.
+                      Adds IP/Firewall/Raw rules matching IPsec policy to a specified chain. Use together with generate-policy.
+                    type: string
+                  passwordSecretRef:
+                    description: |-
+                      shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                      XAuth or EAP password. Applicable if pre-shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  peer:
+                    description: |-
+                      (String) Name of the peer on which the identity applies.
+                      Name of the peer on which the identity applies.
+                    type: string
+                  policyTemplateGroup:
+                    description: |-
+                      policy is enabled, traffic selectors are checked against templates from the same group. If none of the templates match, Phase 2 SA will not be established.
+                      If generate-policy is enabled, traffic selectors are checked against templates from the same group. If none of the templates match, Phase 2 SA will not be established.
+                    type: string
+                  remoteCertificate:
+                    description: |-
+                      certificate is not specified then the received certificate from a remote peer is used and checked against CA in the certificate menu. Proper CA must be imported in a certificate store. If remote-certificate and match-by=certificate is specified, only the specific client certificate will be matched. Applicable if digital signature authentication method (`auth-method=digital-signature`) is used.
+                      Name of a certificate (listed in `System/Certificates`) for authenticating the remote side (validating packets; no private key required). If a remote-certificate is not specified then the received certificate from a remote peer is used and checked against CA in the certificate menu. Proper CA must be imported in a certificate store. If remote-certificate and match-by=certificate is specified, only the specific client certificate will be matched. Applicable if digital signature authentication method (`auth-method=digital-signature`) is used.
+                    type: string
+                  remoteId:
+                    description: |-
+                      accept all ID's;address - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name. Only supported in IKEv2; `user-fqdn` - a fully-qualified username string, for example, `user@domain.com`. Only supported in IKEv2; `key-id` - specific key ID for the identity. Only supported in IKEv2; `ignore` - do not verify received ID with certificate (dangerous). * Wildcard key ID matching **is not supported**, for example `remote-id=`key-id:CN=*.domain.com`.
+                      This parameter controls what ID value to expect from the remote peer. Note that all types except for ignoring will verify remote peer's ID with a received certificate. In case when the peer sends the certificate name as its ID, it is checked against the certificate, else the ID is checked against Subject Alt. Name. `auto` - accept all ID's;address - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name. Only supported in IKEv2; `user-fqdn` - a fully-qualified username string, for example, `user@domain.com`. Only supported in IKEv2; `key-id` - specific key ID for the identity. Only supported in IKEv2; `ignore` - do not verify received ID with certificate (dangerous). * Wildcard key ID matching **is not supported**, for example `remote-id=`key-id:CN=*.domain.com`.
+                    type: string
+                  remoteKey:
+                    description: |-
+                      method=rsa-key`) is used.
+                      Name of the public key from keys menu. Applicable if RSA key authentication method (`auth-method=rsa-key`) is used.
+                    type: string
+                  secretSecretRef:
+                    description: |-
+                      shared key authentication method (`auth-method=pre-shared-key` and `auth-method=pre-shared-key-xauth`) is used.
+                      Secret string. If it starts with '0x', it is parsed as a hexadecimal value. Applicable if pre-shared key authentication method (`auth-method=pre-shared-key` and `auth-method=pre-shared-key-xauth`) is used.
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  username:
+                    description: |-
+                      shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                      XAuth or EAP username. Applicable if pre-shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                    type: string
+                type: object
+              managementPolicies:
+                default:
+                - '*'
+                description: |-
+                  THIS IS A BETA FIELD. It is on by default but can be opted out
+                  through a Crossplane feature flag.
+                  ManagementPolicies specify the array of actions Crossplane is allowed to
+                  take on the managed and external resources.
+                  This field is planned to replace the DeletionPolicy field in a future
+                  release. Currently, both could be set independently and non-default
+                  values would be honored if the feature flag is enabled. If both are
+                  custom, the DeletionPolicy field will be ignored.
+                  See the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223
+                  and this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md
+                items:
+                  description: |-
+                    A ManagementAction represents an action that the Crossplane controllers
+                    can take on an external resource.
+                  enum:
+                  - Observe
+                  - Create
+                  - Update
+                  - Delete
+                  - LateInitialize
+                  - '*'
+                  type: string
+                type: array
+              providerConfigRef:
+                default:
+                  name: default
+                description: |-
+                  ProviderConfigReference specifies how the provider that will be used to
+                  create, observe, update, and delete this managed resource should be
+                  configured.
+                properties:
+                  name:
+                    description: Name of the referenced object.
+                    type: string
+                  policy:
+                    description: Policies for referencing.
+                    properties:
+                      resolution:
+                        default: Required
+                        description: |-
+                          Resolution specifies whether resolution of this reference is required.
+                          The default is 'Required', which means the reconcile will fail if the
+                          reference cannot be resolved. 'Optional' means this reference will be
+                          a no-op if it cannot be resolved.
+                        enum:
+                        - Required
+                        - Optional
+                        type: string
+                      resolve:
+                        description: |-
+                          Resolve specifies when this reference should be resolved. The default
+                          is 'IfNotPresent', which will attempt to resolve the reference only when
+                          the corresponding field is not present. Use 'Always' to resolve the
+                          reference on every reconcile.
+                        enum:
+                        - Always
+                        - IfNotPresent
+                        type: string
+                    type: object
+                required:
+                - name
+                type: object
+              writeConnectionSecretToRef:
+                description: |-
+                  WriteConnectionSecretToReference specifies the namespace and name of a
+                  Secret to which any connection details for this managed resource should
+                  be written. Connection details frequently include the endpoint, username,
+                  and password required to connect to the managed resource.
+                properties:
+                  name:
+                    description: Name of the secret.
+                    type: string
+                  namespace:
+                    description: Namespace of the secret.
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - forProvider
+            type: object
+            x-kubernetes-validations:
+            - message: spec.forProvider.peer is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.peer)
+                || (has(self.initProvider) && has(self.initProvider.peer))'
+          status:
+            description: IpsecIdentityStatus defines the observed state of IpsecIdentity.
+            properties:
+              atProvider:
+                properties:
+                  authMethod:
+                    description: |-
+                      (String) Authentication method:
+                      Authentication method:
+                      * digital-signature - authenticate using a pair of RSA certificates;
+                      * eap - IKEv2 EAP authentication for initiator (peer with a netmask of `/32`). Must be used together with eap-methods;
+                      * eap-radius - IKEv2 EAP RADIUS passthrough authentication for the responder (RFC 3579). A server certificate in this case is required. If a server certificate is not specified then only clients supporting EAP-only (RFC 5998) will be able to connect. Note that the EAP method should be compatible with EAP-only;
+                      * pre-shared-key - authenticate by a password (pre-shared secret) string shared between the peers (not recommended since an offline attack on the pre-shared key is possible);
+                      * rsa-key - authenticate using an RSA key imported in keys menu. Only supported in IKEv1;
+                      * pre-shared-key-xauth - authenticate by a password (pre-shared secret) string shared between the peers + XAuth username and password. Only supported in IKEv1;
+                      * rsa-signature-hybrid - responder certificate authentication with initiator XAuth. Only supported in IKEv1.
+                    type: string
+                  certificate:
+                    description: |-
+                      method=digital-signature`) or EAP (a`uth-method=eap`) is used.
+                      Name of a certificate listed in System/Certificates (signing packets; the certificate must have the private key). Applicable if digital signature authentication method (`auth-method=digital-signature`) or EAP (a`uth-method=eap`) is used.
+                    type: string
+                  comment:
+                    description: (String)
+                    type: string
+                  disabled:
+                    description: (Boolean)
+                    type: boolean
+                  dynamic:
+                    description: |-
+                      (Boolean) Configuration item created by software, not by management interface. It is not exported, and cannot be directly modified.
+                      Configuration item created by software, not by management interface. It is not exported, and cannot be directly modified.
+                    type: boolean
+                  eapMethods:
+                    description: |-
+                      (String) All EAP methods requires whole certificate chain including intermediate and root CA certificates to be present in System/Certificates menu. Also, the username and password (if required by the authentication server) must be specified. Multiple EAP methods may be specified and will be used in a specified order. Currently supported EAP methods:
+                      All EAP methods requires whole certificate chain including intermediate and root CA certificates to be present in System/Certificates menu. Also, the username and password (if required by the authentication server) must be specified. Multiple EAP methods may be specified and will be used in a specified order. Currently supported EAP methods:
+                      * eap-mschapv2;
+                      * eap-peap - also known as PEAPv0/EAP-MSCHAPv2;
+                      * eap-tls - requires additional client certificate specified under certificate parameter;
+                      * eap-ttls.
+                    type: string
+                  generatePolicy:
+                    description: |-
+                      existing policies. Such policies are created dynamically for the lifetime of SA. Automatic policies allows, for example, to create IPsec secured L2TP tunnels, or any other setup where remote peer's IP address is not known at the configuration time. `no` - do not generate policies; `port-override` - generate policies and force policy to use any port (old behavior); `port-strict` - use ports from peer's proposal, which should match peer's policy.
+                      Allow this peer to establish SA for non-existing policies. Such policies are created dynamically for the lifetime of SA. Automatic policies allows, for example, to create IPsec secured L2TP tunnels, or any other setup where remote peer's IP address is not known at the configuration time. `no` - do not generate policies; `port-override` - generate policies and force policy to use any port (old behavior); `port-strict` - use ports from peer's proposal, which should match peer's policy.
+                    type: string
+                  id:
+                    description: (String) The ID of this resource.
+                    type: string
+                  key:
+                    description: |-
+                      method=rsa-key`) is used.
+                      Name of the private key from keys menu. Applicable if RSA key authentication method (`auth-method=rsa-key`) is used.
+                    type: string
+                  matchBy:
+                    description: |-
+                      id` - will verify the peer's ID according to remote-id setting. `certificate` will verify the peer's certificate with what is specified under remote-certificate setting.
+                      Defines the logic used for peer's identity validation. `remote-id` - will verify the peer's ID according to remote-id setting. `certificate` will verify the peer's certificate with what is specified under remote-certificate setting.
+                    type: string
+                  modeConfig:
+                    description: |-
+                      config menu. When parameter is set mode-config is enabled.
+                      Name of the configuration parameters from mode-config menu. When parameter is set mode-config is enabled.
+                    type: string
+                  myId:
+                    description: |-
+                      tries to use correct ID automatically: IP for pre-shared key, SAN (DN if not present) for certificate based connections; `address` - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name; `key-id` - use the specified key ID for the identity; `user-fqdn` - specifies a fully-qualified username string, for example, `user@domain.com`.
+                      On initiator, this controls what ID_i is sent to the responder. On responder, this controls what ID_r is sent to the initiator. In IKEv2, responder also expects this ID in received ID_r from initiator. `auto` - tries to use correct ID automatically: IP for pre-shared key, SAN (DN if not present) for certificate based connections; `address` - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name; `key-id` - use the specified key ID for the identity; `user-fqdn` - specifies a fully-qualified username string, for example, `user@domain.com`.
+                    type: string
+                  notrackChain:
+                    description: |-
+                      policy.
+                      Adds IP/Firewall/Raw rules matching IPsec policy to a specified chain. Use together with generate-policy.
+                    type: string
+                  peer:
+                    description: |-
+                      (String) Name of the peer on which the identity applies.
+                      Name of the peer on which the identity applies.
+                    type: string
+                  policyTemplateGroup:
+                    description: |-
+                      policy is enabled, traffic selectors are checked against templates from the same group. If none of the templates match, Phase 2 SA will not be established.
+                      If generate-policy is enabled, traffic selectors are checked against templates from the same group. If none of the templates match, Phase 2 SA will not be established.
+                    type: string
+                  remoteCertificate:
+                    description: |-
+                      certificate is not specified then the received certificate from a remote peer is used and checked against CA in the certificate menu. Proper CA must be imported in a certificate store. If remote-certificate and match-by=certificate is specified, only the specific client certificate will be matched. Applicable if digital signature authentication method (`auth-method=digital-signature`) is used.
+                      Name of a certificate (listed in `System/Certificates`) for authenticating the remote side (validating packets; no private key required). If a remote-certificate is not specified then the received certificate from a remote peer is used and checked against CA in the certificate menu. Proper CA must be imported in a certificate store. If remote-certificate and match-by=certificate is specified, only the specific client certificate will be matched. Applicable if digital signature authentication method (`auth-method=digital-signature`) is used.
+                    type: string
+                  remoteId:
+                    description: |-
+                      accept all ID's;address - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name. Only supported in IKEv2; `user-fqdn` - a fully-qualified username string, for example, `user@domain.com`. Only supported in IKEv2; `key-id` - specific key ID for the identity. Only supported in IKEv2; `ignore` - do not verify received ID with certificate (dangerous). * Wildcard key ID matching **is not supported**, for example `remote-id=`key-id:CN=*.domain.com`.
+                      This parameter controls what ID value to expect from the remote peer. Note that all types except for ignoring will verify remote peer's ID with a received certificate. In case when the peer sends the certificate name as its ID, it is checked against the certificate, else the ID is checked against Subject Alt. Name. `auto` - accept all ID's;address - IP address is used as ID;dn - the binary Distinguished Encoding Rules (DER) encoding of an ASN.1 X.500 Distinguished Name; `fqdn` - fully qualified domain name. Only supported in IKEv2; `user-fqdn` - a fully-qualified username string, for example, `user@domain.com`. Only supported in IKEv2; `key-id` - specific key ID for the identity. Only supported in IKEv2; `ignore` - do not verify received ID with certificate (dangerous). * Wildcard key ID matching **is not supported**, for example `remote-id=`key-id:CN=*.domain.com`.
+                    type: string
+                  remoteKey:
+                    description: |-
+                      method=rsa-key`) is used.
+                      Name of the public key from keys menu. Applicable if RSA key authentication method (`auth-method=rsa-key`) is used.
+                    type: string
+                  username:
+                    description: |-
+                      shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                      XAuth or EAP username. Applicable if pre-shared key with XAuth authentication method (`auth-method=pre-shared-key-xauth`) or EAP (`auth-method=eap`) is used.
+                    type: string
+                type: object
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        ObservedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      type: integer
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              lastHandledReconcileAt:
+                description: |-
+                  LastHandledReconcileAt holds the value of the most recent
+                  reconcile-requested-at annotation token that the controller has
+                  processed. Users can compare this to the annotation to determine
+                  whether a reconcile request has been handled.
+                type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the latest metadata.generation
+                  which resulted in either a ready state, or stalled due to error
+                  it can not recover from without human intervention.
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

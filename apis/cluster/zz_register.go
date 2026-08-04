@@ -10,17 +10,65 @@ package cluster
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
-	v1alpha1 "github.com/crossplane/upjet-provider-template/apis/cluster/null/v1alpha1"
-	v1alpha1cluster "github.com/crossplane/upjet-provider-template/apis/cluster/v1alpha1"
-	v1beta1 "github.com/crossplane/upjet-provider-template/apis/cluster/v1beta1"
+	v1alpha1 "github.com/sindrip/provider-routeros/apis/cluster/bridge/v1alpha1"
+	v1alpha1capsman "github.com/sindrip/provider-routeros/apis/cluster/capsman/v1alpha1"
+	v1alpha1certificate "github.com/sindrip/provider-routeros/apis/cluster/certificate/v1alpha1"
+	v1alpha1container "github.com/sindrip/provider-routeros/apis/cluster/container/v1alpha1"
+	v1alpha1dhcp "github.com/sindrip/provider-routeros/apis/cluster/dhcp/v1alpha1"
+	v1alpha1disk "github.com/sindrip/provider-routeros/apis/cluster/disk/v1alpha1"
+	v1alpha1dns "github.com/sindrip/provider-routeros/apis/cluster/dns/v1alpha1"
+	v1alpha1firewall "github.com/sindrip/provider-routeros/apis/cluster/firewall/v1alpha1"
+	v1alpha1interface "github.com/sindrip/provider-routeros/apis/cluster/interface/v1alpha1"
+	v1alpha1ip "github.com/sindrip/provider-routeros/apis/cluster/ip/v1alpha1"
+	v1alpha1ipv6 "github.com/sindrip/provider-routeros/apis/cluster/ipv6/v1alpha1"
+	v1alpha1move "github.com/sindrip/provider-routeros/apis/cluster/move/v1alpha1"
+	v1alpha1ovpn "github.com/sindrip/provider-routeros/apis/cluster/ovpn/v1alpha1"
+	v1alpha1ppp "github.com/sindrip/provider-routeros/apis/cluster/ppp/v1alpha1"
+	v1alpha1queue "github.com/sindrip/provider-routeros/apis/cluster/queue/v1alpha1"
+	v1alpha1radius "github.com/sindrip/provider-routeros/apis/cluster/radius/v1alpha1"
+	v1alpha1routeros "github.com/sindrip/provider-routeros/apis/cluster/routeros/v1alpha1"
+	v1alpha1routing "github.com/sindrip/provider-routeros/apis/cluster/routing/v1alpha1"
+	v1alpha1snmp "github.com/sindrip/provider-routeros/apis/cluster/snmp/v1alpha1"
+	v1alpha1system "github.com/sindrip/provider-routeros/apis/cluster/system/v1alpha1"
+	v1alpha1tool "github.com/sindrip/provider-routeros/apis/cluster/tool/v1alpha1"
+	v1alpha1user "github.com/sindrip/provider-routeros/apis/cluster/user/v1alpha1"
+	v1alpha1cluster "github.com/sindrip/provider-routeros/apis/cluster/v1alpha1"
+	v1beta1 "github.com/sindrip/provider-routeros/apis/cluster/v1beta1"
+	v1alpha1wifi "github.com/sindrip/provider-routeros/apis/cluster/wifi/v1alpha1"
+	v1alpha1wireguard "github.com/sindrip/provider-routeros/apis/cluster/wireguard/v1alpha1"
+	v1alpha1zerotier "github.com/sindrip/provider-routeros/apis/cluster/zerotier/v1alpha1"
 )
 
 func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
 	AddToSchemes = append(AddToSchemes,
 		v1alpha1.SchemeBuilder.AddToScheme,
+		v1alpha1capsman.SchemeBuilder.AddToScheme,
+		v1alpha1certificate.SchemeBuilder.AddToScheme,
+		v1alpha1container.SchemeBuilder.AddToScheme,
+		v1alpha1dhcp.SchemeBuilder.AddToScheme,
+		v1alpha1disk.SchemeBuilder.AddToScheme,
+		v1alpha1dns.SchemeBuilder.AddToScheme,
+		v1alpha1firewall.SchemeBuilder.AddToScheme,
+		v1alpha1interface.SchemeBuilder.AddToScheme,
+		v1alpha1ip.SchemeBuilder.AddToScheme,
+		v1alpha1ipv6.SchemeBuilder.AddToScheme,
+		v1alpha1move.SchemeBuilder.AddToScheme,
+		v1alpha1ovpn.SchemeBuilder.AddToScheme,
+		v1alpha1ppp.SchemeBuilder.AddToScheme,
+		v1alpha1queue.SchemeBuilder.AddToScheme,
+		v1alpha1radius.SchemeBuilder.AddToScheme,
+		v1alpha1routeros.SchemeBuilder.AddToScheme,
+		v1alpha1routing.SchemeBuilder.AddToScheme,
+		v1alpha1snmp.SchemeBuilder.AddToScheme,
+		v1alpha1system.SchemeBuilder.AddToScheme,
+		v1alpha1tool.SchemeBuilder.AddToScheme,
+		v1alpha1user.SchemeBuilder.AddToScheme,
 		v1alpha1cluster.SchemeBuilder.AddToScheme,
 		v1beta1.SchemeBuilder.AddToScheme,
+		v1alpha1wifi.SchemeBuilder.AddToScheme,
+		v1alpha1wireguard.SchemeBuilder.AddToScheme,
+		v1alpha1zerotier.SchemeBuilder.AddToScheme,
 	)
 }
 

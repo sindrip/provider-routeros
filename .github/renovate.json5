@@ -146,6 +146,20 @@
       "groupName": "all non-major go dependencies"
     },
     {
+      // terraform-routeros is the source of every generated managed resource.
+      // Keep this dependency pinned and propose every stable upstream release.
+      "description": "Track the official RouterOS Terraform provider",
+      "matchManagers": ["gomod"],
+      "matchPackageNames": [
+        "github.com/terraform-routeros/terraform-provider-routeros"
+      ],
+      "enabled": true,
+      "rangeStrategy": "pin",
+      "ignoreUnstable": true,
+      "automerge": false,
+      "groupName": "terraform-routeros provider"
+    },
+    {
       // We want a single PR for all minor and patch bumps of Github Actions
       "matchDepTypes": ["action"],
       "matchUpdateTypes": ["minor", "patch"],

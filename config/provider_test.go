@@ -81,6 +81,30 @@ func TestProviderMechanicalAdaptations(t *testing.T) {
 	}
 }
 
+func TestNameIdentityResources(t *testing.T) {
+	for _, name := range nameIdentityResources {
+		upstream := routeros.Provider().ResourcesMap[name]
+		if upstream == nil {
+			t.Fatalf("%s is not an upstream resource", name)
+		}
+		if got := upstream.Schema[routeros.MetaId].Default; got != int(routeros.Id) {
+			t.Errorf("%s upstream ___id___ default = %v; the override is redundant, drop it from nameIdentityResources", name, got)
+		}
+	}
+	runtime := withNameIdentity(routeros.Provider())
+	for _, name := range nameIdentityResources {
+		if got := runtime.ResourcesMap[name].Schema[routeros.MetaId].Default; got != int(routeros.Name) {
+			t.Errorf("%s runtime ___id___ default = %v, want %v", name, got, int(routeros.Name))
+		}
+	}
+	generation := providerForGeneration()
+	for _, name := range nameIdentityResources {
+		if got := generation.ResourcesMap[name].Schema[routeros.MetaId].Default; got != int(routeros.Id) {
+			t.Errorf("generation schema for %s has ___id___ default = %v, want untouched upstream default", name, got)
+		}
+	}
+}
+
 func resourceNames[T any](resources map[string]T) map[string]struct{} {
 	result := make(map[string]struct{}, len(resources))
 	for name := range resources {

@@ -1,6 +1,8 @@
 package config
 
 import (
+	"encoding/json"
+	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -82,6 +84,28 @@ func TestProviderMechanicalAdaptations(t *testing.T) {
 }
 
 func TestNameIdentityResources(t *testing.T) {
+	verdictData, err := os.ReadFile("name-uniqueness.json")
+	if err != nil {
+		t.Fatalf("cannot read pinned verdicts: %v", err)
+	}
+	var pinned struct {
+		Verdicts []struct {
+			Resource string `json:"resource"`
+			Verdict  string `json:"verdict"`
+		} `json:"verdicts"`
+	}
+	if err := json.Unmarshal(verdictData, &pinned); err != nil {
+		t.Fatalf("cannot parse pinned verdicts: %v", err)
+	}
+	verdicts := map[string]string{}
+	for _, v := range pinned.Verdicts {
+		verdicts[v.Resource] = v.Verdict
+	}
+	for _, name := range nameIdentityResources {
+		if got := verdicts[name]; got != "UNIQUE" {
+			t.Errorf("%s has verdict %q in name-uniqueness.json, want UNIQUE — re-probe before flipping", name, got)
+		}
+	}
 	for _, name := range nameIdentityResources {
 		upstream := routeros.Provider().ResourcesMap[name]
 		if upstream == nil {

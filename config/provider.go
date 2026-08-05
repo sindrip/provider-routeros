@@ -36,14 +36,16 @@ func GetProviderNamespaced() *ujconfig.Provider {
 }
 
 // GetProviderRuntime returns the cluster-scoped provider configuration used by
-// the controller. The runtime always uses the untouched upstream schemas.
+// the controller. The runtime uses the upstream schemas unchanged except for
+// the name-identity overrides, which only affect CRUD behavior, not the
+// generated APIs.
 func GetProviderRuntime() *ujconfig.Provider {
-	return newProvider("routeros.sindrip.io", false, routerosruntime.WrapProvider(routeros.Provider()))
+	return newProvider("routeros.sindrip.io", false, routerosruntime.WrapProvider(withNameIdentity(routeros.Provider())))
 }
 
 // GetProviderNamespacedRuntime returns the namespaced runtime provider.
 func GetProviderNamespacedRuntime() *ujconfig.Provider {
-	return newProvider("routeros.m.sindrip.io", true, routerosruntime.WrapProvider(routeros.Provider()))
+	return newProvider("routeros.m.sindrip.io", true, routerosruntime.WrapProvider(withNameIdentity(routeros.Provider())))
 }
 
 func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Provider) *ujconfig.Provider {

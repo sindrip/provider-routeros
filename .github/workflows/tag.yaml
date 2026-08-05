@@ -1,7 +1,7 @@
 name: Tag
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
     inputs:
       version:
         description: 'Release version (e.g. v0.1.0)'
@@ -10,9 +10,23 @@ on:
         description: 'Tag message'
         required: true
 
+permissions:
+  contents: write
+
+# Inlined from crossplane-contrib/provider-workflows tag.yml, which is a
+# copy-me template with only a workflow_dispatch trigger and cannot be
+# called as a reusable workflow.
 jobs:
-  tag:
-    uses: crossplane-contrib/provider-workflows/.github/workflows/tag.yml@451c4dc6ad3691b0a702a997a0ac24e8bbc8bbaa # main
-    with:
-      version: ${{ github.event.inputs.version }}
-      message: ${{ github.event.inputs.message }}
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+
+      - name: Create Tag
+        uses: negz/create-tag@39bae1e0932567a58c20dea5a1a0d18358503320 # v1
+        with:
+          version: ${{ github.event.inputs.version }}
+          message: ${{ github.event.inputs.message }}
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -6,6 +6,12 @@ import (
 )
 
 // nameIdentityResources are resources whose RouterOS name is enforced unique,
+// as verified by hack/uniqprobe against a disposable CHR — see
+// config/name-uniqueness.json for the pinned per-resource verdicts. Only add
+// resources here whose verdict is UNIQUE (never DUPLICATE, and UNTESTED only
+// after probing on hardware that supports them).
+//
+// Context:
 // so the name is a stable identifier while the internal .id is not: RouterOS
 // reassigns .id when an item is recreated outside the controller. Switching
 // the upstream ___id___ meta default to Name makes the upstream CRUD identify

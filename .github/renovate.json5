@@ -129,7 +129,6 @@
       // We want dedicated PRs for each bump to non-kubernetes Go dependencies, but
       // only if there are known vulnerabilities in the current version.
       "matchDatasources": ["go"],
-      "matchPackagePatterns": ["*"],
       "enabled": false,
       "excludePackagePrefixes": ["k8s.io", "sigs.k8s.io"],
       "matchUpdateTypes": ["major"]
@@ -139,7 +138,6 @@
       // dependencies, but only if there are known vulnerabilities in the current
       // version.
       "matchDatasources": ["go"],
-      "matchPackagePatterns": ["*"],
       "enabled": false,
       "excludePackagePrefixes": ["k8s.io", "sigs.k8s.io"],
       "matchUpdateTypes": ["minor", "patch", "digest"],

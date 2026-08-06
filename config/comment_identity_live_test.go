@@ -193,6 +193,47 @@ func TestCommentIdentityLiveCHRDNSRecord(t *testing.T) {
 	}
 }
 
+func TestCommentIdentityLiveCHRInterfaceListMember(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	res := providerForRuntime().ResourcesMap["routeros_interface_list_member"]
+	ctx := context.Background()
+
+	list, err := routeros.CreateItem(ctx, routeros.MikrotikItem{attrName: "ci-live-list"}, "/interface/list", client)
+	if err != nil {
+		t.Fatalf("list fixture: %v", err)
+	}
+	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: list.GetID(routeros.Id)}, "/interface/list", client) //nolint:errcheck
+
+	comment := "ci live member [lan] & mgmt"
+	d := natData(t, res, map[string]string{"list": "ci-live-list", "interface": liveEther, commentField: comment})
+	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+		t.Fatalf("create: %v", dg)
+	}
+	if d.Id() != comment {
+		t.Fatalf("create set id %q, want the comment", d.Id())
+	}
+
+	rd := natData(t, res, map[string]string{})
+	rd.SetId(comment)
+	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+		t.Fatalf("read: %v", dg)
+	}
+	if rd.Get("interface").(string) != liveEther {
+		t.Fatalf("read did not populate interface: %q", rd.Get("interface"))
+	}
+
+	del := natData(t, res, map[string]string{})
+	del.SetId(comment)
+	if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+		t.Fatalf("delete: %v", dg)
+	}
+}
+
 func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {

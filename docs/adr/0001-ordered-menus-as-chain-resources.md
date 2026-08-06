@@ -38,4 +38,5 @@ stored on the device.
   guard rules (e.g. accept-established) stay effective mid-apply.
 - The current upjet-based provider cannot express this (Terraform's model is
   per-resource); ordering stays out of scope there, and NAT identity uses
-  comment-keyed lookup as an interim measure.
+  comment-keyed lookup as an interim measure. (0002 later added a bridge-era
+  sequencer: one comment-addressed move/Items resource per menu.)

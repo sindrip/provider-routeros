@@ -24,7 +24,7 @@ type ItemsInitParameters struct {
 	ResourcePath *string `json:"resourcePath,omitempty" tf:"resource_path,omitempty"`
 
 	// (List of String) List identifiers in the required sequence. To locate the ```sequence``` before an existing rule, add its ```id``` to the last element of the ```sequence```.
-	// List identifiers in the required sequence. To locate the ```sequence``` before an existing rule, add its ```id``` to the last element of the ```sequence```.
+	// Rows of the menu in the desired order, each identified by its comment (an entry starting with `*` is taken as a literal RouterOS id instead). The last entry is the anchor: it is never moved, and all preceding entries are placed before it in the listed order. Every comment must resolve to exactly one existing row before the sequence can be applied; rows not listed are left where they are.
 	Sequence []*string `json:"sequence,omitempty" tf:"sequence,omitempty"`
 }
 
@@ -42,7 +42,7 @@ type ItemsObservation struct {
 	ResourcePath *string `json:"resourcePath,omitempty" tf:"resource_path,omitempty"`
 
 	// (List of String) List identifiers in the required sequence. To locate the ```sequence``` before an existing rule, add its ```id``` to the last element of the ```sequence```.
-	// List identifiers in the required sequence. To locate the ```sequence``` before an existing rule, add its ```id``` to the last element of the ```sequence```.
+	// Rows of the menu in the desired order, each identified by its comment (an entry starting with `*` is taken as a literal RouterOS id instead). The last entry is the anchor: it is never moved, and all preceding entries are placed before it in the listed order. Every comment must resolve to exactly one existing row before the sequence can be applied; rows not listed are left where they are.
 	Sequence []*string `json:"sequence,omitempty" tf:"sequence,omitempty"`
 }
 
@@ -59,7 +59,7 @@ type ItemsParameters struct {
 	ResourcePath *string `json:"resourcePath,omitempty" tf:"resource_path,omitempty"`
 
 	// (List of String) List identifiers in the required sequence. To locate the ```sequence``` before an existing rule, add its ```id``` to the last element of the ```sequence```.
-	// List identifiers in the required sequence. To locate the ```sequence``` before an existing rule, add its ```id``` to the last element of the ```sequence```.
+	// Rows of the menu in the desired order, each identified by its comment (an entry starting with `*` is taken as a literal RouterOS id instead). The last entry is the anchor: it is never moved, and all preceding entries are placed before it in the listed order. Every comment must resolve to exactly one existing row before the sequence can be applied; rows not listed are left where they are.
 	// +kubebuilder:validation:Optional
 	Sequence []*string `json:"sequence,omitempty" tf:"sequence,omitempty"`
 }

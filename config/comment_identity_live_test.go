@@ -12,7 +12,10 @@ import (
 // real RouterOS instance (hack/chr/run.sh). Run with:
 //
 //	CHR_REST=http://127.0.0.1:18080 go test -run LiveCHR ./config/
-const liveEther = "ether3"
+const (
+	liveEther = "ether3"
+	attrName  = "name"
+)
 
 func TestCommentIdentityLiveCHR(t *testing.T) {
 	host := os.Getenv("CHR_REST")
@@ -70,7 +73,7 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 	res := providerForRuntime().ResourcesMap["routeros_interface_bridge_port"]
 	ctx := context.Background()
 
-	bridge, err := routeros.CreateItem(ctx, routeros.MikrotikItem{"name": "ci-live-br"}, "/interface/bridge", client)
+	bridge, err := routeros.CreateItem(ctx, routeros.MikrotikItem{attrName: "ci-live-br"}, "/interface/bridge", client)
 	if err != nil {
 		t.Fatalf("bridge fixture: %v", err)
 	}
@@ -112,7 +115,7 @@ func TestFactoryIdentityLiveCHREthernet(t *testing.T) {
 	ctx := context.Background()
 
 	// Adoption of the physical port by its immutable factory name.
-	d := natData(t, res, map[string]string{"factory_name": liveEther, "name": liveEther})
+	d := natData(t, res, map[string]string{"factory_name": liveEther, attrName: liveEther})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("adopt: %v", dg)
 	}
@@ -120,7 +123,7 @@ func TestFactoryIdentityLiveCHREthernet(t *testing.T) {
 		t.Fatalf("adopt set id %q, want the factory name", d.Id())
 	}
 
-	rd := natData(t, res, map[string]string{"factory_name": liveEther, "name": liveEther})
+	rd := natData(t, res, map[string]string{"factory_name": liveEther, attrName: liveEther})
 	rd.SetId(liveEther)
 	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 		t.Fatalf("read: %v", dg)
@@ -128,7 +131,7 @@ func TestFactoryIdentityLiveCHREthernet(t *testing.T) {
 	if rd.Id() != liveEther {
 		t.Fatalf("read left id %q, want the factory name", rd.Id())
 	}
-	if rd.Get("name").(string) == "" {
+	if rd.Get(attrName).(string) == "" {
 		t.Fatal("read did not populate the interface name")
 	}
 
@@ -143,6 +146,53 @@ func TestFactoryIdentityLiveCHREthernet(t *testing.T) {
 	}
 }
 
+func TestCommentIdentityLiveCHRDNSRecord(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	res := providerForRuntime().ResourcesMap["routeros_ip_dns_record"]
+	ctx := context.Background()
+
+	// Round-robin is why DNS records cannot use name identity: two records
+	// with the SAME name must remain individually identifiable by comment.
+	recs := []struct{ comment, address string }{
+		{"ci flux ingress", "10.0.99.11"},
+		{"ci flux ingress backup", "10.0.99.12"},
+	}
+	for _, r := range recs {
+		d := natData(t, res, map[string]string{attrName: "ci.internal", "type": "A", "address": r.address, commentField: r.comment})
+		if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+			t.Fatalf("create %q: %v", r.comment, dg)
+		}
+		if d.Id() != r.comment {
+			t.Fatalf("create set id %q, want the comment", d.Id())
+		}
+	}
+	defer func() {
+		for _, r := range recs {
+			del := natData(t, res, map[string]string{})
+			del.SetId(r.comment)
+			if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+				t.Errorf("cleanup delete %q: %v", r.comment, dg)
+			}
+		}
+	}()
+
+	for _, r := range recs {
+		rd := natData(t, res, map[string]string{})
+		rd.SetId(r.comment)
+		if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+			t.Fatalf("read %q: %v", r.comment, dg)
+		}
+		if rd.Get("address").(string) != r.address {
+			t.Fatalf("read %q resolved to address %q, want %q", r.comment, rd.Get("address"), r.address)
+		}
+	}
+}
+
 func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {
@@ -153,7 +203,7 @@ func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	res := providerForRuntime().ResourcesMap["routeros_interface_bridge_vlan"]
 	ctx := context.Background()
 
-	bridge, err := routeros.CreateItem(ctx, routeros.MikrotikItem{"name": "ci-live-vbr"}, "/interface/bridge", client)
+	bridge, err := routeros.CreateItem(ctx, routeros.MikrotikItem{attrName: "ci-live-vbr"}, "/interface/bridge", client)
 	if err != nil {
 		t.Fatalf("bridge fixture: %v", err)
 	}

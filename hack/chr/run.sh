@@ -79,11 +79,20 @@ qemu-system-x86_64 \
     -pidfile "$PIDFILE" -daemonize
 
 echo "booting CHR $VERSION (pid $(cat "$PIDFILE")), waiting for REST on port $PORT..."
+# Require several consecutive successes: the first requests right after the
+# service comes up are sometimes reset or silently dropped.
+STREAK=0
 for i in $(seq 1 120); do
     if curl -sf -m 2 -u admin: "http://127.0.0.1:$PORT/rest/system/resource" >/dev/null 2>&1; then
-        echo "ready: http://127.0.0.1:$PORT/rest (admin, empty password)"
-        exit 0
+        STREAK=$((STREAK + 1))
+        if [ "$STREAK" -ge 3 ]; then
+            echo "ready: http://127.0.0.1:$PORT/rest (admin, empty password)"
+            exit 0
+        fi
+        sleep 2
+        continue
     fi
+    STREAK=0
     if ! alive; then
         echo "qemu exited during boot" >&2
         exit 1

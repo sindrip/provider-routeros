@@ -122,6 +122,11 @@ be migrated before upgrading:
 - **v0.7.0** — bridge VLAN entries: give each managed entry a unique comment
   and rewrite the external-name annotation from the `*XX` id to the comment.
   Dynamic VLAN rows carry no comment and are never matched or adopted.
+- **v0.8.0** — interface lists: the kinds `List` and `ListMember` (interface
+  group) are renamed to `InterfaceList` and `InterfaceListMember`. The bare
+  kind `List` collides with the Kubernetes core list wrapper and cannot be
+  routed by kubectl or GitOps machinery at all, so no working CRs of these
+  kinds can exist; recreate any manifests under the new kinds.
 
 ## Following upstream
 

@@ -26,6 +26,15 @@ func (l *AccessListList) GetItems() []resource.Managed {
 	return items
 }
 
+// GetItems of this CAPsMANConfigurationList.
+func (l *CAPsMANConfigurationList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
 // GetItems of this CAPsMANInterfaceList.
 func (l *CAPsMANInterfaceList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
@@ -37,15 +46,6 @@ func (l *CAPsMANInterfaceList) GetItems() []resource.Managed {
 
 // GetItems of this ChannelList.
 func (l *ChannelList) GetItems() []resource.Managed {
-	items := make([]resource.Managed, len(l.Items))
-	for i := range l.Items {
-		items[i] = &l.Items[i]
-	}
-	return items
-}
-
-// GetItems of this ConfigurationList.
-func (l *ConfigurationList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]

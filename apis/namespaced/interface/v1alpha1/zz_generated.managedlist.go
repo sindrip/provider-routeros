@@ -224,6 +224,24 @@ func (l *GreList) GetItems() []resource.Managed {
 	return items
 }
 
+// GetItems of this InterfaceListList.
+func (l *InterfaceListList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
+// GetItems of this InterfaceListMemberList.
+func (l *InterfaceListMemberList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
 // GetItems of this IpipList.
 func (l *IpipList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
@@ -235,24 +253,6 @@ func (l *IpipList) GetItems() []resource.Managed {
 
 // GetItems of this L2TpClientList.
 func (l *L2TpClientList) GetItems() []resource.Managed {
-	items := make([]resource.Managed, len(l.Items))
-	for i := range l.Items {
-		items[i] = &l.Items[i]
-	}
-	return items
-}
-
-// GetItems of this ListList.
-func (l *ListList) GetItems() []resource.Managed {
-	items := make([]resource.Managed, len(l.Items))
-	for i := range l.Items {
-		items[i] = &l.Items[i]
-	}
-	return items
-}
-
-// GetItems of this ListMemberList.
-func (l *ListMemberList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]

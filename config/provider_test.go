@@ -32,11 +32,17 @@ func TestProviderIncludesEveryUpstreamResource(t *testing.T) {
 func TestProviderMechanicalAdaptations(t *testing.T) {
 	p := GetProvider()
 	wantKinds := map[string]string{
-		"routeros_interface_6to4":      "SixToFour",
-		"routeros_capsman_interface":   "CAPsMANInterface",
-		"routeros_queue_type":          "QueueType",
-		"routeros_zerotier_interface":  "ZeroTierInterface",
-		"routeros_zerotier_controller": "ZeroTierController",
+		"routeros_interface_6to4":        "SixToFour",
+		"routeros_interface_list":        "InterfaceList",
+		"routeros_interface_list_member": "InterfaceListMember",
+		"routeros_ip_service":            "IPService",
+		"routeros_ppp_secret":            "PPPSecret",
+		"routeros_capsman_configuration": "CAPsMANConfiguration",
+		"routeros_wifi_configuration":    "WifiConfiguration",
+		"routeros_capsman_interface":     "CAPsMANInterface",
+		"routeros_queue_type":            "QueueType",
+		"routeros_zerotier_interface":    "ZeroTierInterface",
+		"routeros_zerotier_controller":   "ZeroTierController",
 	}
 	seenGVKs := map[string]string{}
 	seenPaths := map[string]string{}

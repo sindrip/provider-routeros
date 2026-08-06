@@ -17,8 +17,8 @@ func (l *AaaList) GetItems() []resource.Managed {
 	return items
 }
 
-// GetItems of this ProfileList.
-func (l *ProfileList) GetItems() []resource.Managed {
+// GetItems of this PPPSecretList.
+func (l *PPPSecretList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]
@@ -26,8 +26,8 @@ func (l *ProfileList) GetItems() []resource.Managed {
 	return items
 }
 
-// GetItems of this SecretList.
-func (l *SecretList) GetItems() []resource.Managed {
+// GetItems of this ProfileList.
+func (l *ProfileList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]

@@ -79,16 +79,16 @@ func (tr *Gre6) Hub() {}
 func (tr *Gre) Hub() {}
 
 // Hub marks this type as a conversion hub.
+func (tr *InterfaceList) Hub() {}
+
+// Hub marks this type as a conversion hub.
+func (tr *InterfaceListMember) Hub() {}
+
+// Hub marks this type as a conversion hub.
 func (tr *Ipip) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *L2TpClient) Hub() {}
-
-// Hub marks this type as a conversion hub.
-func (tr *List) Hub() {}
-
-// Hub marks this type as a conversion hub.
-func (tr *ListMember) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *Lte) Hub() {}

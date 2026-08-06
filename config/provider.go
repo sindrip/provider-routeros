@@ -53,6 +53,25 @@ func providerForRuntime() *schema.Provider {
 	return withCommentIdentity(withNameIdentity(injectRouterName(routeros.Provider())))
 }
 
+// kindOverrides replaces derived Kubernetes kinds that Terraform names alone
+// would make invalid or hazardous. "List" is the core v1 list wrapper and
+// cannot be routed at all; "Service" and "Secret" shadow core kinds for
+// kubectl and kind-keyed tooling; "Configuration" shadows Crossplane's
+// package kind. The rest are readability fixes for acronym-heavy names.
+var kindOverrides = map[string]string{
+	"routeros_interface_6to4":        "SixToFour",
+	"routeros_interface_list":        "InterfaceList",
+	"routeros_interface_list_member": "InterfaceListMember",
+	"routeros_ip_service":            "IPService",
+	"routeros_ppp_secret":            "PPPSecret",
+	"routeros_capsman_configuration": "CAPsMANConfiguration",
+	"routeros_wifi_configuration":    "WifiConfiguration",
+	"routeros_capsman_interface":     "CAPsMANInterface",
+	"routeros_queue_type":            "QueueType",
+	"routeros_zerotier_interface":    "ZeroTierInterface",
+	"routeros_zerotier_controller":   "ZeroTierController",
+}
+
 func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Provider) *ujconfig.Provider {
 	opts := []ujconfig.ProviderOption{
 		ujconfig.WithRootGroup(rootGroup),
@@ -63,22 +82,14 @@ func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Pr
 		ujconfig.WithDefaultResourceOptions(
 			ExternalNameConfiguration(),
 			func(r *ujconfig.Resource) {
-				switch r.Name {
-				case "routeros_ip_dhcp_server_option_set":
+				if r.Name == "routeros_ip_dhcp_server_option_set" {
 					// Upstream retains this singular resource as an alias for
 					// routeros_ip_dhcp_server_option_sets. Both default to the
 					// same Kubernetes plural, so the alias needs a unique path.
 					r.Path = "dhcpserveroptionsetaliases"
-				case "routeros_interface_6to4":
-					r.Kind = "SixToFour"
-				case "routeros_capsman_interface":
-					r.Kind = "CAPsMANInterface"
-				case "routeros_queue_type":
-					r.Kind = "QueueType"
-				case "routeros_zerotier_interface":
-					r.Kind = "ZeroTierInterface"
-				case "routeros_zerotier_controller":
-					r.Kind = "ZeroTierController"
+				}
+				if kind, ok := kindOverrides[r.Name]; ok {
+					r.Kind = kind
 				}
 			},
 		),

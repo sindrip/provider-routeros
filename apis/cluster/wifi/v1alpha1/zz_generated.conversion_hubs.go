@@ -22,9 +22,6 @@ func (tr *Capsman) Hub() {}
 func (tr *Channel) Hub() {}
 
 // Hub marks this type as a conversion hub.
-func (tr *Configuration) Hub() {}
-
-// Hub marks this type as a conversion hub.
 func (tr *Datapath) Hub() {}
 
 // Hub marks this type as a conversion hub.
@@ -41,3 +38,6 @@ func (tr *SecurityMultiPassphrase) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *Steering) Hub() {}
+
+// Hub marks this type as a conversion hub.
+func (tr *WifiConfiguration) Hub() {}

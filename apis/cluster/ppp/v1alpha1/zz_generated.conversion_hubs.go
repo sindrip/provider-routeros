@@ -10,7 +10,7 @@ package v1alpha1
 func (tr *Aaa) Hub() {}
 
 // Hub marks this type as a conversion hub.
-func (tr *Profile) Hub() {}
+func (tr *PPPSecret) Hub() {}
 
 // Hub marks this type as a conversion hub.
-func (tr *Secret) Hub() {}
+func (tr *Profile) Hub() {}

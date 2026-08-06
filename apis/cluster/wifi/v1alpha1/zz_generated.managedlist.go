@@ -53,15 +53,6 @@ func (l *ChannelList) GetItems() []resource.Managed {
 	return items
 }
 
-// GetItems of this ConfigurationList.
-func (l *ConfigurationList) GetItems() []resource.Managed {
-	items := make([]resource.Managed, len(l.Items))
-	for i := range l.Items {
-		items[i] = &l.Items[i]
-	}
-	return items
-}
-
 // GetItems of this DatapathList.
 func (l *DatapathList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
@@ -109,6 +100,15 @@ func (l *SecurityMultiPassphraseList) GetItems() []resource.Managed {
 
 // GetItems of this SteeringList.
 func (l *SteeringList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
+// GetItems of this WifiConfigurationList.
+func (l *WifiConfigurationList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]

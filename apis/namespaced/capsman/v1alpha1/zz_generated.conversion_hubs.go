@@ -13,13 +13,13 @@ func (tr *Aaa) Hub() {}
 func (tr *AccessList) Hub() {}
 
 // Hub marks this type as a conversion hub.
+func (tr *CAPsMANConfiguration) Hub() {}
+
+// Hub marks this type as a conversion hub.
 func (tr *CAPsMANInterface) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *Channel) Hub() {}
-
-// Hub marks this type as a conversion hub.
-func (tr *Configuration) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *Datapath) Hub() {}

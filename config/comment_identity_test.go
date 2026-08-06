@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -252,6 +253,29 @@ func TestCommentIdentityDeleteTolerantOfGone(t *testing.T) {
 	}
 }
 
+// nameVerdicts loads the pinned per-resource name-uniqueness verdicts.
+func nameVerdicts(t *testing.T) map[string]string {
+	t.Helper()
+	data, err := os.ReadFile("name-uniqueness.json")
+	if err != nil {
+		t.Fatalf("cannot read pinned verdicts: %v", err)
+	}
+	var pinned struct {
+		Verdicts []struct {
+			Resource string `json:"resource"`
+			Verdict  string `json:"verdict"`
+		} `json:"verdicts"`
+	}
+	if err := json.Unmarshal(data, &pinned); err != nil {
+		t.Fatalf("cannot parse pinned verdicts: %v", err)
+	}
+	out := map[string]string{}
+	for _, v := range pinned.Verdicts {
+		out[v.Resource] = v.Verdict
+	}
+	return out
+}
+
 func TestFactoryIdentityResourceGates(t *testing.T) {
 	for _, name := range factoryIdentityResources {
 		if slices.Contains(nameIdentityResources, name) || slices.Contains(commentIdentityResources, name) {
@@ -283,8 +307,8 @@ func TestCommentIdentityResourceGates(t *testing.T) {
 		if upstream.Schema[commentField] == nil {
 			t.Errorf("%s has no comment field to use as identity", name)
 		}
-		if upstream.Schema["name"] != nil {
-			t.Errorf("%s has a name field upstream; use name identity instead", name)
+		if upstream.Schema["name"] != nil && nameVerdicts(t)[name] == "UNIQUE" {
+			t.Errorf("%s has an enforced-unique name (pinned verdict); use name identity instead", name)
 		}
 		if got, _ := upstream.Schema[routeros.MetaId].Default.(int); got != int(routeros.Id) {
 			t.Errorf("%s upstream ___id___ default = %v, want Id", name, got)

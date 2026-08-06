@@ -10,9 +10,11 @@ import (
 	"github.com/terraform-routeros/terraform-provider-routeros/routeros"
 )
 
-// commentIdentityResources are resources whose RouterOS items have no name and
-// no other enforced-unique field, so the ephemeral internal .id would be the
-// only identity — and RouterOS reassigns it when an item is deleted and
+// commentIdentityResources are resources whose RouterOS items have no
+// enforced-unique field — either no name at all (firewall rules, bridge
+// ports and VLAN rows) or a name RouterOS allows duplicates of (DNS records,
+// where same-name records are round-robin) — so the ephemeral internal .id
+// would be the only identity — and RouterOS reassigns it when an item is deleted and
 // recreated, which permanently breaks reconciliation (and makes Create with a
 // stale id silently mint duplicates). The comment becomes the identity
 // instead: required at create, enforced unique by this provider (RouterOS
@@ -22,9 +24,11 @@ import (
 var commentIdentityResources = []string{
 	"routeros_bridge_port",
 	"routeros_bridge_vlan",
+	"routeros_dns_record",
 	"routeros_firewall_nat",
 	"routeros_interface_bridge_port",
 	"routeros_interface_bridge_vlan",
+	"routeros_ip_dns_record",
 	"routeros_ip_firewall_nat",
 }
 
@@ -46,7 +50,7 @@ func commentIdentityCreate(path string, create schema.CreateContextFunc) schema.
 	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 		comment := d.Get(commentField).(string)
 		if comment == "" {
-			return diag.Errorf("comment is required: items at %s have no name, so the comment is the resource identity", path)
+			return diag.Errorf("comment is required: items at %s have no enforced-unique name, so the comment is the resource identity", path)
 		}
 		item, dg := resolveByComment(m, path, comment)
 		if dg != nil {

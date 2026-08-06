@@ -67,6 +67,16 @@ documentation, which the probes have shown to be wrong in both directions:
   against; `hack/schemaaudit/audit.py` diffs router truth against the upstream
   provider schemas.
 
+One class of upstream schema bug is corrected at runtime rather than pinned:
+fields whose upstream schema carries an SDK default for an argument the router
+does not have (`config/phantom_defaults.go`). A defaulted field is serialized
+into every create, and RouterOS rejects requests carrying unknown parameters,
+so such a resource cannot be created at all — BGP connections and templates
+were unusable because of `add_path_out`. The runtime drops the default so the
+field is only sent when explicitly set; membership is judged at the
+serializer, since upstream's version-drift table legitimately renames some
+router-absent fields (`address_families` → `afi`).
+
 ## Runtime model
 
 The upstream Terraform Plugin SDK v2 provider is compiled into the Crossplane

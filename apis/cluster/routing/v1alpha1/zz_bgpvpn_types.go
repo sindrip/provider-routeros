@@ -130,6 +130,9 @@ type BGPVPNImportParameters struct {
 
 type BGPVPNInitParameters struct {
 
+	// Comment on the item. The provider uses it as the resource identity: required at create and enforced unique within the menu.
+	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
+
 	// (Boolean)
 	Disabled *bool `json:"disabled,omitempty" tf:"disabled,omitempty"`
 
@@ -163,6 +166,9 @@ type BGPVPNInitParameters struct {
 }
 
 type BGPVPNObservation struct {
+
+	// Comment on the item. The provider uses it as the resource identity: required at create and enforced unique within the menu.
+	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
 
 	// (Boolean)
 	Disabled *bool `json:"disabled,omitempty" tf:"disabled,omitempty"`
@@ -203,6 +209,10 @@ type BGPVPNObservation struct {
 }
 
 type BGPVPNParameters struct {
+
+	// Comment on the item. The provider uses it as the resource identity: required at create and enforced unique within the menu.
+	// +kubebuilder:validation:Optional
+	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
 
 	// (Boolean)
 	// +kubebuilder:validation:Optional

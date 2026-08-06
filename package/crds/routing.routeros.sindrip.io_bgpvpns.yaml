@@ -72,6 +72,11 @@ spec:
                 type: string
               forProvider:
                 properties:
+                  comment:
+                    description: 'Comment on the item. The provider uses it as the
+                      resource identity: required at create and enforced unique within
+                      the menu.'
+                    type: string
                   disabled:
                     description: (Boolean)
                     type: boolean
@@ -171,6 +176,11 @@ spec:
                   for example because of an external controller is managing them, like an
                   autoscaler.
                 properties:
+                  comment:
+                    description: 'Comment on the item. The provider uses it as the
+                      resource identity: required at create and enforced unique within
+                      the menu.'
+                    type: string
                   disabled:
                     description: (Boolean)
                     type: boolean
@@ -357,6 +367,11 @@ spec:
             properties:
               atProvider:
                 properties:
+                  comment:
+                    description: 'Comment on the item. The provider uses it as the
+                      resource identity: required at create and enforced unique within
+                      the menu.'
+                    type: string
                   disabled:
                     description: (Boolean)
                     type: boolean

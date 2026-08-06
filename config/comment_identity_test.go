@@ -89,10 +89,17 @@ func natHarness(t *testing.T) (*fakeRouter, *schema.Resource, routeros.Client) {
 	router := &fakeRouter{items: map[string]map[string]string{}}
 	srv := httptest.NewServer(router.handler())
 	t.Cleanup(srv.Close)
-	// Construct through NewClient like the real provider: RestClient has
-	// unexported fields (ctx, extra) that SendRequest dereferences.
+	res := providerForRuntime().ResourcesMap["routeros_ip_firewall_nat"]
+	return router, res, testClient(t, srv.URL)
+}
+
+// testClient constructs a client through NewClient like the real provider:
+// RestClient has unexported fields (ctx, extra) that SendRequest
+// dereferences.
+func testClient(t *testing.T, hosturl string) routeros.Client {
+	t.Helper()
 	pd := schema.TestResourceDataRaw(t, routeros.Provider().Schema, map[string]any{
-		"hosturl":          srv.URL,
+		"hosturl":          hosturl,
 		"username":         "admin",
 		"routeros_version": "7.23.2",
 	})
@@ -100,9 +107,7 @@ func natHarness(t *testing.T) (*fakeRouter, *schema.Resource, routeros.Client) {
 	if dg.HasError() {
 		t.Fatalf("NewClient: %v", dg)
 	}
-	client := c.(routeros.Client)
-	res := providerForRuntime().ResourcesMap["routeros_ip_firewall_nat"]
-	return router, res, client
+	return c.(routeros.Client)
 }
 
 // natData builds a ResourceData whose GetRawConfig works: the upstream
@@ -244,6 +249,25 @@ func TestCommentIdentityDeleteTolerantOfGone(t *testing.T) {
 	d.SetId("victim")
 	if dg := res.DeleteContext(context.Background(), d, client); dg.HasError() {
 		t.Fatalf("delete of already-gone item errored: %v", dg)
+	}
+}
+
+func TestFactoryIdentityResourceGates(t *testing.T) {
+	for _, name := range factoryIdentityResources {
+		if slices.Contains(nameIdentityResources, name) || slices.Contains(commentIdentityResources, name) {
+			t.Errorf("%s is in multiple identity lists", name)
+		}
+		upstream := routeros.Provider().ResourcesMap[name]
+		if upstream == nil {
+			t.Fatalf("%s is not an upstream resource", name)
+		}
+		s := upstream.Schema[factoryNameField]
+		if s == nil || !s.Required {
+			t.Errorf("%s must have a required %s field to serve as identity", name, factoryNameField)
+		}
+		if got, _ := upstream.Schema[routeros.MetaId].Default.(int); got != int(routeros.Id) {
+			t.Errorf("%s upstream ___id___ default = %v, want Id", name, got)
+		}
 	}
 }
 

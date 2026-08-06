@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-routeros/terraform-provider-routeros/routeros"
 )
 
@@ -13,22 +12,15 @@ import (
 // real RouterOS instance (hack/chr/run.sh). Run with:
 //
 //	CHR_REST=http://127.0.0.1:18080 go test -run LiveCHR ./config/
+const liveEther = "ether3"
+
 func TestCommentIdentityLiveCHR(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {
 		t.Skip("set CHR_REST to run against a live CHR")
 	}
 
-	pd := schema.TestResourceDataRaw(t, routeros.Provider().Schema, map[string]any{
-		"hosturl":          host,
-		"username":         "admin",
-		"routeros_version": "7.23.2",
-	})
-	c, dg := routeros.NewClient(context.Background(), pd)
-	if dg.HasError() {
-		t.Fatalf("NewClient: %v", dg)
-	}
-	client := c.(routeros.Client)
+	client := testClient(t, host)
 	res := providerForRuntime().ResourcesMap["routeros_ip_firewall_nat"]
 	ctx := context.Background()
 
@@ -74,16 +66,7 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 		t.Skip("set CHR_REST to run against a live CHR")
 	}
 
-	pd := schema.TestResourceDataRaw(t, routeros.Provider().Schema, map[string]any{
-		"hosturl":          host,
-		"username":         "admin",
-		"routeros_version": "7.23.2",
-	})
-	c, dg := routeros.NewClient(context.Background(), pd)
-	if dg.HasError() {
-		t.Fatalf("NewClient: %v", dg)
-	}
-	client := c.(routeros.Client)
+	client := testClient(t, host)
 	res := providerForRuntime().ResourcesMap["routeros_interface_bridge_port"]
 	ctx := context.Background()
 
@@ -94,7 +77,7 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: bridge.GetID(routeros.Id)}, "/interface/bridge", client) //nolint:errcheck
 
 	comment := "ci live port [x] & y"
-	d := natData(t, res, map[string]string{"bridge": "ci-live-br", "interface": "ether3", commentField: comment})
+	d := natData(t, res, map[string]string{"bridge": "ci-live-br", "interface": liveEther, commentField: comment})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)
 	}
@@ -107,7 +90,7 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 		t.Fatalf("read: %v", dg)
 	}
-	if rd.Get("interface").(string) != "ether3" {
+	if rd.Get("interface").(string) != liveEther {
 		t.Fatalf("read did not populate interface: %q", rd.Get("interface"))
 	}
 
@@ -118,22 +101,55 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 	}
 }
 
+func TestFactoryIdentityLiveCHREthernet(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	res := providerForRuntime().ResourcesMap["routeros_interface_ethernet"]
+	ctx := context.Background()
+
+	// Adoption of the physical port by its immutable factory name.
+	d := natData(t, res, map[string]string{"factory_name": liveEther, "name": liveEther})
+	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+		t.Fatalf("adopt: %v", dg)
+	}
+	if d.Id() != liveEther {
+		t.Fatalf("adopt set id %q, want the factory name", d.Id())
+	}
+
+	rd := natData(t, res, map[string]string{"factory_name": liveEther, "name": liveEther})
+	rd.SetId(liveEther)
+	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+		t.Fatalf("read: %v", dg)
+	}
+	if rd.Id() != liveEther {
+		t.Fatalf("read left id %q, want the factory name", rd.Id())
+	}
+	if rd.Get("name").(string) == "" {
+		t.Fatal("read did not populate the interface name")
+	}
+
+	// A factory name that matches no hardware clears state on read.
+	gone := natData(t, res, map[string]string{})
+	gone.SetId("ether99")
+	if dg := res.ReadContext(ctx, gone, client); dg.HasError() {
+		t.Fatalf("read of missing port errored: %v", dg)
+	}
+	if gone.Id() != "" {
+		t.Fatalf("read of missing port kept id %q, want cleared", gone.Id())
+	}
+}
+
 func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {
 		t.Skip("set CHR_REST to run against a live CHR")
 	}
 
-	pd := schema.TestResourceDataRaw(t, routeros.Provider().Schema, map[string]any{
-		"hosturl":          host,
-		"username":         "admin",
-		"routeros_version": "7.23.2",
-	})
-	c, dg := routeros.NewClient(context.Background(), pd)
-	if dg.HasError() {
-		t.Fatalf("NewClient: %v", dg)
-	}
-	client := c.(routeros.Client)
+	client := testClient(t, host)
 	res := providerForRuntime().ResourcesMap["routeros_interface_bridge_vlan"]
 	ctx := context.Background()
 

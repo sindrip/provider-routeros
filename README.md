@@ -34,6 +34,12 @@ Three classes exist:
   (RouterOS does not enforce this; the provider does, and fails loudly on
   ambiguity instead of guessing), and renaming it moves the external-name
   along.
+- **Factory-name identity** (ethernet interfaces, see
+  `config/factory_identity.go`): physical ports are identified by the
+  immutable `default-name` (`spec.forProvider.factoryName`, e.g. `ether8`),
+  which survives renames, configuration resets, and reinstalls — the `name`
+  field is mutable and managed by the resource itself, and the internal id is
+  reassigned on rebuild, where it could resolve to the wrong physical port.
 - **Provider identity** (everything else): the upstream Terraform id, usually
   the ephemeral `*XX`. Keep external names in Git for resources that must be
   re-adopted after rebuilding the management cluster, and prefer `Observe`
@@ -126,7 +132,14 @@ be migrated before upgrading:
   group) are renamed to `InterfaceList` and `InterfaceListMember`. The bare
   kind `List` collides with the Kubernetes core list wrapper and cannot be
   routed by kubectl or GitOps machinery at all, so no working CRs of these
-  kinds can exist; recreate any manifests under the new kinds.
+  kinds can exist; recreate any manifests under the new kinds. In the same
+  sweep `Service` (ip), `Secret` (ppp), and `Configuration` (capsman, wifi)
+  become `IPService`, `PPPSecret`, `CAPsMANConfiguration`, and
+  `WifiConfiguration` — functional before, but shadowed by core or Crossplane
+  kinds for kubectl and kind-keyed tooling.
+- **v0.9.0** — ethernet interfaces: rewrite the external-name annotation from
+  the `*XX` id to the port's factory name (`spec.forProvider.factoryName`,
+  e.g. `ether1`).
 
 ## Following upstream
 

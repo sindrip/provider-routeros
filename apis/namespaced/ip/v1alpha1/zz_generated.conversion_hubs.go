@@ -133,6 +133,9 @@ func (tr *IpsecProposal) Hub() {}
 func (tr *IpsecSettings) Hub() {}
 
 // Hub marks this type as a conversion hub.
+func (tr *IPService) Hub() {}
+
+// Hub marks this type as a conversion hub.
 func (tr *NATPmp) Hub() {}
 
 // Hub marks this type as a conversion hub.
@@ -146,9 +149,6 @@ func (tr *Pool) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *Route) Hub() {}
-
-// Hub marks this type as a conversion hub.
-func (tr *Service) Hub() {}
 
 // Hub marks this type as a conversion hub.
 func (tr *Settings) Hub() {}

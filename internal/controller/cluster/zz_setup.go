@@ -14,9 +14,9 @@ import (
 	vlan "github.com/sindrip/provider-routeros/internal/controller/cluster/bridge/vlan"
 	aaa "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/aaa"
 	accesslist "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/accesslist"
+	capsmanconfiguration "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/capsmanconfiguration"
 	capsmaninterface "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/capsmaninterface"
 	channel "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/channel"
-	configuration "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/configuration"
 	datapath "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/datapath"
 	manager "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/manager"
 	managerinterface "github.com/sindrip/provider-routeros/internal/controller/cluster/capsman/managerinterface"
@@ -62,10 +62,10 @@ import (
 	ethernetswitchvlan "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/ethernetswitchvlan"
 	gre "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/gre"
 	gre6 "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/gre6"
+	interfacelist "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/interfacelist"
+	interfacelistmember "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/interfacelistmember"
 	ipip "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/ipip"
 	l2tpclient "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/l2tpclient"
-	list "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/list"
-	listmember "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/listmember"
 	lte "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/lte"
 	lteapn "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/lteapn"
 	macvlan "github.com/sindrip/provider-routeros/internal/controller/cluster/interface/macvlan"
@@ -132,12 +132,12 @@ import (
 	ipsecprofile "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/ipsecprofile"
 	ipsecproposal "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/ipsecproposal"
 	ipsecsettings "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/ipsecsettings"
+	ipservice "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/ipservice"
 	natpmp "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/natpmp"
 	natpmpinterfaces "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/natpmpinterfaces"
 	neighbordiscoverysettings "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/neighbordiscoverysettings"
 	pool "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/pool"
 	route "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/route"
-	service "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/service"
 	settingsip "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/settings"
 	smb "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/smb"
 	sshserver "github.com/sindrip/provider-routeros/internal/controller/cluster/ip/sshserver"
@@ -167,8 +167,8 @@ import (
 	items "github.com/sindrip/provider-routeros/internal/controller/cluster/move/items"
 	serverovpn "github.com/sindrip/provider-routeros/internal/controller/cluster/ovpn/server"
 	aaappp "github.com/sindrip/provider-routeros/internal/controller/cluster/ppp/aaa"
+	pppsecret "github.com/sindrip/provider-routeros/internal/controller/cluster/ppp/pppsecret"
 	profile "github.com/sindrip/provider-routeros/internal/controller/cluster/ppp/profile"
-	secret "github.com/sindrip/provider-routeros/internal/controller/cluster/ppp/secret"
 	providerconfig "github.com/sindrip/provider-routeros/internal/controller/cluster/providerconfig"
 	queuetype "github.com/sindrip/provider-routeros/internal/controller/cluster/queue/queuetype"
 	simple "github.com/sindrip/provider-routeros/internal/controller/cluster/queue/simple"
@@ -253,13 +253,13 @@ import (
 	cap "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/cap"
 	capsman "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/capsman"
 	channelwifi "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/channel"
-	configurationwifi "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/configuration"
 	datapathwifi "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/datapath"
 	interworking "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/interworking"
 	provisioningwifi "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/provisioning"
 	securitywifi "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/security"
 	securitymultipassphrase "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/securitymultipassphrase"
 	steering "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/steering"
+	wificonfiguration "github.com/sindrip/provider-routeros/internal/controller/cluster/wifi/wificonfiguration"
 	keys "github.com/sindrip/provider-routeros/internal/controller/cluster/wireguard/keys"
 	peer "github.com/sindrip/provider-routeros/internal/controller/cluster/wireguard/peer"
 	zerotiercontroller "github.com/sindrip/provider-routeros/internal/controller/cluster/zerotier/zerotiercontroller"
@@ -275,9 +275,9 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		vlan.Setup,
 		aaa.Setup,
 		accesslist.Setup,
+		capsmanconfiguration.Setup,
 		capsmaninterface.Setup,
 		channel.Setup,
-		configuration.Setup,
 		datapath.Setup,
 		manager.Setup,
 		managerinterface.Setup,
@@ -323,10 +323,10 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		ethernetswitchvlan.Setup,
 		gre.Setup,
 		gre6.Setup,
+		interfacelist.Setup,
+		interfacelistmember.Setup,
 		ipip.Setup,
 		l2tpclient.Setup,
-		list.Setup,
-		listmember.Setup,
 		lte.Setup,
 		lteapn.Setup,
 		macvlan.Setup,
@@ -393,12 +393,12 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		ipsecprofile.Setup,
 		ipsecproposal.Setup,
 		ipsecsettings.Setup,
+		ipservice.Setup,
 		natpmp.Setup,
 		natpmpinterfaces.Setup,
 		neighbordiscoverysettings.Setup,
 		pool.Setup,
 		route.Setup,
-		service.Setup,
 		settingsip.Setup,
 		smb.Setup,
 		sshserver.Setup,
@@ -428,8 +428,8 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		items.Setup,
 		serverovpn.Setup,
 		aaappp.Setup,
+		pppsecret.Setup,
 		profile.Setup,
-		secret.Setup,
 		providerconfig.Setup,
 		queuetype.Setup,
 		simple.Setup,
@@ -514,13 +514,13 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		cap.Setup,
 		capsman.Setup,
 		channelwifi.Setup,
-		configurationwifi.Setup,
 		datapathwifi.Setup,
 		interworking.Setup,
 		provisioningwifi.Setup,
 		securitywifi.Setup,
 		securitymultipassphrase.Setup,
 		steering.Setup,
+		wificonfiguration.Setup,
 		keys.Setup,
 		peer.Setup,
 		zerotiercontroller.Setup,
@@ -542,9 +542,9 @@ func SetupGated(mgr ctrl.Manager, o controller.Options) error {
 		vlan.SetupGated,
 		aaa.SetupGated,
 		accesslist.SetupGated,
+		capsmanconfiguration.SetupGated,
 		capsmaninterface.SetupGated,
 		channel.SetupGated,
-		configuration.SetupGated,
 		datapath.SetupGated,
 		manager.SetupGated,
 		managerinterface.SetupGated,
@@ -590,10 +590,10 @@ func SetupGated(mgr ctrl.Manager, o controller.Options) error {
 		ethernetswitchvlan.SetupGated,
 		gre.SetupGated,
 		gre6.SetupGated,
+		interfacelist.SetupGated,
+		interfacelistmember.SetupGated,
 		ipip.SetupGated,
 		l2tpclient.SetupGated,
-		list.SetupGated,
-		listmember.SetupGated,
 		lte.SetupGated,
 		lteapn.SetupGated,
 		macvlan.SetupGated,
@@ -660,12 +660,12 @@ func SetupGated(mgr ctrl.Manager, o controller.Options) error {
 		ipsecprofile.SetupGated,
 		ipsecproposal.SetupGated,
 		ipsecsettings.SetupGated,
+		ipservice.SetupGated,
 		natpmp.SetupGated,
 		natpmpinterfaces.SetupGated,
 		neighbordiscoverysettings.SetupGated,
 		pool.SetupGated,
 		route.SetupGated,
-		service.SetupGated,
 		settingsip.SetupGated,
 		smb.SetupGated,
 		sshserver.SetupGated,
@@ -695,8 +695,8 @@ func SetupGated(mgr ctrl.Manager, o controller.Options) error {
 		items.SetupGated,
 		serverovpn.SetupGated,
 		aaappp.SetupGated,
+		pppsecret.SetupGated,
 		profile.SetupGated,
-		secret.SetupGated,
 		providerconfig.SetupGated,
 		queuetype.SetupGated,
 		simple.SetupGated,
@@ -781,13 +781,13 @@ func SetupGated(mgr ctrl.Manager, o controller.Options) error {
 		cap.SetupGated,
 		capsman.SetupGated,
 		channelwifi.SetupGated,
-		configurationwifi.SetupGated,
 		datapathwifi.SetupGated,
 		interworking.SetupGated,
 		provisioningwifi.SetupGated,
 		securitywifi.SetupGated,
 		securitymultipassphrase.SetupGated,
 		steering.SetupGated,
+		wificonfiguration.SetupGated,
 		keys.SetupGated,
 		peer.SetupGated,
 		zerotiercontroller.SetupGated,
@@ -808,9 +808,9 @@ func SetupWebhookWithManager(mgr ctrl.Manager) error {
 		vlan.SetupWebhookWithManager,
 		aaa.SetupWebhookWithManager,
 		accesslist.SetupWebhookWithManager,
+		capsmanconfiguration.SetupWebhookWithManager,
 		capsmaninterface.SetupWebhookWithManager,
 		channel.SetupWebhookWithManager,
-		configuration.SetupWebhookWithManager,
 		datapath.SetupWebhookWithManager,
 		manager.SetupWebhookWithManager,
 		managerinterface.SetupWebhookWithManager,
@@ -856,10 +856,10 @@ func SetupWebhookWithManager(mgr ctrl.Manager) error {
 		ethernetswitchvlan.SetupWebhookWithManager,
 		gre.SetupWebhookWithManager,
 		gre6.SetupWebhookWithManager,
+		interfacelist.SetupWebhookWithManager,
+		interfacelistmember.SetupWebhookWithManager,
 		ipip.SetupWebhookWithManager,
 		l2tpclient.SetupWebhookWithManager,
-		list.SetupWebhookWithManager,
-		listmember.SetupWebhookWithManager,
 		lte.SetupWebhookWithManager,
 		lteapn.SetupWebhookWithManager,
 		macvlan.SetupWebhookWithManager,
@@ -926,12 +926,12 @@ func SetupWebhookWithManager(mgr ctrl.Manager) error {
 		ipsecprofile.SetupWebhookWithManager,
 		ipsecproposal.SetupWebhookWithManager,
 		ipsecsettings.SetupWebhookWithManager,
+		ipservice.SetupWebhookWithManager,
 		natpmp.SetupWebhookWithManager,
 		natpmpinterfaces.SetupWebhookWithManager,
 		neighbordiscoverysettings.SetupWebhookWithManager,
 		pool.SetupWebhookWithManager,
 		route.SetupWebhookWithManager,
-		service.SetupWebhookWithManager,
 		settingsip.SetupWebhookWithManager,
 		smb.SetupWebhookWithManager,
 		sshserver.SetupWebhookWithManager,
@@ -961,8 +961,8 @@ func SetupWebhookWithManager(mgr ctrl.Manager) error {
 		items.SetupWebhookWithManager,
 		serverovpn.SetupWebhookWithManager,
 		aaappp.SetupWebhookWithManager,
+		pppsecret.SetupWebhookWithManager,
 		profile.SetupWebhookWithManager,
-		secret.SetupWebhookWithManager,
 		providerconfig.SetupWebhookWithManager,
 		queuetype.SetupWebhookWithManager,
 		simple.SetupWebhookWithManager,
@@ -1047,13 +1047,13 @@ func SetupWebhookWithManager(mgr ctrl.Manager) error {
 		cap.SetupWebhookWithManager,
 		capsman.SetupWebhookWithManager,
 		channelwifi.SetupWebhookWithManager,
-		configurationwifi.SetupWebhookWithManager,
 		datapathwifi.SetupWebhookWithManager,
 		interworking.SetupWebhookWithManager,
 		provisioningwifi.SetupWebhookWithManager,
 		securitywifi.SetupWebhookWithManager,
 		securitymultipassphrase.SetupWebhookWithManager,
 		steering.SetupWebhookWithManager,
+		wificonfiguration.SetupWebhookWithManager,
 		keys.SetupWebhookWithManager,
 		peer.SetupWebhookWithManager,
 		zerotiercontroller.SetupWebhookWithManager,

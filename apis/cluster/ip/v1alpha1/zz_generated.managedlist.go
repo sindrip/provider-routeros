@@ -305,6 +305,15 @@ func (l *HotspotWalledGardenList) GetItems() []resource.Managed {
 	return items
 }
 
+// GetItems of this IPServiceList.
+func (l *IPServiceList) GetItems() []resource.Managed {
+	items := make([]resource.Managed, len(l.Items))
+	for i := range l.Items {
+		items[i] = &l.Items[i]
+	}
+	return items
+}
+
 // GetItems of this IpsecIdentityList.
 func (l *IpsecIdentityList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
@@ -442,15 +451,6 @@ func (l *SMBList) GetItems() []resource.Managed {
 
 // GetItems of this SSHServerList.
 func (l *SSHServerList) GetItems() []resource.Managed {
-	items := make([]resource.Managed, len(l.Items))
-	for i := range l.Items {
-		items[i] = &l.Items[i]
-	}
-	return items
-}
-
-// GetItems of this ServiceList.
-func (l *ServiceList) GetItems() []resource.Managed {
 	items := make([]resource.Managed, len(l.Items))
 	for i := range l.Items {
 		items[i] = &l.Items[i]

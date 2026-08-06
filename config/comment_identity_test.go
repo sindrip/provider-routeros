@@ -23,6 +23,7 @@ const (
 	attrID           = ".id"
 	chainSrcnat      = "srcnat"
 	actionMasquerade = "masquerade"
+	actionAccept     = "accept"
 	testComment      = "wan masquerade"
 )
 

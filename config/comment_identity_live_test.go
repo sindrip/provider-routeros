@@ -369,13 +369,13 @@ func TestCommentIdentityLiveCHRFirewallFamily(t *testing.T) {
 	ctx := context.Background()
 
 	for _, tc := range []struct{ resource, chain, action string }{
-		{"routeros_ip_firewall_filter", chainForward, "accept"},
+		{"routeros_ip_firewall_filter", chainForward, actionAccept},
 		{"routeros_ip_firewall_mangle", chainForward, "passthrough"},
-		{"routeros_ip_firewall_raw", "prerouting", "accept"},
-		{"routeros_ipv6_firewall_filter", chainForward, "accept"},
+		{"routeros_ip_firewall_raw", "prerouting", actionAccept},
+		{"routeros_ipv6_firewall_filter", chainForward, actionAccept},
 		{"routeros_ipv6_firewall_mangle", chainForward, "passthrough"},
 		{"routeros_ipv6_firewall_nat", "srcnat", "masquerade"},
-		{"routeros_interface_bridge_filter", chainForward, "accept"},
+		{"routeros_interface_bridge_filter", chainForward, actionAccept},
 	} {
 		res := providerForRuntime().ResourcesMap[tc.resource]
 		comment := "ci live fw [50% off] & spaces"

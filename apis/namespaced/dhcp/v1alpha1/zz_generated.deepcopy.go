@@ -98,6 +98,11 @@ func (in *ClientInitParameters) DeepCopyInto(out *ClientInitParameters) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
+		*out = new(string)
+		**out = **in
+	}
 	if in.Script != nil {
 		in, out := &in.Script, &out.Script
 		*out = new(string)
@@ -264,6 +269,11 @@ func (in *ClientObservation) DeepCopyInto(out *ClientObservation) {
 	if in.Invalid != nil {
 		in, out := &in.Invalid, &out.Invalid
 		*out = new(bool)
+		**out = **in
+	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
+		*out = new(string)
 		**out = **in
 	}
 	if in.PrimaryDNS != nil {
@@ -593,6 +603,11 @@ func (in *ClientParameters) DeepCopyInto(out *ClientParameters) {
 	}
 	if in.Interface != nil {
 		in, out := &in.Interface, &out.Interface
+		*out = new(string)
+		**out = **in
+	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
 		*out = new(string)
 		**out = **in
 	}

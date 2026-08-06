@@ -53,6 +53,9 @@ type DHCPClientInitParameters struct {
 	// Name of the interface.
 	Interface *string `json:"interface,omitempty" tf:"interface,omitempty"`
 
+	// Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
 	// (String) A script.
 	// A script.
 	Script *string `json:"script,omitempty" tf:"script,omitempty"`
@@ -146,6 +149,9 @@ type DHCPClientObservation struct {
 
 	// (Boolean)
 	Invalid *bool `json:"invalid,omitempty" tf:"invalid,omitempty"`
+
+	// Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
 	// (String) The IP address of the first DNS resolver, that was assigned by the DHCP server.
 	// The IP address of the first DNS resolver, that was assigned by the DHCP server.
@@ -244,6 +250,10 @@ type DHCPClientParameters struct {
 	// +kubebuilder:validation:Optional
 	Interface *string `json:"interface,omitempty" tf:"interface,omitempty"`
 
+	// Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.
+	// +kubebuilder:validation:Optional
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
 	// (String) A script.
 	// A script.
 	// +kubebuilder:validation:Optional
@@ -315,6 +325,7 @@ type DHCPClient struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.interface) || (has(self.initProvider) && has(self.initProvider.interface))",message="spec.forProvider.interface is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
 	Spec   DHCPClientSpec   `json:"spec"`
 	Status DHCPClientStatus `json:"status,omitempty"`
 }

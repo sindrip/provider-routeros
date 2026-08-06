@@ -2,7 +2,7 @@
   "routeros_version": "7.23.2 (stable)",
   "probed_on": "CHR x86_64 under QEMU",
   "generator": "hack/uniqprobe",
-  "date": "2026-08-05",
+  "date": "2026-08-06",
   "verdicts": [
     {
       "resource": "routeros_bridge",
@@ -59,6 +59,12 @@
       "detail": "first create: 400 {\"detail\":\"missing or invalid resource identifier\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
+      "resource": "routeros_dhcp_client",
+      "path": "/ip/dhcp-client",
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: client with such name already exists\",\"error\":400,\"message\":\"Bad Request\"}"
+    },
+    {
       "resource": "routeros_dhcp_client_option",
       "path": "/ip/dhcp-client/option",
       "verdict": "UNIQUE",
@@ -73,8 +79,7 @@
     {
       "resource": "routeros_dns_record",
       "path": "/ip/dns/static",
-      "verdict": "DUPLICATE",
-      "detail": null
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_file",
@@ -281,6 +286,12 @@
       "detail": "first create: 400 {\"detail\":\"missing or invalid resource identifier\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
+      "resource": "routeros_ip_dhcp_client",
+      "path": "/ip/dhcp-client",
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: client with such name already exists\",\"error\":400,\"message\":\"Bad Request\"}"
+    },
+    {
       "resource": "routeros_ip_dhcp_client_option",
       "path": "/ip/dhcp-client/option",
       "verdict": "UNIQUE",
@@ -289,8 +300,7 @@
     {
       "resource": "routeros_ip_dhcp_relay",
       "path": "/ip/dhcp-relay",
-      "verdict": "DUPLICATE",
-      "detail": null
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_ip_dhcp_server",
@@ -331,8 +341,7 @@
     {
       "resource": "routeros_ip_dns_record",
       "path": "/ip/dns/static",
-      "verdict": "DUPLICATE",
-      "detail": null
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_ip_firewall_layer7_protocol",
@@ -499,8 +508,7 @@
     {
       "resource": "routeros_routing_bgp_instance",
       "path": "/routing/bgp/instance",
-      "verdict": "DUPLICATE",
-      "detail": null
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_bgp_template",
@@ -523,8 +531,7 @@
     {
       "resource": "routeros_routing_ospf_instance",
       "path": "/routing/ospf/instance",
-      "verdict": "DUPLICATE",
-      "detail": null
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_table",
@@ -583,8 +590,7 @@
     {
       "resource": "routeros_tool_netwatch",
       "path": "/tool/netwatch",
-      "verdict": "DUPLICATE",
-      "detail": null
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_user_manager_attribute",

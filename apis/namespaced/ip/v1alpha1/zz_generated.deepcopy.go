@@ -756,6 +756,11 @@ func (in *DHCPClientInitParameters) DeepCopyInto(out *DHCPClientInitParameters) 
 		*out = new(string)
 		**out = **in
 	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
+		*out = new(string)
+		**out = **in
+	}
 	if in.Script != nil {
 		in, out := &in.Script, &out.Script
 		*out = new(string)
@@ -922,6 +927,11 @@ func (in *DHCPClientObservation) DeepCopyInto(out *DHCPClientObservation) {
 	if in.Invalid != nil {
 		in, out := &in.Invalid, &out.Invalid
 		*out = new(bool)
+		**out = **in
+	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
+		*out = new(string)
 		**out = **in
 	}
 	if in.PrimaryDNS != nil {
@@ -1251,6 +1261,11 @@ func (in *DHCPClientParameters) DeepCopyInto(out *DHCPClientParameters) {
 	}
 	if in.Interface != nil {
 		in, out := &in.Interface, &out.Interface
+		*out = new(string)
+		**out = **in
+	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
 		*out = new(string)
 		**out = **in
 	}

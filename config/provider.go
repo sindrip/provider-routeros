@@ -37,15 +37,20 @@ func GetProviderNamespaced() *ujconfig.Provider {
 
 // GetProviderRuntime returns the cluster-scoped provider configuration used by
 // the controller. The runtime uses the upstream schemas unchanged except for
-// the name-identity overrides, which only affect CRUD behavior, not the
+// the injected router-name fields (which generation also carries) and the
+// name-identity overrides, which only affect CRUD behavior, not the
 // generated APIs.
 func GetProviderRuntime() *ujconfig.Provider {
-	return newProvider("routeros.sindrip.io", false, routerosruntime.WrapProvider(withNameIdentity(routeros.Provider())))
+	return newProvider("routeros.sindrip.io", false, routerosruntime.WrapProvider(providerForRuntime()))
 }
 
 // GetProviderNamespacedRuntime returns the namespaced runtime provider.
 func GetProviderNamespacedRuntime() *ujconfig.Provider {
-	return newProvider("routeros.m.sindrip.io", true, routerosruntime.WrapProvider(withNameIdentity(routeros.Provider())))
+	return newProvider("routeros.m.sindrip.io", true, routerosruntime.WrapProvider(providerForRuntime()))
+}
+
+func providerForRuntime() *schema.Provider {
+	return withNameIdentity(injectRouterName(routeros.Provider()))
 }
 
 func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Provider) *ujconfig.Provider {
@@ -90,7 +95,7 @@ func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Pr
 }
 
 func providerForGeneration() *schema.Provider {
-	p := routeros.Provider()
+	p := injectRouterName(routeros.Provider())
 	renameFieldForGeneration(p, "routeros_ipv6_nd_prefix", "6to4_interface", "six_to_four_interface")
 	renameFieldForGeneration(p, "routeros_wifi_interworking", "3gpp_info", "three_gpp_info")
 	renameFieldForGeneration(p, "routeros_wifi_interworking", "3gpp_raw", "three_gpp_raw")

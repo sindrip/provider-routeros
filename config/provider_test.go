@@ -115,7 +115,7 @@ func TestNameIdentityResources(t *testing.T) {
 			t.Errorf("%s upstream ___id___ default = %v; the override is redundant, drop it from nameIdentityResources", name, got)
 		}
 	}
-	runtime := withNameIdentity(routeros.Provider())
+	runtime := providerForRuntime()
 	for _, name := range nameIdentityResources {
 		if got := runtime.ResourcesMap[name].Schema[routeros.MetaId].Default; got != int(routeros.Name) {
 			t.Errorf("%s runtime ___id___ default = %v, want %v", name, got, int(routeros.Name))
@@ -125,6 +125,24 @@ func TestNameIdentityResources(t *testing.T) {
 	for _, name := range nameIdentityResources {
 		if got := generation.ResourcesMap[name].Schema[routeros.MetaId].Default; got != int(routeros.Id) {
 			t.Errorf("generation schema for %s has ___id___ default = %v, want untouched upstream default", name, got)
+		}
+	}
+	for _, name := range injectedNameResources {
+		if !slices.Contains(nameIdentityResources, name) {
+			t.Errorf("%s has an injected name but is not in nameIdentityResources; the injection is pointless without name identity", name)
+		}
+		if routeros.Provider().ResourcesMap[name].Schema["name"] != nil {
+			t.Errorf("%s now models name upstream; drop it from injectedNameResources", name)
+		}
+		for which, p := range map[string]*schema.Provider{"runtime": runtime, "generation": generation} {
+			s := p.ResourcesMap[name].Schema["name"]
+			if s == nil {
+				t.Errorf("%s %s schema is missing the injected name field", which, name)
+				continue
+			}
+			if !s.Required {
+				t.Errorf("%s %s injected name must be Required: create derives the ID from it", which, name)
+			}
 		}
 	}
 }

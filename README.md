@@ -28,9 +28,10 @@ Three classes exist:
   heals on the next reconcile. For DHCP clients the router supports a settable,
   enforced-unique `name` that the upstream Terraform schema does not model; the
   provider injects the field (`spec.forProvider.name`, required).
-- **Comment identity** (firewall NAT, bridge ports, bridge VLAN entries,
-  interface list members, DHCP server leases, DNS records, and BGP
-  connections, instances and templates, see `config/comment_identity.go`):
+- **Comment identity** (firewall filter, mangle, raw and NAT rules — IPv4 and
+  IPv6 — bridge filter rules, bridge ports, bridge VLAN entries, interface
+  list members, DHCP server leases, DNS records, and BGP connections,
+  instances and templates, see `config/comment_identity.go`):
   these items have no enforced-unique name — DNS records have a name, but
   RouterOS allows duplicates for round-robin, and the BGP menus accept
   duplicate names outright — so the comment is the identity. It is required at create, must be unique within the menu
@@ -169,6 +170,10 @@ be migrated before upgrading:
   `*XX` id to the comment. The name cannot be the identity because RouterOS
   accepts duplicate names throughout the BGP menus (verified by probe) and
   even resolves references to a duplicated instance name ambiguously.
+- **v0.15.0** — firewall filter, mangle and raw rules (IPv4 and IPv6), IPv6
+  NAT rules, and bridge filter rules: give each managed rule a unique comment
+  and rewrite the external-name annotation from the `*XX` id to the comment.
+  Same keyless-ordered-menu shape as the NAT rules fixed in v0.5.0.
 
 ## Following upstream
 

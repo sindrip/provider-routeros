@@ -13,8 +13,9 @@ import (
 //
 //	CHR_REST=http://127.0.0.1:18080 go test -run LiveCHR ./config/
 const (
-	liveEther = "ether3"
-	attrName  = "name"
+	liveEther    = "ether3"
+	attrName     = "name"
+	chainForward = "forward"
 )
 
 func TestCommentIdentityLiveCHR(t *testing.T) {
@@ -355,5 +356,56 @@ func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	del.SetId(comment)
 	if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
 		t.Fatalf("delete: %v", dg)
+	}
+}
+
+func TestCommentIdentityLiveCHRFirewallFamily(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	ctx := context.Background()
+
+	for _, tc := range []struct{ resource, chain, action string }{
+		{"routeros_ip_firewall_filter", chainForward, "accept"},
+		{"routeros_ip_firewall_mangle", chainForward, "passthrough"},
+		{"routeros_ip_firewall_raw", "prerouting", "accept"},
+		{"routeros_ipv6_firewall_filter", chainForward, "accept"},
+		{"routeros_ipv6_firewall_mangle", chainForward, "passthrough"},
+		{"routeros_ipv6_firewall_nat", "srcnat", "masquerade"},
+		{"routeros_interface_bridge_filter", chainForward, "accept"},
+	} {
+		res := providerForRuntime().ResourcesMap[tc.resource]
+		comment := "ci live fw [50% off] & spaces"
+
+		d := natData(t, res, map[string]string{attrChain: tc.chain, attrAction: tc.action, commentField: comment})
+		if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+			t.Fatalf("%s create: %v", tc.resource, dg)
+		}
+		if d.Id() != comment {
+			t.Fatalf("%s create set id %q, want the comment", tc.resource, d.Id())
+		}
+
+		rd := natData(t, res, map[string]string{})
+		rd.SetId(comment)
+		if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+			t.Fatalf("%s read: %v", tc.resource, dg)
+		}
+		if rd.Get(attrAction).(string) != tc.action {
+			t.Fatalf("%s read did not populate action: %q", tc.resource, rd.Get(attrAction))
+		}
+
+		dup := natData(t, res, map[string]string{attrChain: tc.chain, attrAction: tc.action, commentField: comment})
+		if dg := res.CreateContext(ctx, dup, client); !dg.HasError() {
+			t.Fatalf("%s duplicate-comment create succeeded on live router", tc.resource)
+		}
+
+		del := natData(t, res, map[string]string{})
+		del.SetId(comment)
+		if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+			t.Fatalf("%s delete: %v", tc.resource, dg)
+		}
 	}
 }

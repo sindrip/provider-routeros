@@ -84,20 +84,29 @@ func TestPhantomDefaultsLiveCHRBgpConnection(t *testing.T) {
 	}
 	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: inst.GetID(routeros.Id)}, "/routing/bgp/instance", client) //nolint:errcheck
 
+	// BGP connections are comment-identified (duplicate names allowed), so
+	// the create carries a comment and the id becomes the comment.
+	comment := "ci live conn [ibgp] & x"
 	res := providerForRuntime().ResourcesMap["routeros_routing_bgp_connection"]
 	d := natDataBlocks(t, res,
-		map[string]string{attrName: "ci-live-conn", "as": "65000", "instance": "ci-live-bgp", "listen": "true"},
+		map[string]string{attrName: "ci-live-conn", "as": "65000", "instance": "ci-live-bgp", "listen": "true", commentField: comment},
 		map[string]map[string]string{"local": {"role": "ibgp"}})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)
 	}
-	if d.Id() == "" {
-		t.Fatal("create did not set an id")
+	if d.Id() != comment {
+		t.Fatalf("create set id %q, want the comment", d.Id())
 	}
-	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: d.Id()}, "/routing/bgp/connection", client) //nolint:errcheck
+	defer func() {
+		del := natDataBlocks(t, res, map[string]string{}, nil)
+		del.SetId(comment)
+		if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+			t.Errorf("cleanup delete: %v", dg)
+		}
+	}()
 
 	rd := natDataBlocks(t, res, map[string]string{}, nil)
-	rd.SetId(d.Id())
+	rd.SetId(comment)
 	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 		t.Fatalf("read: %v", dg)
 	}

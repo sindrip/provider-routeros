@@ -149,6 +149,13 @@ var overrides = map[string]map[string][2]string{
 	"routeros_ip_dns_record":            {"address": {"192.0.2.1", "192.0.2.2"}},
 	"routeros_ip_dhcp_relay":            {"interface": {"ether2", "ether3"}, "dhcp_server": {"192.0.2.5", "192.0.2.6"}},
 	"routeros_interface_eoip":           {"interface": {"", ""}, "tunnel_id": {"33", "34"}},
+	// BGP: as must be a valid AS number, connections additionally require an
+	// existing instance plus local.role, and rows without remote.address are
+	// created inactive, which is fine for the probe.
+	"routeros_routing_bgp_connection": {"as": {"65001", "65002"}, "instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}, "local.role": {"ibgp", "ibgp"}, "listen": {"yes", "yes"}},
+	"routeros_routing_bgp_template":   {"as": {"65001", "65002"}},
+	"routeros_routing_bgp_evpn":       {"instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}},
+	"routeros_routing_bgp_vpn":        {"instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}},
 	// Vary the interface so only the name collides; a same-interface second
 	// create could be rejected for the interface instead.
 	"routeros_dhcp_client":    {"interface": {"ether2", "ether3"}},
@@ -272,6 +279,7 @@ func main() {
 	// VM has a second NIC; a bridge named ether2 stands in otherwise.
 	rest("PUT", "/interface/bridge", map[string]any{"name": "uqp-fix-bridge"})
 	rest("PUT", "/interface/wireguard", map[string]any{"name": "uqp-fix-wg"})
+	rest("PUT", "/routing/bgp/instance", map[string]any{"name": "uqp-fix-bgpi", "as": "65000"})
 	cleanupFixture := func(path, name string) {
 		if _, data, err := rest("GET", path+"?name="+name, nil); err == nil {
 			var items []map[string]any
@@ -286,6 +294,7 @@ func main() {
 	}
 	defer cleanupFixture("/interface/bridge", "uqp-fix-bridge")
 	defer cleanupFixture("/interface/wireguard", "uqp-fix-wg")
+	defer cleanupFixture("/routing/bgp/instance", "uqp-fix-bgpi")
 
 	p := routeros.Provider()
 	names := make([]string, 0, len(p.ResourcesMap))

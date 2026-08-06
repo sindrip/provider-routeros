@@ -13,7 +13,9 @@ import (
 // commentIdentityResources are resources whose RouterOS items have no
 // enforced-unique field — either no name at all (firewall rules, bridge
 // ports and VLAN rows, interface list members, DHCP server leases) or a name RouterOS allows duplicates of (DNS records,
-// where same-name records are round-robin) — so the ephemeral internal .id
+// where same-name records are round-robin, and the BGP menus, where the
+// router accepts duplicate instance, connection and template names and even
+// resolves references to them ambiguously) — so the ephemeral internal .id
 // would be the only identity — and RouterOS reassigns it when an item is deleted and
 // recreated, which permanently breaks reconciliation (and makes Create with a
 // stale id silently mint duplicates). The comment becomes the identity
@@ -33,6 +35,9 @@ var commentIdentityResources = []string{
 	"routeros_ip_dhcp_server_lease",
 	"routeros_ip_dns_record",
 	"routeros_ip_firewall_nat",
+	"routeros_routing_bgp_connection",
+	"routeros_routing_bgp_instance",
+	"routeros_routing_bgp_template",
 }
 
 const commentField = "comment"

@@ -270,6 +270,53 @@ func TestCommentIdentityLiveCHRDhcpServerLease(t *testing.T) {
 	}
 }
 
+func TestCommentIdentityLiveCHRBgpInstanceAndTemplate(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	ctx := context.Background()
+
+	// Duplicate names are why the BGP menus cannot use name identity: two
+	// same-name rows must remain individually identifiable by comment.
+	for _, tc := range []struct{ resource, path string }{
+		{"routeros_routing_bgp_instance", "/routing/bgp/instance"},
+		{"routeros_routing_bgp_template", "/routing/bgp/template"},
+	} {
+		res := providerForRuntime().ResourcesMap[tc.resource]
+		recs := []struct{ comment, as string }{
+			{"ci live bgp [a] & x", "65001"},
+			{"ci live bgp [b] & y", "65002"},
+		}
+		for _, r := range recs {
+			d := natDataBlocks(t, res, map[string]string{attrName: "ci-dup", "as": r.as, commentField: r.comment}, nil)
+			if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+				t.Fatalf("%s create %q: %v", tc.resource, r.comment, dg)
+			}
+			if d.Id() != r.comment {
+				t.Fatalf("%s create set id %q, want the comment", tc.resource, d.Id())
+			}
+		}
+		for _, r := range recs {
+			rd := natDataBlocks(t, res, map[string]string{}, nil)
+			rd.SetId(r.comment)
+			if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+				t.Fatalf("%s read %q: %v", tc.resource, r.comment, dg)
+			}
+			if rd.Get("as").(string) != r.as {
+				t.Fatalf("%s read %q resolved as=%q, want %q", tc.resource, r.comment, rd.Get("as"), r.as)
+			}
+			del := natDataBlocks(t, res, map[string]string{}, nil)
+			del.SetId(r.comment)
+			if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+				t.Fatalf("%s delete %q: %v", tc.resource, r.comment, dg)
+			}
+		}
+	}
+}
+
 func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {

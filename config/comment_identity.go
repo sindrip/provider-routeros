@@ -20,7 +20,9 @@ import (
 // Rule ordering is out of scope here — see docs/adr/0001; this is the interim
 // measure it describes.
 var commentIdentityResources = []string{
+	"routeros_bridge_port",
 	"routeros_firewall_nat",
+	"routeros_interface_bridge_port",
 	"routeros_ip_firewall_nat",
 }
 

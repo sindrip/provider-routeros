@@ -28,11 +28,12 @@ Three classes exist:
   heals on the next reconcile. For DHCP clients the router supports a settable,
   enforced-unique `name` that the upstream Terraform schema does not model; the
   provider injects the field (`spec.forProvider.name`, required).
-- **Comment identity** (firewall NAT, see `config/comment_identity.go`): NAT
-  rules have no name, so the comment is the identity. It is required at
-  create, must be unique among NAT rules (RouterOS does not enforce this; the
-  provider does, and fails loudly on ambiguity instead of guessing), and
-  renaming it moves the external-name along.
+- **Comment identity** (firewall NAT and bridge ports, see
+  `config/comment_identity.go`): these items have no name, so the comment is
+  the identity. It is required at create, must be unique within the menu
+  (RouterOS does not enforce this; the provider does, and fails loudly on
+  ambiguity instead of guessing), and renaming it moves the external-name
+  along.
 - **Provider identity** (everything else): the upstream Terraform id, usually
   the ephemeral `*XX`. Keep external names in Git for resources that must be
   re-adopted after rebuilding the management cluster, and prefer `Observe`
@@ -115,6 +116,8 @@ be migrated before upgrading:
   current client name and rewrite the external-name annotation from the `*XX`
   id to that name.
 - **v0.5.0** — firewall NAT rules: give each managed rule a unique comment and
+  rewrite the external-name annotation from the `*XX` id to the comment.
+- **v0.6.0** — bridge ports: give each managed port a unique comment and
   rewrite the external-name annotation from the `*XX` id to the comment.
 
 ## Following upstream

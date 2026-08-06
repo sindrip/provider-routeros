@@ -28,9 +28,9 @@ Three classes exist:
   heals on the next reconcile. For DHCP clients the router supports a settable,
   enforced-unique `name` that the upstream Terraform schema does not model; the
   provider injects the field (`spec.forProvider.name`, required).
-- **Comment identity** (firewall NAT and bridge ports, see
-  `config/comment_identity.go`): these items have no name, so the comment is
-  the identity. It is required at create, must be unique within the menu
+- **Comment identity** (firewall NAT, bridge ports, and bridge VLAN entries,
+  see `config/comment_identity.go`): these items have no name, so the comment
+  is the identity. It is required at create, must be unique within the menu
   (RouterOS does not enforce this; the provider does, and fails loudly on
   ambiguity instead of guessing), and renaming it moves the external-name
   along.
@@ -119,6 +119,9 @@ be migrated before upgrading:
   rewrite the external-name annotation from the `*XX` id to the comment.
 - **v0.6.0** — bridge ports: give each managed port a unique comment and
   rewrite the external-name annotation from the `*XX` id to the comment.
+- **v0.7.0** — bridge VLAN entries: give each managed entry a unique comment
+  and rewrite the external-name annotation from the `*XX` id to the comment.
+  Dynamic VLAN rows carry no comment and are never matched or adopted.
 
 ## Following upstream
 

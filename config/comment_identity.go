@@ -21,8 +21,10 @@ import (
 // measure it describes.
 var commentIdentityResources = []string{
 	"routeros_bridge_port",
+	"routeros_bridge_vlan",
 	"routeros_firewall_nat",
 	"routeros_interface_bridge_port",
+	"routeros_interface_bridge_vlan",
 	"routeros_ip_firewall_nat",
 }
 

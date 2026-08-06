@@ -410,6 +410,48 @@ func TestCommentIdentityLiveCHRFirewallFamily(t *testing.T) {
 	}
 }
 
+func TestCommentIdentityLiveCHRRoutingFilterRule(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	res := providerForRuntime().ResourcesMap["routeros_routing_filter_rule"]
+	ctx := context.Background()
+
+	comment := "ci live rf [50% off] & spaces"
+	rule := "if (dst in 192.0.2.0/24) {accept}"
+
+	d := natData(t, res, map[string]string{attrChain: "ci-live-in", "rule": rule, commentField: comment})
+	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+		t.Fatalf("create: %v", dg)
+	}
+	if d.Id() != comment {
+		t.Fatalf("create set id %q, want the comment", d.Id())
+	}
+
+	rd := natData(t, res, map[string]string{})
+	rd.SetId(comment)
+	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+		t.Fatalf("read: %v", dg)
+	}
+	if rd.Get("rule").(string) != rule {
+		t.Fatalf("read did not populate rule: %q", rd.Get("rule"))
+	}
+
+	dup := natData(t, res, map[string]string{attrChain: "ci-live-in", "rule": rule, commentField: comment})
+	if dg := res.CreateContext(ctx, dup, client); !dg.HasError() {
+		t.Fatal("duplicate-comment create succeeded on live router")
+	}
+
+	del := natData(t, res, map[string]string{})
+	del.SetId(comment)
+	if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+		t.Fatalf("delete: %v", dg)
+	}
+}
+
 func TestCommentIdentityLiveCHRBgpVpnAndOspfArea(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {

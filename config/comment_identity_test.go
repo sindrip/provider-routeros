@@ -123,6 +123,12 @@ func natData(t *testing.T, res *schema.Resource, vals map[string]string) *schema
 		if v, ok := vals[name]; ok {
 			attrs[name] = v
 			ctyVals[name] = cty.StringVal(v)
+		} else if def, ok := s.Default.(string); ok && def != "" && s.Type == schema.TypeString {
+			// Terraform materializes schema defaults into state before the
+			// serializer runs; mirror that, or defaulted fields are sent as
+			// "" (the router rejects e.g. address-list-timeout="").
+			attrs[name] = def
+			ctyVals[name] = cty.StringVal(def)
 		} else {
 			ctyVals[name] = cty.NullVal(typ)
 		}

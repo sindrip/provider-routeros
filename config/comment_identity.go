@@ -12,7 +12,7 @@ import (
 
 // commentIdentityResources are resources whose RouterOS items have no
 // enforced-unique field — either no name at all (firewall rules, bridge
-// ports and VLAN rows) or a name RouterOS allows duplicates of (DNS records,
+// ports and VLAN rows, interface list members) or a name RouterOS allows duplicates of (DNS records,
 // where same-name records are round-robin) — so the ephemeral internal .id
 // would be the only identity — and RouterOS reassigns it when an item is deleted and
 // recreated, which permanently breaks reconciliation (and makes Create with a
@@ -28,6 +28,7 @@ var commentIdentityResources = []string{
 	"routeros_firewall_nat",
 	"routeros_interface_bridge_port",
 	"routeros_interface_bridge_vlan",
+	"routeros_interface_list_member",
 	"routeros_ip_dns_record",
 	"routeros_ip_firewall_nat",
 }

@@ -28,10 +28,10 @@ Three classes exist:
   heals on the next reconcile. For DHCP clients the router supports a settable,
   enforced-unique `name` that the upstream Terraform schema does not model; the
   provider injects the field (`spec.forProvider.name`, required).
-- **Comment identity** (firewall NAT, bridge ports, bridge VLAN entries, and
-  DNS records, see `config/comment_identity.go`): these items have no
-  enforced-unique name — DNS records have a name, but RouterOS allows
-  duplicates for round-robin — so the comment is the identity. It is required at create, must be unique within the menu
+- **Comment identity** (firewall NAT, bridge ports, bridge VLAN entries,
+  interface list members, and DNS records, see `config/comment_identity.go`):
+  these items have no enforced-unique name — DNS records have a name, but
+  RouterOS allows duplicates for round-robin — so the comment is the identity. It is required at create, must be unique within the menu
   (RouterOS does not enforce this; the provider does, and fails loudly on
   ambiguity instead of guessing), and renaming it moves the external-name
   along.
@@ -145,6 +145,9 @@ be migrated before upgrading:
   rewrite the external-name annotation from the `*XX` id to the comment. The
   record name cannot be the identity because RouterOS allows same-name
   records (round-robin).
+- **v0.11.0** — interface list members: give each managed member a unique
+  comment and rewrite the external-name annotation from the `*XX` id to the
+  comment. Dynamic members carry no comment and are never matched or adopted.
 
 ## Following upstream
 

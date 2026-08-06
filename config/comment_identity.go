@@ -24,112 +24,134 @@ var commentIdentityResources = []string{
 	"routeros_ip_firewall_nat",
 }
 
+const commentField = "comment"
+
 func withCommentIdentity(p *schema.Provider) *schema.Provider {
 	for _, name := range commentIdentityResources {
-		wrapCommentIdentity(p.ResourcesMap[name])
+		r := p.ResourcesMap[name]
+		path, _ := r.Schema[routeros.MetaResourcePath].Default.(string)
+		r.CreateContext = commentIdentityCreate(path, r.CreateContext)
+		r.ReadContext = commentIdentityRead(path, r.ReadContext)
+		r.UpdateContext = commentIdentityUpdate(path, r.UpdateContext)
+		r.DeleteContext = commentIdentityDelete(path, r.DeleteContext)
 	}
 	return p
 }
 
-func wrapCommentIdentity(r *schema.Resource) {
-	path, _ := r.Schema[routeros.MetaResourcePath].Default.(string)
-	create, read, update, del := r.CreateContext, r.ReadContext, r.UpdateContext, r.DeleteContext
-
-	r.CreateContext = func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		comment := d.Get("comment").(string)
+func commentIdentityCreate(path string, create schema.CreateContextFunc) schema.CreateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		comment := d.Get(commentField).(string)
 		if comment == "" {
 			return diag.Errorf("comment is required: items at %s have no name, so the comment is the resource identity", path)
 		}
-		items, err := itemsByComment(m, path, comment)
-		if err != nil {
-			return diag.FromErr(err)
+		item, dg := resolveByComment(m, path, comment)
+		if dg != nil {
+			return dg
 		}
-		if len(items) > 0 {
-			return diag.Errorf("an item with comment %q already exists at %s (id %s): the comment is the resource identity and must be unique", comment, path, items[0].GetID(routeros.Id))
+		if item != nil {
+			return diag.Errorf("an item with comment %q already exists at %s (id %s): the comment is the resource identity and must be unique", comment, path, item.GetID(routeros.Id))
 		}
-		dg := create(ctx, d, m)
+		dg = create(ctx, d, m)
 		if dg.HasError() {
 			return dg
 		}
 		d.SetId(comment)
 		return dg
 	}
+}
 
-	r.ReadContext = func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		items, err := itemsByComment(m, path, d.Id())
-		if err != nil {
-			return diag.FromErr(err)
+func commentIdentityRead(path string, read schema.ReadContextFunc) schema.ReadContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		item, dg := resolveByComment(m, path, d.Id())
+		if dg != nil {
+			return dg
 		}
-		if len(items) == 0 {
+		if item == nil {
 			d.SetId("")
 			return nil
 		}
-		if len(items) > 1 {
-			return ambiguous(path, d.Id(), len(items))
-		}
-		d.SetId(items[0].GetID(routeros.Id))
-		dg := read(ctx, d, m)
+		d.SetId(item.GetID(routeros.Id))
+		dg = read(ctx, d, m)
 		if dg.HasError() {
 			return dg
 		}
 		if d.Id() != "" {
-			d.SetId(d.Get("comment").(string))
+			d.SetId(d.Get(commentField).(string))
 		}
 		return dg
 	}
+}
 
-	r.UpdateContext = func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		newComment := d.Get("comment").(string)
+func commentIdentityUpdate(path string, update schema.UpdateContextFunc) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		newComment := d.Get(commentField).(string)
 		if newComment == "" {
 			return diag.Errorf("comment cannot be cleared: it is the identity of items at %s", path)
 		}
-		items, err := itemsByComment(m, path, d.Id())
-		if err != nil {
-			return diag.FromErr(err)
+		item, dg := resolveByComment(m, path, d.Id())
+		if dg != nil {
+			return dg
 		}
-		if len(items) == 0 {
+		if item == nil {
 			return diag.Errorf("item with comment %q no longer exists at %s", d.Id(), path)
 		}
-		if len(items) > 1 {
-			return ambiguous(path, d.Id(), len(items))
-		}
 		if newComment != d.Id() {
-			dupes, err := itemsByComment(m, path, newComment)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			if len(dupes) > 0 {
-				return diag.Errorf("cannot change comment to %q: an item with that comment already exists at %s (id %s)", newComment, path, dupes[0].GetID(routeros.Id))
+			if dg := rejectExisting(m, path, newComment); dg != nil {
+				return dg
 			}
 		}
-		d.SetId(items[0].GetID(routeros.Id))
-		dg := update(ctx, d, m)
+		d.SetId(item.GetID(routeros.Id))
+		dg = update(ctx, d, m)
 		if dg.HasError() {
 			return dg
 		}
 		d.SetId(newComment)
 		return dg
 	}
+}
 
-	r.DeleteContext = func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
-		items, err := itemsByComment(m, path, d.Id())
-		if err != nil {
-			return diag.FromErr(err)
+func commentIdentityDelete(path string, del schema.DeleteContextFunc) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
+		item, dg := resolveByComment(m, path, d.Id())
+		if dg != nil {
+			return dg
 		}
-		if len(items) == 0 {
+		if item == nil {
 			d.SetId("")
 			return nil
 		}
-		if len(items) > 1 {
-			return ambiguous(path, d.Id(), len(items))
-		}
-		d.SetId(items[0].GetID(routeros.Id))
+		d.SetId(item.GetID(routeros.Id))
 		return del(ctx, d, m)
 	}
 }
 
-func ambiguous(path, comment string, n int) diag.Diagnostics {
-	return diag.Errorf("identity is ambiguous: %d items at %s share comment %q; make comments unique before managing them", n, path, comment)
+// resolveByComment returns the single item carrying the comment, nil when the
+// comment matches nothing, and an error diagnostic when the lookup fails or
+// several items share the comment.
+func resolveByComment(m any, path, comment string) (*routeros.MikrotikItem, diag.Diagnostics) {
+	items, err := itemsByComment(m, path, comment)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+	switch len(items) {
+	case 0:
+		return nil, nil
+	case 1:
+		return &items[0], nil
+	default:
+		return nil, diag.Errorf("identity is ambiguous: %d items at %s share comment %q; make comments unique before managing them", len(items), path, comment)
+	}
+}
+
+func rejectExisting(m any, path, comment string) diag.Diagnostics {
+	items, err := itemsByComment(m, path, comment)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if len(items) > 0 {
+		return diag.Errorf("cannot change comment to %q: an item with that comment already exists at %s (id %s)", comment, path, items[0].GetID(routeros.Id))
+	}
+	return nil
 }
 
 func itemsByComment(m any, path, comment string) ([]routeros.MikrotikItem, error) {
@@ -141,7 +163,7 @@ func itemsByComment(m any, path, comment string) ([]routeros.MikrotikItem, error
 		// (verified against 7.23.2).
 		filter = strings.ReplaceAll(url.QueryEscape(comment), "+", "%20")
 	}
-	res, err := routeros.ReadItemsFiltered([]string{"comment=" + filter}, path, c)
+	res, err := routeros.ReadItemsFiltered([]string{commentField + "=" + filter}, path, c)
 	if err != nil {
 		return nil, err
 	}

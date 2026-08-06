@@ -310,7 +310,7 @@ func TestCommentIdentityResourceGates(t *testing.T) {
 		if upstream == nil {
 			t.Fatalf("%s is not an upstream resource", name)
 		}
-		if upstream.Schema[commentField] == nil {
+		if upstream.Schema[commentField] == nil && !slices.Contains(injectedCommentResources, name) {
 			t.Errorf("%s has no comment field to use as identity", name)
 		}
 		if upstream.Schema["name"] != nil && nameVerdicts(t)[name] == "UNIQUE" {
@@ -318,6 +318,19 @@ func TestCommentIdentityResourceGates(t *testing.T) {
 		}
 		if got, _ := upstream.Schema[routeros.MetaId].Default.(int); got != int(routeros.Id) {
 			t.Errorf("%s upstream ___id___ default = %v, want Id", name, got)
+		}
+	}
+	for _, name := range injectedCommentResources {
+		if !slices.Contains(commentIdentityResources, name) {
+			t.Errorf("%s has an injected comment but is not in commentIdentityResources; the injection is pointless without comment identity", name)
+		}
+		if routeros.Provider().ResourcesMap[name].Schema[commentField] != nil {
+			t.Errorf("%s now models comment upstream; drop it from injectedCommentResources", name)
+		}
+		for which, p := range map[string]*schema.Provider{"runtime": providerForRuntime(), "generation": providerForGeneration()} {
+			if p.ResourcesMap[name].Schema[commentField] == nil {
+				t.Errorf("%s %s schema is missing the injected comment field", which, name)
+			}
 		}
 	}
 }

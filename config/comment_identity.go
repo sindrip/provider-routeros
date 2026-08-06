@@ -47,6 +47,30 @@ var commentIdentityResources = []string{
 	"routeros_routing_bgp_connection",
 	"routeros_routing_bgp_instance",
 	"routeros_routing_bgp_template",
+	"routeros_routing_bgp_vpn",
+	"routeros_routing_ospf_area",
+}
+
+// injectedCommentResources have a comment property on the router (see
+// /routing/bgp/vpn add in config/console-tree.json) that the upstream
+// Terraform schema does not model. The field is injected into both the
+// generation schema (so the CRD carries spec.forProvider.comment) and the
+// runtime schema (so the upstream CRUD serializes it), letting the resource
+// join comment identity. If upstream ever models the field itself, the test
+// will flag the injection as redundant.
+var injectedCommentResources = []string{
+	"routeros_routing_bgp_vpn",
+}
+
+func injectRouterComment(p *schema.Provider) *schema.Provider {
+	for _, name := range injectedCommentResources {
+		p.ResourcesMap[name].Schema[commentField] = &schema.Schema{
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Comment on the item. The provider uses it as the resource identity: required at create and enforced unique within the menu.",
+		}
+	}
+	return p
 }
 
 const commentField = "comment"

@@ -29,10 +29,11 @@ Three classes exist:
   enforced-unique `name` that the upstream Terraform schema does not model; the
   provider injects the field (`spec.forProvider.name`, required).
 - **Comment identity** (firewall NAT, bridge ports, bridge VLAN entries,
-  interface list members, DHCP server leases, and DNS records, see
-  `config/comment_identity.go`):
+  interface list members, DHCP server leases, DNS records, and BGP
+  connections, instances and templates, see `config/comment_identity.go`):
   these items have no enforced-unique name — DNS records have a name, but
-  RouterOS allows duplicates for round-robin — so the comment is the identity. It is required at create, must be unique within the menu
+  RouterOS allows duplicates for round-robin, and the BGP menus accept
+  duplicate names outright — so the comment is the identity. It is required at create, must be unique within the menu
   (RouterOS does not enforce this; the provider does, and fails loudly on
   ambiguity instead of guessing), and renaming it moves the external-name
   along.
@@ -163,6 +164,11 @@ be migrated before upgrading:
   comment and rewrite the external-name annotation from the `*XX` id to the
   comment. Leases have no name field at all — only the (server, address,
   mac-address) tuple and the ephemeral `*XX` id.
+- **v0.14.0** — BGP connections, instances and templates: give each managed
+  row a unique comment and rewrite the external-name annotation from the
+  `*XX` id to the comment. The name cannot be the identity because RouterOS
+  accepts duplicate names throughout the BGP menus (verified by probe) and
+  even resolves references to a duplicated instance name ambiguously.
 
 ## Following upstream
 

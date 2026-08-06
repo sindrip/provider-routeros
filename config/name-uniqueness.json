@@ -496,14 +496,12 @@
     {
       "resource": "routeros_routing_bgp_connection",
       "path": "/routing/bgp/connection",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"invalid value for argument as\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_bgp_evpn",
       "path": "/routing/bgp/evpn",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"input does not match any value of instance\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_bgp_instance",
@@ -513,14 +511,13 @@
     {
       "resource": "routeros_routing_bgp_template",
       "path": "/routing/bgp/template",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"invalid value for argument as\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_bgp_vpn",
       "path": "/routing/bgp/vpn",
       "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"missing =instance=\",\"error\":400,\"message\":\"Bad Request\"}"
+      "detail": "first create: 400 {\"detail\":\"missing =vrf=\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_routing_ospf_area",

@@ -30,8 +30,9 @@ Three classes exist:
   provider injects the field (`spec.forProvider.name`, required).
 - **Comment identity** (firewall filter, mangle, raw and NAT rules — IPv4 and
   IPv6 — bridge filter rules, bridge ports, bridge VLAN entries, interface
-  list members, DHCP server leases, DNS records, and BGP connections,
-  instances and templates, see `config/comment_identity.go`):
+  list members, DHCP server leases, DNS records, BGP connections,
+  instances, templates and VPNs, and OSPF areas, see
+  `config/comment_identity.go`):
   these items have no enforced-unique name — DNS records have a name, but
   RouterOS allows duplicates for round-robin, and the BGP menus accept
   duplicate names outright — so the comment is the identity. It is required at create, must be unique within the menu
@@ -178,6 +179,11 @@ be migrated before upgrading:
   interfaces, PPPoE server bindings, DHCP server options, option sets and
   matchers, and DNS forwarders (all probe-verified UNIQUE): rewrite the
   external-name annotation from the `*XX` id to the item's name.
+  BGP VPNs and OSPF areas accept duplicate names (probe-verified) and join
+  comment identity instead: give each managed row a unique comment and
+  rewrite the external-name annotation from the `*XX` id to the comment.
+  The BGP VPN comment field is injected — RouterOS has it, the upstream
+  schema does not.
 
 ## Following upstream
 

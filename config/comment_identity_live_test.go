@@ -409,3 +409,79 @@ func TestCommentIdentityLiveCHRFirewallFamily(t *testing.T) {
 		}
 	}
 }
+
+func TestCommentIdentityLiveCHRBgpVpnAndOspfArea(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	ctx := context.Background()
+
+	vrf, err := routeros.CreateItem(ctx, routeros.MikrotikItem{attrName: "ci-live-vrf", "interfaces": "ether3"}, "/ip/vrf", client)
+	if err != nil {
+		t.Fatalf("fixture vrf: %v", err)
+	}
+	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: vrf.GetID(routeros.Id)}, "/ip/vrf", client) //nolint:errcheck
+	bgpi, err := routeros.CreateItem(ctx, routeros.MikrotikItem{attrName: "ci-live-bgpi", "as": "65000"}, "/routing/bgp/instance", client)
+	if err != nil {
+		t.Fatalf("fixture bgp instance: %v", err)
+	}
+	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: bgpi.GetID(routeros.Id)}, "/routing/bgp/instance", client) //nolint:errcheck
+	ospfi, err := routeros.CreateItem(ctx, routeros.MikrotikItem{attrName: "ci-live-ospfi"}, "/routing/ospf/instance", client)
+	if err != nil {
+		t.Fatalf("fixture ospf instance: %v", err)
+	}
+	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: ospfi.GetID(routeros.Id)}, "/routing/ospf/instance", client) //nolint:errcheck
+
+	// Duplicate names are why these menus cannot use name identity: two
+	// same-name rows must remain individually identifiable by comment.
+	for _, tc := range []struct {
+		resource string
+		vals     map[string]string
+	}{
+		{"routeros_routing_bgp_vpn", map[string]string{
+			attrName: "ci-dup", "vrf": "ci-live-vrf", "instance": "ci-live-bgpi",
+			"route_distinguisher": "65000:1", "label_allocation_policy": "per-vrf",
+		}},
+		{"routeros_routing_ospf_area", map[string]string{
+			attrName: "ci-dup", "instance": "ci-live-ospfi",
+		}},
+	} {
+		res := providerForRuntime().ResourcesMap[tc.resource]
+		comment := "ci live [50% off] & spaces"
+
+		vals := map[string]string{commentField: comment}
+		for k, v := range tc.vals {
+			vals[k] = v
+		}
+		d := natDataBlocks(t, res, vals, nil)
+		if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+			t.Fatalf("%s create: %v", tc.resource, dg)
+		}
+		if d.Id() != comment {
+			t.Fatalf("%s create set id %q, want the comment", tc.resource, d.Id())
+		}
+
+		rd := natDataBlocks(t, res, map[string]string{}, nil)
+		rd.SetId(comment)
+		if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+			t.Fatalf("%s read: %v", tc.resource, dg)
+		}
+		if rd.Get(attrName).(string) != "ci-dup" {
+			t.Fatalf("%s read did not populate name: %q", tc.resource, rd.Get(attrName))
+		}
+
+		dup := natDataBlocks(t, res, vals, nil)
+		if dg := res.CreateContext(ctx, dup, client); !dg.HasError() {
+			t.Fatalf("%s duplicate-comment create succeeded on live router", tc.resource)
+		}
+
+		del := natDataBlocks(t, res, map[string]string{}, nil)
+		del.SetId(comment)
+		if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+			t.Fatalf("%s delete: %v", tc.resource, dg)
+		}
+	}
+}

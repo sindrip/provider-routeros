@@ -2,7 +2,7 @@
   "routeros_version": "7.23.2 (stable)",
   "probed_on": "CHR x86_64 under QEMU",
   "generator": "hack/uniqprobe",
-  "date": "2026-08-06",
+  "date": "2026-08-07",
   "verdicts": [
     {
       "resource": "routeros_bridge",
@@ -216,8 +216,8 @@
     {
       "resource": "routeros_interface_pppoe_server",
       "path": "/interface/pppoe-server",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"unknown parameter interface\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: already have interface with name uqp-probe\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_interface_sstp_client",
@@ -246,8 +246,8 @@
     {
       "resource": "routeros_interface_vxlan",
       "path": "/interface/vxlan",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"failure: Both Interface and Group must be specified\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: already have interface with name uqp-probe\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_interface_w60g",
@@ -270,8 +270,8 @@
     {
       "resource": "routeros_interface_wireguard_peer",
       "path": "/interface/wireguard/peers",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"invalid or unexpected argument base\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: entry with this name already exists\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_interface_wireless",
@@ -311,32 +311,32 @@
     {
       "resource": "routeros_ip_dhcp_server_option",
       "path": "/ip/dhcp-server/option",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"failure: Unknown data type!\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: option with such name already exists\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_ip_dhcp_server_option_matcher",
       "path": "/ip/dhcp-server/matcher",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"missing =server=\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"item already exists (7)\",\"error\":500,\"message\":\"Internal Server Error\"}"
     },
     {
       "resource": "routeros_ip_dhcp_server_option_set",
       "path": "/ip/dhcp-server/option/sets",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"input does not match any value of option\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: Name must be unique\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_ip_dhcp_server_option_sets",
       "path": "/ip/dhcp-server/option/sets",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"input does not match any value of option\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: Name must be unique\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_ip_dns_forwarders",
       "path": "/ip/dns/forwarders",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"failure: no DoH or DNS servers\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: name not unique\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_ip_dns_record",
@@ -454,8 +454,8 @@
     {
       "resource": "routeros_ipv6_dhcp_server_option_sets",
       "path": "/ipv6/dhcp-server/option/sets",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"missing =options=\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: Name must be unique\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_ipv6_pool",
@@ -516,14 +516,12 @@
     {
       "resource": "routeros_routing_bgp_vpn",
       "path": "/routing/bgp/vpn",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"missing =vrf=\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_ospf_area",
       "path": "/routing/ospf/area",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"input does not match any value of instance\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "DUPLICATE"
     },
     {
       "resource": "routeros_routing_ospf_instance",
@@ -557,8 +555,8 @@
     {
       "resource": "routeros_system_logging_action",
       "path": "/system/logging/action",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"input does not match any value of target\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: action already exists with such a name\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_system_scheduler",
@@ -694,8 +692,8 @@
     {
       "resource": "routeros_wireguard_peer",
       "path": "/interface/wireguard/peers",
-      "verdict": "UNTESTED",
-      "detail": "first create: 400 {\"detail\":\"invalid or unexpected argument base\",\"error\":400,\"message\":\"Bad Request\"}"
+      "verdict": "UNIQUE",
+      "detail": "{\"detail\":\"failure: entry with this name already exists\",\"error\":400,\"message\":\"Bad Request\"}"
     },
     {
       "resource": "routeros_zerotier",

@@ -174,6 +174,10 @@ be migrated before upgrading:
   NAT rules, and bridge filter rules: give each managed rule a unique comment
   and rewrite the external-name annotation from the `*XX` id to the comment.
   Same keyless-ordered-menu shape as the NAT rules fixed in v0.5.0.
+  In the same release, name identity extends to wireguard peers, VXLAN
+  interfaces, PPPoE server bindings, DHCP server options, option sets and
+  matchers, and DNS forwarders (all probe-verified UNIQUE): rewrite the
+  external-name annotation from the `*XX` id to the item's name.
 
 ## Following upstream
 

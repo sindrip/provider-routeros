@@ -234,6 +234,42 @@ func TestCommentIdentityLiveCHRInterfaceListMember(t *testing.T) {
 	}
 }
 
+func TestCommentIdentityLiveCHRDhcpServerLease(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	res := providerForRuntime().ResourcesMap["routeros_ip_dhcp_server_lease"]
+	ctx := context.Background()
+
+	// A static lease row stands alone: no DHCP server needs to exist.
+	comment := "ci live lease [jetkvm] & mgmt"
+	d := natData(t, res, map[string]string{"address": "10.0.99.10", "mac_address": "30:52:53:08:3A:93", commentField: comment})
+	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+		t.Fatalf("create: %v", dg)
+	}
+	if d.Id() != comment {
+		t.Fatalf("create set id %q, want the comment", d.Id())
+	}
+
+	rd := natData(t, res, map[string]string{})
+	rd.SetId(comment)
+	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+		t.Fatalf("read: %v", dg)
+	}
+	if rd.Get("address").(string) != "10.0.99.10" {
+		t.Fatalf("read did not populate address: %q", rd.Get("address"))
+	}
+
+	del := natData(t, res, map[string]string{})
+	del.SetId(comment)
+	if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+		t.Fatalf("delete: %v", dg)
+	}
+}
+
 func TestCommentIdentityLiveCHRBridgeVlan(t *testing.T) {
 	host := os.Getenv("CHR_REST")
 	if host == "" {

@@ -136,9 +136,11 @@ var injectedName = map[string]bool{
 // cannot guess: [first, second] per field, empty string meaning omit.
 var overrides = map[string]map[string][2]string{
 	"routeros_system_user":              {"group": {"read", "read"}, "password": {"uqp-pw-1", "uqp-pw-2"}},
-	"routeros_wireguard_peer":           {"interface": {"uqp-fix-wg", "uqp-fix-wg"}},
-	"routeros_interface_wireguard_peer": {"interface": {"uqp-fix-wg", "uqp-fix-wg"}},
-	"routeros_interface_vxlan":          {"vni": {"1001", "1002"}},
+	"routeros_wireguard_peer":           {"interface": {"uqp-fix-wg", "uqp-fix-wg"}, "allowed_address": {"192.0.2.0/30", "192.0.2.4/30"}},
+	"routeros_interface_wireguard_peer": {"interface": {"uqp-fix-wg", "uqp-fix-wg"}, "allowed_address": {"192.0.2.0/30", "192.0.2.4/30"}},
+	// VXLAN wants interface+group together, and the CHR rejects the default
+	// mtu of 1500 on a parent with mtu 1500; 1450 fits the encap overhead.
+	"routeros_interface_vxlan": {"vni": {"1001", "1002"}, "group": {"239.1.1.1", "239.1.1.2"}, "interface": {"ether2", "ether2"}, "mtu": {"1450", "1450"}},
 	"routeros_interface_bonding":        {"slaves": {"ether2", "ether3"}},
 	"routeros_ipv6_pool":                {"prefix": {"2001:db8:1::/48", "2001:db8:2::/48"}, "prefix_length": {"64", "64"}},
 	"routeros_queue_simple":             {"target": {"192.0.2.0/30", "192.0.2.4/30"}},
@@ -155,11 +157,24 @@ var overrides = map[string]map[string][2]string{
 	"routeros_routing_bgp_connection": {"as": {"65001", "65002"}, "instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}, "local.role": {"ibgp", "ibgp"}, "listen": {"yes", "yes"}},
 	"routeros_routing_bgp_template":   {"as": {"65001", "65002"}},
 	"routeros_routing_bgp_evpn":       {"instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}},
-	"routeros_routing_bgp_vpn":        {"instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}},
 	// Vary the interface so only the name collides; a same-interface second
 	// create could be rejected for the interface instead.
 	"routeros_dhcp_client":    {"interface": {"ether2", "ether3"}},
 	"routeros_ip_dhcp_client": {"interface": {"ether2", "ether3"}},
+	// PPPoE server bindings live in the shared interface namespace and
+	// reference a service by name; interface is not a parameter here.
+	"routeros_interface_pppoe_server": {"service": {"uqp-fix-pppoe", "uqp-fix-pppoe"}, "interface": {"", ""}},
+	// DHCP option values must carry a typed encoding like 0x01.
+	"routeros_ip_dhcp_server_option":         {"value": {"0x01", "0x02"}},
+	"routeros_ip_dhcp_server_option_matcher": {"server": {"all", "all"}, "code": {"200", "201"}, "value": {"abc", "abd"}, "matching_type": {"exact", "exact"}},
+	"routeros_ip_dhcp_server_option_set":     {"options": {"uqp-fix-opt", "uqp-fix-opt"}},
+	"routeros_ip_dhcp_server_option_sets":    {"options": {"uqp-fix-opt", "uqp-fix-opt"}},
+	"routeros_ipv6_dhcp_server_option_sets":  {"options": {"uqp-fix-v6opt", "uqp-fix-v6opt"}},
+	"routeros_ip_dns_forwarders":             {"dns_servers": {"192.0.2.53", "192.0.2.54"}},
+	"routeros_routing_bgp_vpn":               {"vrf": {"uqp-fix-vrf", "uqp-fix-vrf"}, "instance": {"uqp-fix-bgpi", "uqp-fix-bgpi"}, "route_distinguisher": {"65000:1", "65000:2"}, "label_allocation_policy": {"per-vrf", "per-vrf"}},
+	"routeros_routing_ospf_area":             {"instance": {"uqp-fix-ospfi", "uqp-fix-ospfi"}, "area_id": {"0.0.0.1", "0.0.0.2"}},
+	// Action names may contain only letters and numbers.
+	"routeros_system_logging_action": {"name": {"uqpprobe", "uqpprobe"}, "target": {"memory", "memory"}},
 }
 
 type verdict struct {
@@ -280,8 +295,13 @@ func main() {
 	rest("PUT", "/interface/bridge", map[string]any{"name": "uqp-fix-bridge"})
 	rest("PUT", "/interface/wireguard", map[string]any{"name": "uqp-fix-wg"})
 	rest("PUT", "/routing/bgp/instance", map[string]any{"name": "uqp-fix-bgpi", "as": "65000"})
-	cleanupFixture := func(path, name string) {
-		if _, data, err := rest("GET", path+"?name="+name, nil); err == nil {
+	rest("PUT", "/routing/ospf/instance", map[string]any{"name": "uqp-fix-ospfi"})
+	rest("PUT", "/ip/vrf", map[string]any{"name": "uqp-fix-vrf", "interfaces": "ether3"})
+	rest("PUT", "/ip/dhcp-server/option", map[string]any{"name": "uqp-fix-opt", "code": "200", "value": "0x01"})
+	rest("PUT", "/ipv6/dhcp-server/option", map[string]any{"name": "uqp-fix-v6opt", "code": "200", "value": "0x01"})
+	rest("PUT", "/interface/pppoe-server/server", map[string]any{"service-name": "uqp-fix-pppoe", "interface": "ether2", "disabled": "yes"})
+	cleanupFixtureBy := func(path, field, name string) {
+		if _, data, err := rest("GET", path+"?"+field+"="+name, nil); err == nil {
 			var items []map[string]any
 			if json.Unmarshal(data, &items) == nil {
 				for _, it := range items {
@@ -292,9 +312,15 @@ func main() {
 			}
 		}
 	}
+	cleanupFixture := func(path, name string) { cleanupFixtureBy(path, "name", name) }
 	defer cleanupFixture("/interface/bridge", "uqp-fix-bridge")
 	defer cleanupFixture("/interface/wireguard", "uqp-fix-wg")
 	defer cleanupFixture("/routing/bgp/instance", "uqp-fix-bgpi")
+	defer cleanupFixture("/routing/ospf/instance", "uqp-fix-ospfi")
+	defer cleanupFixture("/ip/vrf", "uqp-fix-vrf")
+	defer cleanupFixture("/ip/dhcp-server/option", "uqp-fix-opt")
+	defer cleanupFixture("/ipv6/dhcp-server/option", "uqp-fix-v6opt")
+	defer cleanupFixtureBy("/interface/pppoe-server/server", "service-name", "uqp-fix-pppoe")
 
 	p := routeros.Provider()
 	names := make([]string, 0, len(p.ResourcesMap))

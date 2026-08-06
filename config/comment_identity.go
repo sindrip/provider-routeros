@@ -133,7 +133,14 @@ func commentIdentityDelete(path string, del schema.DeleteContextFunc) schema.Del
 // comment matches nothing, and an error diagnostic when the lookup fails or
 // several items share the comment.
 func resolveByComment(m any, path, comment string) (*routeros.MikrotikItem, diag.Diagnostics) {
-	items, err := itemsByComment(m, path, comment)
+	return resolveByField(m, path, commentField, comment)
+}
+
+// resolveByField is the shared identity lookup: exactly one item whose REST
+// field carries the value, nil when none, error on lookup failure or
+// ambiguity.
+func resolveByField(m any, path, field, value string) (*routeros.MikrotikItem, diag.Diagnostics) {
+	items, err := itemsByField(m, path, field, value)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
@@ -143,7 +150,7 @@ func resolveByComment(m any, path, comment string) (*routeros.MikrotikItem, diag
 	case 1:
 		return &items[0], nil
 	default:
-		return nil, diag.Errorf("identity is ambiguous: %d items at %s share comment %q; make comments unique before managing them", len(items), path, comment)
+		return nil, diag.Errorf("identity is ambiguous: %d items at %s share %s %q; make them unique before managing them", len(items), path, field, value)
 	}
 }
 
@@ -159,15 +166,19 @@ func rejectExisting(m any, path, comment string) diag.Diagnostics {
 }
 
 func itemsByComment(m any, path, comment string) ([]routeros.MikrotikItem, error) {
+	return itemsByField(m, path, commentField, comment)
+}
+
+func itemsByField(m any, path, field, value string) ([]routeros.MikrotikItem, error) {
 	c := m.(routeros.Client)
-	filter := comment
+	filter := value
 	if c.GetTransport() == routeros.TransportREST {
 		// Percent-encode for the query string. RouterOS matches %20 as a
 		// space but treats '+' literally, so QueryEscape alone is wrong
 		// (verified against 7.23.2).
-		filter = strings.ReplaceAll(url.QueryEscape(comment), "+", "%20")
+		filter = strings.ReplaceAll(url.QueryEscape(value), "+", "%20")
 	}
-	res, err := routeros.ReadItemsFiltered([]string{commentField + "=" + filter}, path, c)
+	res, err := routeros.ReadItemsFiltered([]string{field + "=" + filter}, path, c)
 	if err != nil {
 		return nil, err
 	}

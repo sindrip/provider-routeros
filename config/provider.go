@@ -50,7 +50,7 @@ func GetProviderNamespacedRuntime() *ujconfig.Provider {
 }
 
 func providerForRuntime() *schema.Provider {
-	return withCommentIdentity(withNameIdentity(injectRouterName(routeros.Provider())))
+	return withFactoryIdentity(withCommentIdentity(withNameIdentity(injectRouterName(routeros.Provider()))))
 }
 
 // kindOverrides replaces derived Kubernetes kinds that Terraform names alone

@@ -1,29 +1,70 @@
 # Provider RouterOS
 
 `provider-routeros` is an [Upjet](https://github.com/crossplane/upjet)-generated
-[Crossplane](https://crossplane.io/) provider for MikroTik RouterOS. It is a
-direct adapter around the official
+[Crossplane](https://crossplane.io/) provider for MikroTik RouterOS, built as
+an adapter around the official
 [`terraform-routeros`](https://github.com/terraform-routeros/terraform-provider-routeros)
-provider: the Terraform provider's managed-resource schemas and behavior are
-the source of truth.
+provider. It generates all 254 upstream Terraform resources in both
+cluster-scoped and namespaced Crossplane API families.
 
-The provider intentionally does not patch RouterOS behavior, maintain a fork,
-or add a second resource model. It currently generates all 254 upstream
-Terraform resources in both cluster-scoped and namespaced Crossplane API
-families. Terraform's 16 read-only data sources are not Crossplane managed
-resources and are not generated.
+Where it deliberately diverges from upstream is resource identity: Terraform's
+episodic apply model tolerates RouterOS's ephemeral internal `*XX` ids, but a
+Crossplane controller reconciling forever does not — RouterOS reassigns the id
+when an item is deleted and recreated outside the controller, which permanently
+breaks reconciliation and can silently mint duplicates. Every divergence is
+explicit, probe-verified against a live RouterOS instance, and pinned in this
+repository.
+
+## Resource identity
+
+The `crossplane.io/external-name` annotation holds the resource identity.
+Three classes exist:
+
+- **Name identity** (65 resources, see `config/name_identity.go`): resources
+  whose RouterOS name is enforced unique — verified per resource by
+  `hack/uniqprobe`, verdicts pinned in `config/name-uniqueness.json` — are
+  identified by name. The external-name is the RouterOS name, and the current
+  internal id is resolved on every operation, so out-of-band delete/recreate
+  heals on the next reconcile. For DHCP clients the router supports a settable,
+  enforced-unique `name` that the upstream Terraform schema does not model; the
+  provider injects the field (`spec.forProvider.name`, required).
+- **Comment identity** (firewall NAT, see `config/comment_identity.go`): NAT
+  rules have no name, so the comment is the identity. It is required at
+  create, must be unique among NAT rules (RouterOS does not enforce this; the
+  provider does, and fails loudly on ambiguity instead of guessing), and
+  renaming it moves the external-name along.
+- **Provider identity** (everything else): the upstream Terraform id, usually
+  the ephemeral `*XX`. Keep external names in Git for resources that must be
+  re-adopted after rebuilding the management cluster, and prefer `Observe`
+  management policies when adopting existing configuration.
+
+Rule ordering in ordered menus (firewall chains, queues) is out of scope for
+this provider; see `docs/adr/0001` for the design that addresses it and the
+reasoning.
+
+## Verified against the router, not the docs
+
+RouterOS behavior is pinned from probing disposable CHR instances, not from
+documentation, which the probes have shown to be wrong in both directions:
+
+- `config/console-tree.json` — the router's own menu/command/argument tree
+  from `/console/inspect` (`hack/inspectdump`), the closest thing RouterOS has
+  to a REST API schema.
+- `config/name-uniqueness.json` — per-resource name-uniqueness verdicts
+  (`hack/uniqprobe`).
+- `config/type-verdicts.json` — accepted values and coercions of disputed
+  field types (`hack/schemaaudit/typeprobe.py`).
+- `hack/chr/run.sh` — boots the disposable CHR under qemu that all probes run
+  against; `hack/schemaaudit/audit.py` diffs router truth against the upstream
+  provider schemas.
 
 ## Runtime model
 
 The upstream Terraform Plugin SDK v2 provider is compiled into the Crossplane
 provider process (Upjet "no-fork" mode). The runtime image contains neither the
 Terraform CLI nor a separate provider plugin. Resource operations are delegated
-to the official provider callbacks and schemas.
-
-Terraform SDK `ValidateFunc` callbacks are Terraform configuration-time
-validation and are not run while Upjet refreshes state in no-fork mode. This is
-why values accepted by RouterOS, such as `romon`, do not require a local schema
-patch.
+to the official provider callbacks and schemas, wrapped by the identity layer
+described above.
 
 ## Configuration
 
@@ -65,27 +106,25 @@ Supported keys are `hosturl`, `username`, `password`, `ca_certificate`,
 `ca_certificate` has the same meaning as upstream: it is a path visible inside
 the provider container.
 
-## Resource identity and recovery
+## Upgrading across identity changes
 
-Upjet stores the official Terraform resource ID in the
-`crossplane.io/external-name` annotation. The provider does not invent natural
-keys, inject ownership comments, or automatically rediscover every RouterOS
-object after Kubernetes state is lost. Keep external names in Git for resources
-that must be re-adopted after rebuilding the management cluster, and first use
-Crossplane management policies such as `Observe` when adopting existing
-configuration.
+When a resource kind switches identity class, existing managed resources must
+be migrated before upgrading:
 
-Ordering, singleton behavior, defaults, move operations, and deletion semantics
-remain those implemented by `terraform-routeros`. Any future custom behavior
-should be explicit and should not silently diverge from upstream.
+- **v0.4.0** — DHCP clients: set `spec.forProvider.name` to the router's
+  current client name and rewrite the external-name annotation from the `*XX`
+  id to that name.
+- **v0.5.0** — firewall NAT rules: give each managed rule a unique comment and
+  rewrite the external-name annotation from the `*XX` id to the comment.
 
 ## Following upstream
 
 The exact official provider release is pinned as a Go module in `go.mod`.
 Renovate proposes every stable upstream release. The Makefile derives the
-Terraform schema and documentation tag from that module version, so an update is
-reviewed by regenerating metadata, APIs, controllers, and CRDs and checking the
-resulting diff.
+Terraform schema and documentation tag from that module version, so an update
+is reviewed by regenerating metadata, APIs, controllers, and CRDs and checking
+the resulting diff. Tests gate every identity override against the pinned
+verdicts and flag overrides that upstream has made redundant.
 
 ## Development
 
@@ -102,11 +141,18 @@ go test ./...
 go build ./cmd/provider
 ```
 
+Run the identity integration tests against a live disposable router:
+
+```console
+hack/chr/run.sh
+CHR_REST=http://127.0.0.1:18080 go test -run LiveCHR ./config/
+hack/chr/run.sh stop
+```
+
 Run against a Kubernetes cluster:
 
 ```console
 make run
 ```
 
-Please report bugs and feature requests in this repository. Behavior inherited
-from `terraform-routeros` should be followed upstream rather than patched here.
+Please report bugs and feature requests in this repository.

@@ -124,6 +124,14 @@ func synthesize(field string, s *schema.Schema, second bool) any {
 	return nil
 }
 
+// injectedName lists resources whose RouterOS item has a settable name
+// property that the upstream Terraform schema does not model (verified against
+// config/console-tree.json). They are probed by sending name directly.
+var injectedName = map[string]bool{
+	"routeros_dhcp_client":    true,
+	"routeros_ip_dhcp_client": true,
+}
+
 // overrides supplies resource-specific field values the generic synthesizer
 // cannot guess: [first, second] per field, empty string meaning omit.
 var overrides = map[string]map[string][2]string{
@@ -141,6 +149,10 @@ var overrides = map[string]map[string][2]string{
 	"routeros_ip_dns_record":            {"address": {"192.0.2.1", "192.0.2.2"}},
 	"routeros_ip_dhcp_relay":            {"interface": {"ether2", "ether3"}, "dhcp_server": {"192.0.2.5", "192.0.2.6"}},
 	"routeros_interface_eoip":           {"interface": {"", ""}, "tunnel_id": {"33", "34"}},
+	// Vary the interface so only the name collides; a same-interface second
+	// create could be rejected for the interface instead.
+	"routeros_dhcp_client":    {"interface": {"ether2", "ether3"}},
+	"routeros_ip_dhcp_client": {"interface": {"ether2", "ether3"}},
 }
 
 type verdict struct {
@@ -176,7 +188,7 @@ func probe(name string, r *schema.Resource) verdict {
 	if idt, _ := idS.Default.(int); idt != int(routeros.Id) {
 		return verdict{Resource: name, Path: path, Verdict: "SKIP", Detail: "already Name-identified upstream"}
 	}
-	if _, ok := r.Schema["name"]; !ok {
+	if _, ok := r.Schema["name"]; !ok && !injectedName[name] {
 		return verdict{Resource: name, Path: path, Verdict: "SKIP", Detail: "no name field"}
 	}
 

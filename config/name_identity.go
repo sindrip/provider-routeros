@@ -25,6 +25,7 @@ import (
 // annotation is updated to match.
 var nameIdentityResources = []string{
 	"routeros_bridge",
+	"routeros_dhcp_client",
 	"routeros_dhcp_client_option",
 	"routeros_dhcp_server",
 	"routeros_file",
@@ -47,6 +48,7 @@ var nameIdentityResources = []string{
 	"routeros_interface_vlan",
 	"routeros_interface_vrrp",
 	"routeros_interface_wireguard",
+	"routeros_ip_dhcp_client",
 	"routeros_ip_dhcp_client_option",
 	"routeros_ip_dhcp_server",
 	"routeros_ip_firewall_layer7_protocol",
@@ -87,6 +89,32 @@ var nameIdentityResources = []string{
 	"routeros_wifi_security",
 	"routeros_wifi_steering",
 	"routeros_wireguard",
+}
+
+// injectedNameResources have a settable, enforced-unique name property on the
+// router (see /ip/dhcp-client add in config/console-tree.json and the pinned
+// UNIQUE verdicts) that the upstream Terraform schema does not model. The
+// field is injected into both the generation schema (so the CRD carries
+// spec.forProvider.name) and the runtime schema (so the upstream CRUD
+// serializes it and can set the Terraform ID from it under Name identity).
+// It is Required because upstream ResourceCreate derives the ID from the name
+// in the request body; an omitted name would leave the ID empty and fail the
+// create. If upstream ever models the field itself, the injection becomes
+// redundant and the test will flag it.
+var injectedNameResources = []string{
+	"routeros_dhcp_client",
+	"routeros_ip_dhcp_client",
+}
+
+func injectRouterName(p *schema.Provider) *schema.Provider {
+	for _, name := range injectedNameResources {
+		p.ResourcesMap[name].Schema["name"] = &schema.Schema{
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.",
+		}
+	}
+	return p
 }
 
 func withNameIdentity(p *schema.Provider) *schema.Provider {

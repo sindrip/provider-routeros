@@ -107,6 +107,10 @@ spec:
                       (String) Name of the interface.
                       Name of the interface.
                     type: string
+                  name:
+                    description: Name of the item on the router. RouterOS enforces
+                      uniqueness; the provider uses it as the resource identity.
+                    type: string
                   script:
                     description: |-
                       (String) A script.
@@ -203,6 +207,10 @@ spec:
                     description: |-
                       (String) Name of the interface.
                       Name of the interface.
+                    type: string
+                  name:
+                    description: Name of the item on the router. RouterOS enforces
+                      uniqueness; the provider uses it as the resource identity.
                     type: string
                   script:
                     description: |-
@@ -302,6 +310,10 @@ spec:
               rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
                 || ''Update'' in self.managementPolicies) || has(self.forProvider.interface)
                 || (has(self.initProvider) && has(self.initProvider.interface))'
+            - message: spec.forProvider.name is a required parameter
+              rule: '!(''*'' in self.managementPolicies || ''Create'' in self.managementPolicies
+                || ''Update'' in self.managementPolicies) || has(self.forProvider.name)
+                || (has(self.initProvider) && has(self.initProvider.name))'
           status:
             description: DHCPClientStatus defines the observed state of DHCPClient.
             properties:
@@ -387,6 +399,10 @@ spec:
                   invalid:
                     description: (Boolean)
                     type: boolean
+                  name:
+                    description: Name of the item on the router. RouterOS enforces
+                      uniqueness; the provider uses it as the resource identity.
+                    type: string
                   primaryDns:
                     description: |-
                       (String) The IP address of the first DNS resolver, that was assigned by the DHCP server.

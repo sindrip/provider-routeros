@@ -43,6 +43,9 @@ type ClientInitParameters struct {
 	// Name of the interface.
 	Interface *string `json:"interface,omitempty" tf:"interface,omitempty"`
 
+	// Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
 	// A script.
 	Script *string `json:"script,omitempty" tf:"script,omitempty"`
 
@@ -113,6 +116,9 @@ type ClientObservation struct {
 	Interface *string `json:"interface,omitempty" tf:"interface,omitempty"`
 
 	Invalid *bool `json:"invalid,omitempty" tf:"invalid,omitempty"`
+
+	// Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
 	// The IP address of the first DNS resolver, that was assigned by the DHCP server.
 	PrimaryDNS *string `json:"primaryDns,omitempty" tf:"primary_dns,omitempty"`
@@ -190,6 +196,10 @@ type ClientParameters struct {
 	// +kubebuilder:validation:Optional
 	Interface *string `json:"interface,omitempty" tf:"interface,omitempty"`
 
+	// Name of the item on the router. RouterOS enforces uniqueness; the provider uses it as the resource identity.
+	// +kubebuilder:validation:Optional
+	Name *string `json:"name,omitempty" tf:"name,omitempty"`
+
 	// A script.
 	// +kubebuilder:validation:Optional
 	Script *string `json:"script,omitempty" tf:"script,omitempty"`
@@ -255,6 +265,7 @@ type Client struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.interface) || (has(self.initProvider) && has(self.initProvider.interface))",message="spec.forProvider.interface is a required parameter"
+	// +kubebuilder:validation:XValidation:rule="!('*' in self.managementPolicies || 'Create' in self.managementPolicies || 'Update' in self.managementPolicies) || has(self.forProvider.name) || (has(self.initProvider) && has(self.initProvider.name))",message="spec.forProvider.name is a required parameter"
 	Spec   ClientSpec   `json:"spec"`
 	Status ClientStatus `json:"status,omitempty"`
 }

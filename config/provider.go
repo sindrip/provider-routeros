@@ -50,7 +50,7 @@ func GetProviderNamespacedRuntime() *ujconfig.Provider {
 }
 
 func providerForRuntime() *schema.Provider {
-	return withNameIdentity(injectRouterName(routeros.Provider()))
+	return withCommentIdentity(withNameIdentity(injectRouterName(routeros.Provider())))
 }
 
 func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Provider) *ujconfig.Provider {

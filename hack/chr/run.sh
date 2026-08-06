@@ -27,8 +27,10 @@ alive() { [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; }
 case "${1:-start}" in
 stop)
     if alive; then
-        kill "$(cat "$PIDFILE")"
-        echo "stopped CHR (pid $(cat "$PIDFILE"))"
+        # Read the pid before kill: qemu removes its own pidfile on exit.
+        PID="$(cat "$PIDFILE")"
+        kill "$PID"
+        echo "stopped CHR (pid $PID)"
     else
         echo "CHR is not running"
     fi

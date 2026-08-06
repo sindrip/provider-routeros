@@ -35,7 +35,7 @@ func TestCommentIdentityLiveCHR(t *testing.T) {
 	// A comment that stresses the filter encoding: spaces, %, &.
 	comment := "ci live [50% off] & spaces"
 
-	d := natData(t, res, map[string]string{"chain": "srcnat", "action": "masquerade", "comment": comment})
+	d := natData(t, res, map[string]string{attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: comment})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)
 	}
@@ -58,11 +58,11 @@ func TestCommentIdentityLiveCHR(t *testing.T) {
 	if rd.Id() != comment {
 		t.Fatalf("read left id %q", rd.Id())
 	}
-	if rd.Get("action").(string) != "masquerade" {
-		t.Fatalf("read did not populate action: %q", rd.Get("action"))
+	if rd.Get(attrAction).(string) != actionMasquerade {
+		t.Fatalf("read did not populate action: %q", rd.Get(attrAction))
 	}
 
-	dup := natData(t, res, map[string]string{"chain": "srcnat", "action": "masquerade", "comment": comment})
+	dup := natData(t, res, map[string]string{attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: comment})
 	if dg := res.CreateContext(ctx, dup, client); !dg.HasError() {
 		t.Fatal("duplicate-comment create succeeded on live router")
 	}

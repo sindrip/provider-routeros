@@ -16,6 +16,15 @@ import (
 	"github.com/terraform-routeros/terraform-provider-routeros/routeros"
 )
 
+const (
+	attrAction       = "action"
+	attrChain        = "chain"
+	attrID           = ".id"
+	chainSrcnat      = "srcnat"
+	actionMasquerade = "masquerade"
+	testComment      = "wan masquerade"
+)
+
 // fakeRouter emulates the REST surface the wrapped NAT CRUD touches:
 // list-with-comment-filter, get/patch/delete by id, and create.
 type fakeRouter struct {
@@ -31,10 +40,10 @@ func (f *fakeRouter) handler() http.Handler {
 		case r.Method == http.MethodGet && id == "":
 			out := []map[string]string{}
 			for _, it := range f.items {
-				if c, filtered := r.URL.Query()["comment"]; filtered && it["comment"] != c[0] {
+				if c, filtered := r.URL.Query()[commentField]; filtered && it[commentField] != c[0] {
 					continue
 				}
-				if c, filtered := r.URL.Query()[".id"]; filtered && it[".id"] != c[0] {
+				if c, filtered := r.URL.Query()[attrID]; filtered && it[attrID] != c[0] {
 					continue
 				}
 				out = append(out, it)
@@ -50,8 +59,8 @@ func (f *fakeRouter) handler() http.Handler {
 			var body map[string]string
 			json.NewDecoder(r.Body).Decode(&body)
 			f.nextID++
-			body[".id"] = fmt.Sprintf("*%X", f.nextID)
-			f.items[body[".id"]] = body
+			body[attrID] = fmt.Sprintf("*%X", f.nextID)
+			f.items[body[attrID]] = body
 			w.WriteHeader(http.StatusCreated)
 			json.NewEncoder(w).Encode(body)
 		case r.Method == http.MethodPatch:
@@ -127,6 +136,8 @@ func testCtyType(s *schema.Schema) cty.Type {
 		return cty.Set(cty.String)
 	case schema.TypeMap:
 		return cty.Map(cty.String)
+	case schema.TypeString, schema.TypeInvalid:
+		return cty.String
 	default:
 		return cty.String
 	}
@@ -135,23 +146,23 @@ func testCtyType(s *schema.Schema) cty.Type {
 func TestCommentIdentityCreate(t *testing.T) {
 	router, res, client := natHarness(t)
 
-	d := natData(t, res, map[string]string{"chain": "srcnat", "action": "masquerade"})
+	d := natData(t, res, map[string]string{attrChain: chainSrcnat, attrAction: actionMasquerade})
 	if dg := res.CreateContext(context.Background(), d, client); !dg.HasError() {
 		t.Fatal("create without comment succeeded, want identity error")
 	}
 
-	d = natData(t, res, map[string]string{"chain": "srcnat", "action": "masquerade", "comment": "wan masquerade"})
+	d = natData(t, res, map[string]string{attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: testComment})
 	if dg := res.CreateContext(context.Background(), d, client); dg.HasError() {
 		t.Fatalf("create failed: %v", dg)
 	}
-	if d.Id() != "wan masquerade" {
+	if d.Id() != testComment {
 		t.Fatalf("create set id %q, want the comment", d.Id())
 	}
 	if len(router.items) != 1 {
 		t.Fatalf("router has %d items, want 1", len(router.items))
 	}
 
-	dup := natData(t, res, map[string]string{"chain": "srcnat", "action": "masquerade", "comment": "wan masquerade"})
+	dup := natData(t, res, map[string]string{attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: testComment})
 	if dg := res.CreateContext(context.Background(), dup, client); !dg.HasError() {
 		t.Fatal("duplicate-comment create succeeded, want uniqueness error")
 	}
@@ -163,18 +174,18 @@ func TestCommentIdentityCreate(t *testing.T) {
 func TestCommentIdentityReadSurvivesIDChurn(t *testing.T) {
 	router, res, client := natHarness(t)
 	// The item was deleted and recreated out-of-band: same comment, new .id.
-	router.items["*7"] = map[string]string{".id": "*7", "chain": "srcnat", "action": "masquerade", "comment": "wan masquerade"}
+	router.items["*7"] = map[string]string{attrID: "*7", attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: testComment}
 
 	d := natData(t, res, map[string]string{})
-	d.SetId("wan masquerade")
+	d.SetId(testComment)
 	if dg := res.ReadContext(context.Background(), d, client); dg.HasError() {
 		t.Fatalf("read failed: %v", dg)
 	}
-	if d.Id() != "wan masquerade" {
+	if d.Id() != testComment {
 		t.Fatalf("read left id %q, want the comment", d.Id())
 	}
-	if d.Get("chain").(string) != "srcnat" {
-		t.Fatalf("read did not populate fields: chain=%q", d.Get("chain"))
+	if d.Get(attrChain).(string) != chainSrcnat {
+		t.Fatalf("read did not populate fields: chain=%q", d.Get(attrChain))
 	}
 }
 
@@ -190,8 +201,8 @@ func TestCommentIdentityReadGoneAndAmbiguous(t *testing.T) {
 		t.Fatalf("read of missing item kept id %q, want cleared", d.Id())
 	}
 
-	router.items["*1"] = map[string]string{".id": "*1", "chain": "srcnat", "comment": "dup"}
-	router.items["*2"] = map[string]string{".id": "*2", "chain": "srcnat", "comment": "dup"}
+	router.items["*1"] = map[string]string{attrID: "*1", attrChain: chainSrcnat, commentField: "dup"}
+	router.items["*2"] = map[string]string{attrID: "*2", attrChain: chainSrcnat, commentField: "dup"}
 	d = natData(t, res, map[string]string{})
 	d.SetId("dup")
 	if dg := res.ReadContext(context.Background(), d, client); !dg.HasError() {
@@ -201,9 +212,9 @@ func TestCommentIdentityReadGoneAndAmbiguous(t *testing.T) {
 
 func TestCommentIdentityUpdateRename(t *testing.T) {
 	router, res, client := natHarness(t)
-	router.items["*3"] = map[string]string{".id": "*3", "chain": "srcnat", "action": "masquerade", "comment": "old name"}
+	router.items["*3"] = map[string]string{attrID: "*3", attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: "old name"}
 
-	d := natData(t, res, map[string]string{"chain": "srcnat", "action": "masquerade", "comment": "new name"})
+	d := natData(t, res, map[string]string{attrChain: chainSrcnat, attrAction: actionMasquerade, commentField: "new name"})
 	d.SetId("old name")
 	if dg := res.UpdateContext(context.Background(), d, client); dg.HasError() {
 		t.Fatalf("update failed: %v", dg)
@@ -211,14 +222,14 @@ func TestCommentIdentityUpdateRename(t *testing.T) {
 	if d.Id() != "new name" {
 		t.Fatalf("update left id %q, want the new comment", d.Id())
 	}
-	if router.items["*3"]["comment"] != "new name" {
-		t.Fatalf("router item comment is %q, want renamed", router.items["*3"]["comment"])
+	if router.items["*3"][commentField] != "new name" {
+		t.Fatalf("router item comment is %q, want renamed", router.items["*3"][commentField])
 	}
 }
 
 func TestCommentIdentityDeleteTolerantOfGone(t *testing.T) {
 	router, res, client := natHarness(t)
-	router.items["*4"] = map[string]string{".id": "*4", "chain": "srcnat", "comment": "victim"}
+	router.items["*4"] = map[string]string{attrID: "*4", attrChain: chainSrcnat, commentField: "victim"}
 
 	d := natData(t, res, map[string]string{})
 	d.SetId("victim")
@@ -245,7 +256,7 @@ func TestCommentIdentityResourceGates(t *testing.T) {
 		if upstream == nil {
 			t.Fatalf("%s is not an upstream resource", name)
 		}
-		if upstream.Schema["comment"] == nil {
+		if upstream.Schema[commentField] == nil {
 			t.Errorf("%s has no comment field to use as identity", name)
 		}
 		if upstream.Schema["name"] != nil {

@@ -13,7 +13,8 @@ import (
 // commentIdentityResources are resources whose RouterOS items have no
 // enforced-unique field — either no name at all (firewall rules, routing
 // filter rules, bridge ports and VLAN rows, interface list members, DHCP
-// server leases) or a name RouterOS allows duplicates of (DNS records,
+// server leases, IP and IPv6 addresses, DHCP server networks, DHCPv6
+// clients) or a name RouterOS allows duplicates of (DNS records,
 // where same-name records are round-robin, and the BGP menus, where the
 // router accepts duplicate instance, connection and template names and even
 // resolves references to them ambiguously) — so the ephemeral internal .id
@@ -36,12 +37,16 @@ var commentIdentityResources = []string{
 	"routeros_interface_bridge_port",
 	"routeros_interface_bridge_vlan",
 	"routeros_interface_list_member",
+	"routeros_ip_address",
 	"routeros_ip_dhcp_server_lease",
+	"routeros_ip_dhcp_server_network",
 	"routeros_ip_dns_record",
 	"routeros_ip_firewall_filter",
 	"routeros_ip_firewall_mangle",
 	"routeros_ip_firewall_nat",
 	"routeros_ip_firewall_raw",
+	"routeros_ipv6_address",
+	"routeros_ipv6_dhcp_client",
 	"routeros_ipv6_firewall_filter",
 	"routeros_ipv6_firewall_mangle",
 	"routeros_ipv6_firewall_nat",

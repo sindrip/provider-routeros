@@ -13,9 +13,11 @@ import (
 //
 //	CHR_REST=http://127.0.0.1:18080 go test -run LiveCHR ./config/
 const (
-	liveEther    = "ether3"
-	attrName     = "name"
-	chainForward = "forward"
+	liveEther     = "ether3"
+	attrName      = "name"
+	attrInterface = "interface"
+	attrAddress   = "address"
+	chainForward  = "forward"
 )
 
 func TestCommentIdentityLiveCHR(t *testing.T) {
@@ -81,7 +83,7 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: bridge.GetID(routeros.Id)}, "/interface/bridge", client) //nolint:errcheck
 
 	comment := "ci live port [x] & y"
-	d := natData(t, res, map[string]string{"bridge": "ci-live-br", "interface": liveEther, commentField: comment})
+	d := natData(t, res, map[string]string{"bridge": "ci-live-br", attrInterface: liveEther, commentField: comment})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)
 	}
@@ -94,8 +96,8 @@ func TestCommentIdentityLiveCHRBridgePort(t *testing.T) {
 	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 		t.Fatalf("read: %v", dg)
 	}
-	if rd.Get("interface").(string) != liveEther {
-		t.Fatalf("read did not populate interface: %q", rd.Get("interface"))
+	if rd.Get(attrInterface).(string) != liveEther {
+		t.Fatalf("read did not populate interface: %q", rd.Get(attrInterface))
 	}
 
 	del := natData(t, res, map[string]string{})
@@ -164,7 +166,7 @@ func TestCommentIdentityLiveCHRDNSRecord(t *testing.T) {
 		{"ci flux ingress backup", "10.0.99.12"},
 	}
 	for _, r := range recs {
-		d := natData(t, res, map[string]string{attrName: "ci.internal", "type": "A", "address": r.address, commentField: r.comment})
+		d := natData(t, res, map[string]string{attrName: "ci.internal", "type": "A", attrAddress: r.address, commentField: r.comment})
 		if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 			t.Fatalf("create %q: %v", r.comment, dg)
 		}
@@ -188,8 +190,8 @@ func TestCommentIdentityLiveCHRDNSRecord(t *testing.T) {
 		if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 			t.Fatalf("read %q: %v", r.comment, dg)
 		}
-		if rd.Get("address").(string) != r.address {
-			t.Fatalf("read %q resolved to address %q, want %q", r.comment, rd.Get("address"), r.address)
+		if rd.Get(attrAddress).(string) != r.address {
+			t.Fatalf("read %q resolved to address %q, want %q", r.comment, rd.Get(attrAddress), r.address)
 		}
 	}
 }
@@ -211,7 +213,7 @@ func TestCommentIdentityLiveCHRInterfaceListMember(t *testing.T) {
 	defer routeros.DeleteItem(&routeros.ItemId{Type: routeros.Id, Value: list.GetID(routeros.Id)}, "/interface/list", client) //nolint:errcheck
 
 	comment := "ci live member [lan] & mgmt"
-	d := natData(t, res, map[string]string{"list": "ci-live-list", "interface": liveEther, commentField: comment})
+	d := natData(t, res, map[string]string{"list": "ci-live-list", attrInterface: liveEther, commentField: comment})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)
 	}
@@ -224,8 +226,8 @@ func TestCommentIdentityLiveCHRInterfaceListMember(t *testing.T) {
 	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 		t.Fatalf("read: %v", dg)
 	}
-	if rd.Get("interface").(string) != liveEther {
-		t.Fatalf("read did not populate interface: %q", rd.Get("interface"))
+	if rd.Get(attrInterface).(string) != liveEther {
+		t.Fatalf("read did not populate interface: %q", rd.Get(attrInterface))
 	}
 
 	del := natData(t, res, map[string]string{})
@@ -247,7 +249,7 @@ func TestCommentIdentityLiveCHRDhcpServerLease(t *testing.T) {
 
 	// A static lease row stands alone: no DHCP server needs to exist.
 	comment := "ci live lease [jetkvm] & mgmt"
-	d := natData(t, res, map[string]string{"address": "10.0.99.10", "mac_address": "30:52:53:08:3A:93", commentField: comment})
+	d := natData(t, res, map[string]string{attrAddress: "10.0.99.10", "mac_address": "30:52:53:08:3A:93", commentField: comment})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)
 	}
@@ -260,8 +262,8 @@ func TestCommentIdentityLiveCHRDhcpServerLease(t *testing.T) {
 	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
 		t.Fatalf("read: %v", dg)
 	}
-	if rd.Get("address").(string) != "10.0.99.10" {
-		t.Fatalf("read did not populate address: %q", rd.Get("address"))
+	if rd.Get(attrAddress).(string) != "10.0.99.10" {
+		t.Fatalf("read did not populate address: %q", rd.Get(attrAddress))
 	}
 
 	del := natData(t, res, map[string]string{})
@@ -525,5 +527,106 @@ func TestCommentIdentityLiveCHRBgpVpnAndOspfArea(t *testing.T) {
 		if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
 			t.Fatalf("%s delete: %v", tc.resource, dg)
 		}
+	}
+}
+
+func TestCommentIdentityLiveCHRAddressingFamily(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	ctx := context.Background()
+
+	// Addresses and DHCP server networks carry no name — the RouterOS row is
+	// identified only by its ephemeral .id, so the comment is the identity.
+	for _, tc := range []struct {
+		resource   string
+		vals       map[string]string
+		checkField string
+		checkVal   string
+	}{
+		{"routeros_ip_address", map[string]string{attrAddress: "10.0.99.1/24", attrInterface: liveEther}, attrAddress, "10.0.99.1/24"},
+		{"routeros_ipv6_address", map[string]string{attrAddress: "fc00:99::1/64", attrInterface: liveEther}, attrInterface, liveEther},
+		{"routeros_ip_dhcp_server_network", map[string]string{attrAddress: "10.0.99.0/24"}, attrAddress, "10.0.99.0/24"},
+	} {
+		res := providerForRuntime().ResourcesMap[tc.resource]
+		comment := "ci live addr [50% off] & spaces"
+
+		vals := map[string]string{commentField: comment}
+		for k, v := range tc.vals {
+			vals[k] = v
+		}
+		d := natData(t, res, vals)
+		if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+			t.Fatalf("%s create: %v", tc.resource, dg)
+		}
+		if d.Id() != comment {
+			t.Fatalf("%s create set id %q, want the comment", tc.resource, d.Id())
+		}
+
+		rd := natData(t, res, map[string]string{})
+		rd.SetId(comment)
+		if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+			t.Fatalf("%s read: %v", tc.resource, dg)
+		}
+		if rd.Get(tc.checkField).(string) != tc.checkVal {
+			t.Fatalf("%s read did not populate %s: %q", tc.resource, tc.checkField, rd.Get(tc.checkField))
+		}
+
+		dup := natData(t, res, vals)
+		if dg := res.CreateContext(ctx, dup, client); !dg.HasError() {
+			t.Fatalf("%s duplicate-comment create succeeded on live router", tc.resource)
+		}
+
+		del := natData(t, res, map[string]string{})
+		del.SetId(comment)
+		if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+			t.Fatalf("%s delete: %v", tc.resource, dg)
+		}
+	}
+}
+
+func TestCommentIdentityLiveCHRIpv6DhcpClient(t *testing.T) {
+	host := os.Getenv("CHR_REST")
+	if host == "" {
+		t.Skip("set CHR_REST to run against a live CHR")
+	}
+
+	client := testClient(t, host)
+	res := providerForRuntime().ResourcesMap["routeros_ipv6_dhcp_client"]
+	ctx := context.Background()
+
+	// request is a required primitive list; the client row is otherwise
+	// nameless and .id-identified, so the comment carries the identity.
+	comment := "ci live dhcp6 [pd] & spaces"
+	req := map[string][]string{"request": {"prefix"}}
+	d := natDataLists(t, res, map[string]string{attrInterface: liveEther, "pool_name": "ci-live-pd", commentField: comment}, req)
+	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
+		t.Fatalf("create: %v", dg)
+	}
+	if d.Id() != comment {
+		t.Fatalf("create set id %q, want the comment", d.Id())
+	}
+
+	rd := natDataLists(t, res, map[string]string{}, nil)
+	rd.SetId(comment)
+	if dg := res.ReadContext(ctx, rd, client); dg.HasError() {
+		t.Fatalf("read: %v", dg)
+	}
+	if rd.Get(attrInterface).(string) != liveEther {
+		t.Fatalf("read did not populate interface: %q", rd.Get(attrInterface))
+	}
+
+	dup := natDataLists(t, res, map[string]string{attrInterface: liveEther, "pool_name": "ci-live-pd", commentField: comment}, req)
+	if dg := res.CreateContext(ctx, dup, client); !dg.HasError() {
+		t.Fatal("duplicate-comment create succeeded on live router")
+	}
+
+	del := natDataLists(t, res, map[string]string{}, nil)
+	del.SetId(comment)
+	if dg := res.DeleteContext(ctx, del, client); dg.HasError() {
+		t.Fatalf("delete: %v", dg)
 	}
 }

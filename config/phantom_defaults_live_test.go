@@ -59,6 +59,38 @@ func natDataBlocks(t *testing.T, res *schema.Resource, vals map[string]string, b
 	return res.Data(&terraform.InstanceState{Attributes: attrs, RawConfig: cty.ObjectVal(ctyVals)})
 }
 
+// natDataLists is natData extended with primitive-list fields (a TypeList of
+// scalars, e.g. the DHCPv6 client's required request), which natData models
+// only as a null list and natDataBlocks treats as nested resource blocks.
+func natDataLists(t *testing.T, res *schema.Resource, vals map[string]string, lists map[string][]string) *schema.ResourceData {
+	t.Helper()
+	attrs := map[string]string{}
+	ctyVals := map[string]cty.Value{}
+	for name, s := range res.Schema {
+		if list, ok := lists[name]; ok {
+			attrs[name+".#"] = strconv.Itoa(len(list))
+			elems := make([]cty.Value, len(list))
+			for i, v := range list {
+				attrs[name+"."+strconv.Itoa(i)] = v
+				elems[i] = cty.StringVal(v)
+			}
+			if len(elems) == 0 {
+				ctyVals[name] = cty.NullVal(testCtyType(s))
+			} else {
+				ctyVals[name] = cty.ListVal(elems)
+			}
+			continue
+		}
+		if v, ok := vals[name]; ok {
+			attrs[name] = v
+			ctyVals[name] = cty.StringVal(v)
+			continue
+		}
+		ctyVals[name] = cty.NullVal(testCtyType(s))
+	}
+	return res.Data(&terraform.InstanceState{Attributes: attrs, RawConfig: cty.ObjectVal(ctyVals)})
+}
+
 // TestPhantomDefaultsLiveCHRBgpConnection creates a BGP connection through
 // the runtime provider — impossible before the phantom defaults were
 // dropped, because every create carried add-path-out and address-families

@@ -74,6 +74,13 @@ func TestProviderMechanicalAdaptations(t *testing.T) {
 	if got := p.Resources["routeros_ip_dhcp_server_option_set"].Path; got != "dhcpserveroptionsetaliases" {
 		t.Errorf("legacy DHCP option set path = %q, want dhcpserveroptionsetaliases", got)
 	}
+	// date and time are readings; late-initializing them freezes a stale instant
+	// into desired state and the reconciler then writes the clock backwards. A
+	// regen that drops this leaves the generated LateInitialize without the
+	// date/time name filters, so guard the config that produces them.
+	if got := p.Resources["routeros_system_clock"].LateInitializer.IgnoredFields; !slices.Equal(got, []string{"date", "time"}) {
+		t.Errorf("clock LateInitializer.IgnoredFields = %v, want [date time]", got)
+	}
 
 	generation := providerForGeneration()
 	assertRenamedField(t, generation.ResourcesMap["routeros_ipv6_nd_prefix"].Schema, "6to4_interface", "six_to_four_interface")

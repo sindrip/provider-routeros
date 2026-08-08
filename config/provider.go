@@ -88,6 +88,17 @@ func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Pr
 					// same Kubernetes plural, so the alias needs a unique path.
 					r.Path = "dhcpserveroptionsetaliases"
 				}
+				if r.Name == "routeros_system_clock" {
+					// date and time are readings that advance on their own, and
+					// RouterOS excludes local time from config export on purpose.
+					// Late-initializing them freezes a stale instant into desired
+					// state, after which the reconciler writes the clock backwards
+					// on every pass -- drifting real time and wedging the NTP
+					// client, which cannot converge against something that keeps
+					// overwriting it. A field that advances on its own must never
+					// be late-initialized.
+					r.LateInitializer.IgnoredFields = []string{"date", "time"}
+				}
 				if kind, ok := kindOverrides[r.Name]; ok {
 					r.Kind = kind
 				}

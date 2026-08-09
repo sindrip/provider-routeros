@@ -139,9 +139,18 @@ the provider container.
 
 ## Upgrading across identity changes
 
-When a resource kind switches identity class, existing managed resources must
-be migrated before upgrading:
+When a resource kind switches identity class — or when a release changes what
+belongs in `spec.forProvider` — existing managed resources must be migrated
+before upgrading:
 
+- **v0.2.0** — VLANs, users and user groups: the first kinds to leave `*XX`
+  identity. Rewrite the external-name annotation from the `*XX` id to the
+  item's RouterOS name.
+- **v0.3.0** — name identity extends to every probe-verified resource, sixty
+  in one release (the list grows from 3 to 63, gated on the pinned UNIQUE
+  verdicts in `config/name-uniqueness.json`). Rewrite the external-name
+  annotation from the `*XX` id to the item's name for any managed resource of
+  a newly flipped kind.
 - **v0.4.0** — DHCP clients: set `spec.forProvider.name` to the router's
   current client name and rewrite the external-name annotation from the `*XX`
   id to that name.
@@ -193,6 +202,24 @@ be migrated before upgrading:
   rewrite the external-name annotation from the `*XX` id to the comment.
   The BGP VPN comment field is injected — RouterOS has it, the upstream
   schema does not.
+- **v0.16.0** — routing filter rules: give each managed rule a unique comment
+  and rewrite the external-name annotation from the `*XX` id to the comment.
+- **v0.17.0** — comment-addressed sequencing arrives (`docs/adr/0002`). No
+  migration is forced: a `spec.sequence` entry beginning with `*` still passes
+  through as a literal id. But raw ids are unknowable in Git and reassigned on
+  recreate, so move existing sequences onto the rules' comments — which is the
+  whole point of the sequencer. Comments must not begin with `*`.
+- **v0.18.0** — IP and IPv6 addresses, DHCP server networks and DHCPv6
+  clients: give each managed row a unique comment and rewrite the
+  external-name annotation from the `*XX` id to the comment. These menus have
+  no name at all, so the ephemeral id was their only identity. The comment
+  field is native to all four — no CRD change.
+- **v0.20.0** — system clock: `date` and `time` are readings that advance on
+  their own and are no longer late-initialized. The fix stops new resources
+  acquiring them, but a clock resource reconciled by an earlier release
+  already has a stale instant frozen in `spec.forProvider`, and will keep
+  writing the clock backwards until it is removed. Delete `date` and `time`
+  from `spec.forProvider` on existing clock resources.
 - **v0.21.0** — certificates: rewrite the external-name annotation from the
   `*XX` id to the certificate's name (probe-verified UNIQUE). In the same
   release, deleting a CA-issued certificate removes it. Upstream only revoked
@@ -204,6 +231,11 @@ be migrated before upgrading:
   IPv6 neighbour discovery joins interface identity: the `interface=all` row
   the router ships is adopted rather than added, so it no longer has to be
   left unmanaged. Set the external-name to the interface.
+
+The releases absent from that list need nothing: v0.1.0 predates the identity
+work, v0.13.0 fixed a create path that could never have succeeded, so no
+managed resource of those kinds existed to migrate, and v0.19.0 changed only
+what a read observes.
 
 ## Following upstream
 

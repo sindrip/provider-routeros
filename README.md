@@ -276,6 +276,31 @@ before upgrading:
   Check `spec.initProvider` for the same stale boolean while you are there.
   This applies equally to `advertiseDns` from v0.22.0 and to every later
   release that corrects a field's type.
+- **v0.24.0** — the same sweep asked of the numbers. Fourteen fields where
+  RouterOS also answers with a word change type from integer to string:
+  `code` on the four DHCP option kinds (`client-id`, `vendor-specific`),
+  `clientMacLimit` on both DHCP servers (`unlimited`), `newDscp` on both mangle
+  kinds (`from-priority`), `newPriority` and `vlanEncap` on bridge filters,
+  `l2tpv3CookieLength` on L2TP clients (`4-bytes`), and `vlanId` on the three
+  wifi kinds (`none`). Quote the number: `100` becomes `"100"`. Nothing else
+  changes, since a number survives the trip through a string intact — the point
+  is the words, which an integer could never hold. `clientMacLimit` is the one
+  worth re-reading a manifest for: a server left at the router's default of
+  `unlimited` was observed as `0`, and `0` is a limit of zero, so an earlier
+  release could write a real limit onto a device that had none.
+  Four numeric fields are deliberately *not* changed — `hopLimit` and `mtu` on
+  IPv6 neighbour discovery, and `keepaliveTimeout` on the L2TP and PPPoE
+  clients. Their word is a spelling of zero (writing `0` to `hopLimit` stores
+  `unspecified`), so the integer round-trips exactly and retyping would cost the
+  status migration below for nothing.
+  In the same release `loopProtectStatus` on MACVLANs leaves `spec.forProvider`
+  entirely and becomes observation-only. RouterOS answers `unknown parameter
+  loop-protect-status` to any write, so the field could never be set; v0.23.0
+  corrected what it observes but left it settable, which meant a spec that named
+  it — or a late-initialization that filled it — produced a resource that could
+  not reconcile. Delete `loopProtectStatus` from `spec.forProvider` and read it
+  from `status.atProvider`.
+  The stale-status note under v0.23.0 applies to all fifteen of these fields.
 
 The releases absent from that list need nothing: v0.1.0 predates the identity
 work, v0.13.0 fixed a create path that could never have succeeded, so no

@@ -704,7 +704,7 @@ func (in *BridgeFilterInitParameters) DeepCopyInto(out *BridgeFilterInitParamete
 	}
 	if in.NewPriority != nil {
 		in, out := &in.NewPriority, &out.NewPriority
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.OutBridge != nil {
@@ -824,7 +824,7 @@ func (in *BridgeFilterInitParameters) DeepCopyInto(out *BridgeFilterInitParamete
 	}
 	if in.VlanEncap != nil {
 		in, out := &in.VlanEncap, &out.VlanEncap
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.VlanID != nil {
@@ -1026,7 +1026,7 @@ func (in *BridgeFilterObservation) DeepCopyInto(out *BridgeFilterObservation) {
 	}
 	if in.NewPriority != nil {
 		in, out := &in.NewPriority, &out.NewPriority
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.OutBridge != nil {
@@ -1146,7 +1146,7 @@ func (in *BridgeFilterObservation) DeepCopyInto(out *BridgeFilterObservation) {
 	}
 	if in.VlanEncap != nil {
 		in, out := &in.VlanEncap, &out.VlanEncap
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.VlanID != nil {
@@ -1306,7 +1306,7 @@ func (in *BridgeFilterParameters) DeepCopyInto(out *BridgeFilterParameters) {
 	}
 	if in.NewPriority != nil {
 		in, out := &in.NewPriority, &out.NewPriority
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.OutBridge != nil {
@@ -1426,7 +1426,7 @@ func (in *BridgeFilterParameters) DeepCopyInto(out *BridgeFilterParameters) {
 	}
 	if in.VlanEncap != nil {
 		in, out := &in.VlanEncap, &out.VlanEncap
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.VlanID != nil {
@@ -10993,7 +10993,7 @@ func (in *L2TpClientInitParameters) DeepCopyInto(out *L2TpClientInitParameters) 
 	}
 	if in.L2Tpv3CookieLength != nil {
 		in, out := &in.L2Tpv3CookieLength, &out.L2Tpv3CookieLength
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.L2Tpv3DigestHash != nil {
@@ -11171,7 +11171,7 @@ func (in *L2TpClientObservation) DeepCopyInto(out *L2TpClientObservation) {
 	}
 	if in.L2Tpv3CookieLength != nil {
 		in, out := &in.L2Tpv3CookieLength, &out.L2Tpv3CookieLength
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.L2Tpv3DigestHash != nil {
@@ -11317,7 +11317,7 @@ func (in *L2TpClientParameters) DeepCopyInto(out *L2TpClientParameters) {
 	}
 	if in.L2Tpv3CookieLength != nil {
 		in, out := &in.L2Tpv3CookieLength, &out.L2Tpv3CookieLength
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.L2Tpv3DigestHash != nil {
@@ -12309,11 +12309,6 @@ func (in *MacvlanInitParameters) DeepCopyInto(out *MacvlanInitParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.LoopProtectStatus != nil {
-		in, out := &in.LoopProtectStatus, &out.LoopProtectStatus
-		*out = new(string)
-		**out = **in
-	}
 	if in.MacAddress != nil {
 		in, out := &in.MacAddress, &out.MacAddress
 		*out = new(string)
@@ -12513,11 +12508,6 @@ func (in *MacvlanParameters) DeepCopyInto(out *MacvlanParameters) {
 	}
 	if in.LoopProtectSendInterval != nil {
 		in, out := &in.LoopProtectSendInterval, &out.LoopProtectSendInterval
-		*out = new(string)
-		**out = **in
-	}
-	if in.LoopProtectStatus != nil {
-		in, out := &in.LoopProtectStatus, &out.LoopProtectStatus
 		*out = new(string)
 		**out = **in
 	}

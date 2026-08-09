@@ -375,7 +375,7 @@ func (in *ClientOptionInitParameters) DeepCopyInto(out *ClientOptionInitParamete
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Name != nil {
@@ -442,7 +442,7 @@ func (in *ClientOptionObservation) DeepCopyInto(out *ClientOptionObservation) {
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.ID != nil {
@@ -482,7 +482,7 @@ func (in *ClientOptionParameters) DeepCopyInto(out *ClientOptionParameters) {
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Name != nil {
@@ -766,7 +766,7 @@ func (in *ServerInitParameters) DeepCopyInto(out *ServerInitParameters) {
 	}
 	if in.ClientMacLimit != nil {
 		in, out := &in.ClientMacLimit, &out.ClientMacLimit
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -1882,7 +1882,7 @@ func (in *ServerObservation) DeepCopyInto(out *ServerObservation) {
 	}
 	if in.ClientMacLimit != nil {
 		in, out := &in.ClientMacLimit, &out.ClientMacLimit
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -2053,7 +2053,7 @@ func (in *ServerParameters) DeepCopyInto(out *ServerParameters) {
 	}
 	if in.ClientMacLimit != nil {
 		in, out := &in.ClientMacLimit, &out.ClientMacLimit
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {

@@ -16,8 +16,8 @@ import (
 type DHCPServerOptionInitParameters struct {
 
 	// (Number) The number of the DHCP option
-	// The number of the DHCP option
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	// The number of the DHCP option RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String)
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
@@ -38,8 +38,8 @@ type DHCPServerOptionInitParameters struct {
 type DHCPServerOptionObservation struct {
 
 	// (Number) The number of the DHCP option
-	// The number of the DHCP option
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	// The number of the DHCP option RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String)
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
@@ -67,9 +67,9 @@ type DHCPServerOptionObservation struct {
 type DHCPServerOptionParameters struct {
 
 	// (Number) The number of the DHCP option
-	// The number of the DHCP option
+	// The number of the DHCP option RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
 	// +kubebuilder:validation:Optional
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String)
 	// +kubebuilder:validation:Optional

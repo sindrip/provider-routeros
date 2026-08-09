@@ -40,8 +40,8 @@ type ServerInitParameters struct {
 	// Support for BOOTP clients.
 	BootpSupport *string `json:"bootpSupport,omitempty" tf:"bootp_support,omitempty"`
 
-	// Specifies whether to limit specific number of clients per single MAC address.
-	ClientMacLimit *int64 `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
+	// Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+	ClientMacLimit *string `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
 
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
 
@@ -122,8 +122,8 @@ type ServerObservation struct {
 	// Support for BOOTP clients.
 	BootpSupport *string `json:"bootpSupport,omitempty" tf:"bootp_support,omitempty"`
 
-	// Specifies whether to limit specific number of clients per single MAC address.
-	ClientMacLimit *int64 `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
+	// Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+	ClientMacLimit *string `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
 
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
 
@@ -219,9 +219,9 @@ type ServerParameters struct {
 	// +kubebuilder:validation:Optional
 	BootpSupport *string `json:"bootpSupport,omitempty" tf:"bootp_support,omitempty"`
 
-	// Specifies whether to limit specific number of clients per single MAC address.
+	// Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
 	// +kubebuilder:validation:Optional
-	ClientMacLimit *int64 `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
+	ClientMacLimit *string `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`

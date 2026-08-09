@@ -1552,7 +1552,7 @@ func (in *MangleInitParameters) DeepCopyInto(out *MangleInitParameters) {
 	}
 	if in.NewDscp != nil {
 		in, out := &in.NewDscp, &out.NewDscp
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.NewMss != nil {
@@ -1954,7 +1954,7 @@ func (in *MangleObservation) DeepCopyInto(out *MangleObservation) {
 	}
 	if in.NewDscp != nil {
 		in, out := &in.NewDscp, &out.NewDscp
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.NewMss != nil {
@@ -2309,7 +2309,7 @@ func (in *MangleParameters) DeepCopyInto(out *MangleParameters) {
 	}
 	if in.NewDscp != nil {
 		in, out := &in.NewDscp, &out.NewDscp
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.NewMss != nil {

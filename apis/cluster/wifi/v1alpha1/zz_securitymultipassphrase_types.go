@@ -38,8 +38,8 @@ type SecurityMultiPassphraseInitParameters struct {
 	PassphraseSecretRef *v2.SecretKeySelector `json:"passphraseSecretRef,omitempty" tf:"-"`
 
 	// id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-	// vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	// vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 type SecurityMultiPassphraseObservation struct {
@@ -66,8 +66,8 @@ type SecurityMultiPassphraseObservation struct {
 	Isolation *bool `json:"isolation,omitempty" tf:"isolation,omitempty"`
 
 	// id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-	// vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	// vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 type SecurityMultiPassphraseParameters struct {
@@ -101,9 +101,9 @@ type SecurityMultiPassphraseParameters struct {
 	PassphraseSecretRef *v2.SecretKeySelector `json:"passphraseSecretRef,omitempty" tf:"-"`
 
 	// id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-	// vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
+	// vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
 	// +kubebuilder:validation:Optional
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 // SecurityMultiPassphraseSpec defines the desired state of SecurityMultiPassphrase

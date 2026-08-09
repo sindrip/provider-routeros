@@ -20,8 +20,8 @@ type DHCPServerOptionMatcherInitParameters struct {
 	AddressPool *string `json:"addressPool,omitempty" tf:"address_pool,omitempty"`
 
 	// dhcp-parameters
-	// DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	// DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String)
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
@@ -64,8 +64,8 @@ type DHCPServerOptionMatcherObservation struct {
 	AddressPool *string `json:"addressPool,omitempty" tf:"address_pool,omitempty"`
 
 	// dhcp-parameters
-	// DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	// DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String)
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
@@ -112,9 +112,9 @@ type DHCPServerOptionMatcherParameters struct {
 	AddressPool *string `json:"addressPool,omitempty" tf:"address_pool,omitempty"`
 
 	// dhcp-parameters
-	// DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters
+	// DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
 	// +kubebuilder:validation:Optional
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String)
 	// +kubebuilder:validation:Optional

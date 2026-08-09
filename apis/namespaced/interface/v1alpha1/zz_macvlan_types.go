@@ -47,10 +47,6 @@ type MacvlanInitParameters struct {
 	// (String)
 	LoopProtectSendInterval *string `json:"loopProtectSendInterval,omitempty" tf:"loop_protect_send_interval,omitempty"`
 
-	// (Boolean) Loop protect status
-	// Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
-	LoopProtectStatus *string `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
-
 	// (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
 	// Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
 	MacAddress *string `json:"macAddress,omitempty" tf:"mac_address,omitempty"`
@@ -178,11 +174,6 @@ type MacvlanParameters struct {
 	// (String)
 	// +kubebuilder:validation:Optional
 	LoopProtectSendInterval *string `json:"loopProtectSendInterval,omitempty" tf:"loop_protect_send_interval,omitempty"`
-
-	// (Boolean) Loop protect status
-	// Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
-	// +kubebuilder:validation:Optional
-	LoopProtectStatus *string `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
 
 	// (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
 	// Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.

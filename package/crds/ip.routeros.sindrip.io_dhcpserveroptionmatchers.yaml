@@ -82,9 +82,8 @@ spec:
                   code:
                     description: |-
                       dhcp-parameters
-                      DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters
-                    format: int64
-                    type: integer
+                      DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+                    type: string
                   comment:
                     description: (String)
                     type: string
@@ -145,9 +144,8 @@ spec:
                   code:
                     description: |-
                       dhcp-parameters
-                      DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters
-                    format: int64
-                    type: integer
+                      DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+                    type: string
                   comment:
                     description: (String)
                     type: string
@@ -296,9 +294,8 @@ spec:
                   code:
                     description: |-
                       dhcp-parameters
-                      DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters
-                    format: int64
-                    type: integer
+                      DHCP option code. All codes are available at http://www.iana.org/assignments/bootp-dhcp-parameters RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+                    type: string
                   comment:
                     description: (String)
                     type: string

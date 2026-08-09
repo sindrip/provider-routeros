@@ -4,8 +4,39 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// mistypedEnumFields are upstream schema fields typed as booleans for router
-// properties that are not booleans. RouterOS 7.23 answers /ipv6/nd
+// mistypedField is one field and the router vocabulary its Terraform type
+// cannot hold.
+//
+// upstream records what the schema models it as today, and the gate test fails
+// if that changes: a fix landing upstream should retire the entry rather than
+// have this quietly shadow it. doc hangs off the entry rather than off the
+// field name because the same name carries different vocabularies on different
+// menus — a DHCP client option's code takes four names, a server option's
+// takes one.
+type mistypedField struct {
+	field    string
+	upstream schema.ValueType
+	doc      string
+}
+
+// Vocabularies shared by more than one entry. The value belongs to the router
+// property, so every menu exposing it says the same thing.
+const (
+	docPFS = " RouterOS accepts \"required\" (demand perfect forward secrecy), \"yes\" or \"no\"; " +
+		"it rejects true and false."
+	docNewDSCP = " RouterOS accepts a DSCP number, or \"from-priority\" or " +
+		"\"from-priority-to-high-3-bits\"."
+	docVLANID         = " RouterOS accepts a VLAN id 1..4095, or \"none\"; 0 is out of range."
+	docClientMACLimit = " RouterOS accepts a number of clients, or \"unlimited\" (its default). " +
+		"Note that 0 is a limit of zero, not unlimited."
+	docClientOptionCode = " RouterOS accepts a DHCP option code 1..254, or \"client-id\", " +
+		"\"hostname\", \"vendor-class-id\" or \"vendor-specific\"; 0 is out of range."
+	docServerOptionCode = " RouterOS accepts a DHCP option code 1..254, or \"vendor-specific\"; " +
+		"0 is out of range."
+)
+
+// mistypedFields are upstream schema fields typed as booleans or numbers for
+// router properties that are neither. RouterOS 7.23 answers /ipv6/nd
 // advertise-dns with self, yes or no and rejects true and false outright with
 // HTTP 400 (verified) — self, which advertises the router's own address as the
 // DNS server, being the setting the argument mostly exists for. Upstream's own
@@ -26,10 +57,28 @@ import (
 // asks a live router what every console property accepts (/console/inspect
 // answers request=completion with the vocabulary) and
 // hack/schemaaudit/mistyped.py diffs that against the upstream schema, which
-// makes "a bool cannot hold three states" a query rather than a hunch. These
-// seven are every field on 7.23.2 where it holds. Re-running the pair on a
-// newer release is how this list stays honest, and both the manual and the
-// router agree on the current set.
+// makes "a bool cannot hold three states" a query rather than a hunch. Seven
+// bools on 7.23.2 answer it. Re-running the pair on a newer release is how
+// this list stays honest, and both the manual and the router agree on the set.
+//
+// The same query asked of the numbers finds fourteen more, where the router
+// also answers with a word: unlimited, from-priority, vendor-specific, none.
+// Those divide by what the word costs. Where the router refuses the number the
+// int would send — vlan-id is 1..4095 and code is 1..254, so neither reaches 0
+// — a row using the word cannot be managed at all, because every write of the
+// observed value is rejected. Where it accepts it, the loss is quieter and
+// worse: a DHCP server holding client-mac-limit=unlimited is observed as 0, 0
+// is a real limit of zero, and writing it back silently reconfigures the
+// device and then sits still, with nothing left to notice.
+//
+// Four numeric fields the sweep raised are deliberately absent, and belong
+// here so they are not "found" again: hop-limit and mtu on /ipv6/nd, and
+// keepalive-timeout on the l2tp and pppoe clients. Their sentinel is a
+// spelling of zero — writing 0 to hop-limit stores unspecified, and to
+// keepalive-timeout stores disabled (both verified) — so the int round-trips
+// exactly and only atProvider reads a little oddly. Retyping them would cost
+// every affected user the status migration in the v0.23.0 release note and buy
+// nothing.
 //
 // Two of them are not the advertise-dns shape, and neither is a write loop:
 //
@@ -47,9 +96,9 @@ import (
 //     it optional and leaves it out of the serializer's skip list, so it sits
 //     in spec.forProvider where a spec can set it and late-initialization can
 //     fill it. Retyping fixes what the field observes — off, on or disabled
-//     rather than a bool — and does not make it writable: a spec that carries
-//     it still fails. Modelling it as computed-only is the other half of that
-//     fix and is deliberately not attempted here.
+//     rather than a bool — and cannot make it writable, which was never the
+//     schema's to grant. withRouterReadOnly is the other half: it marks the
+//     field computed-only, so nothing puts it in spec to begin with.
 //
 // Dropping the default matters independently of the type: the serializer emits
 // every defaulted field, so a spec that never mentions advertise-dns would
@@ -63,50 +112,62 @@ import (
 // validated in the schema because upjet never runs ValidateFunc — the router
 // rejects a bad value loudly instead, which is the same bargain
 // withoutPhantomDefaults strikes.
-var mistypedEnumFields = map[string][]string{
-	"routeros_interface_macvlan":       {"loop_protect_status"},
-	"routeros_interface_ovpn_client":   {"use_peer_dns"},
-	"routeros_interface_sstp_client":   {"pfs"},
-	"routeros_interface_sstp_server":   {"pfs"},
-	"routeros_ipv6_dhcp_server":        {"use_radius"},
-	"routeros_ipv6_neighbor_discovery": {"advertise_dns"},
-	"routeros_system_certificate":      {"digest_algorithm"},
-}
+var mistypedFields = map[string][]mistypedField{
+	// Booleans over a third state (v0.23.0).
+	"routeros_interface_macvlan": {{"loop_protect_status", schema.TypeBool,
+		" Read-only. RouterOS reports \"on\", \"off\" or \"disabled\"."}},
+	"routeros_interface_ovpn_client": {{"use_peer_dns", schema.TypeBool,
+		" RouterOS accepts \"exclusively\" (use only the peer's servers), \"yes\" or \"no\"; " +
+			"it rejects true and false."}},
+	"routeros_interface_sstp_client": {{"pfs", schema.TypeBool, docPFS}},
+	"routeros_interface_sstp_server": {{"pfs", schema.TypeBool, docPFS}},
+	"routeros_ipv6_dhcp_server": {{"use_radius", schema.TypeBool,
+		" RouterOS accepts \"accounting\" (RADIUS for accounting only), \"yes\" or \"no\"; " +
+			"it rejects true and false."}},
+	"routeros_ipv6_neighbor_discovery": {{"advertise_dns", schema.TypeBool,
+		" RouterOS accepts \"self\" (advertise the router's own address), \"yes\" or \"no\"; " +
+			"it rejects true and false."}},
+	"routeros_system_certificate": {{"digest_algorithm", schema.TypeBool,
+		" RouterOS accepts \"md5\", \"sha1\", \"sha256\", \"sha384\" or \"sha512\"; " +
+			"it rejects true, false, yes and no."}},
 
-// enumValueDocs are appended to the retyped field's description so the
-// generated CRD carries the vocabulary the schema can no longer express.
-// Keyed by field name: the vocabulary belongs to the router property, so the
-// two pfs fields share one entry.
-var enumValueDocs = map[string]string{
-	"advertise_dns": " RouterOS accepts \"self\" (advertise the router's own address), \"yes\" or \"no\"; " +
-		"it rejects true and false.",
-	"digest_algorithm": " RouterOS accepts \"md5\", \"sha1\", \"sha256\", \"sha384\" or \"sha512\"; " +
-		"it rejects true, false, yes and no.",
-	"loop_protect_status": " Read-only. RouterOS reports \"on\", \"off\" or \"disabled\".",
-	"pfs": " RouterOS accepts \"required\" (demand perfect forward secrecy), \"yes\" or \"no\"; " +
-		"it rejects true and false.",
-	"use_peer_dns": " RouterOS accepts \"exclusively\" (use only the peer's servers), \"yes\" or \"no\"; " +
-		"it rejects true and false.",
-	"use_radius": " RouterOS accepts \"accounting\" (RADIUS for accounting only), \"yes\" or \"no\"; " +
-		"it rejects true and false.",
+	// Numbers over a sentinel word (v0.24.0).
+	"routeros_dhcp_client_option":            {{"code", schema.TypeInt, docClientOptionCode}},
+	"routeros_ip_dhcp_client_option":         {{"code", schema.TypeInt, docClientOptionCode}},
+	"routeros_ip_dhcp_server_option":         {{"code", schema.TypeInt, docServerOptionCode}},
+	"routeros_ip_dhcp_server_option_matcher": {{"code", schema.TypeInt, docServerOptionCode}},
+	"routeros_dhcp_server":                   {{"client_mac_limit", schema.TypeInt, docClientMACLimit}},
+	"routeros_ip_dhcp_server":                {{"client_mac_limit", schema.TypeInt, docClientMACLimit}},
+	"routeros_firewall_mangle":               {{"new_dscp", schema.TypeInt, docNewDSCP}},
+	"routeros_ip_firewall_mangle":            {{"new_dscp", schema.TypeInt, docNewDSCP}},
+	"routeros_interface_bridge_filter": {
+		{"new_priority", schema.TypeInt, " RouterOS accepts a priority number, or \"from-ingress\"."},
+		{"vlan_encap", schema.TypeInt, " RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol " +
+			"name such as \"arp\", \"ip\", \"ipv6\" or \"vlan\"."},
+	},
+	"routeros_interface_l2tp_client": {{"l2tpv3_cookie_length", schema.TypeInt,
+		" RouterOS accepts \"0\", \"4-bytes\" or \"8-bytes\"."}},
+	"routeros_wifi_access_list":               {{"vlan_id", schema.TypeInt, docVLANID}},
+	"routeros_wifi_datapath":                  {{"vlan_id", schema.TypeInt, docVLANID}},
+	"routeros_wifi_security_multi_passphrase": {{"vlan_id", schema.TypeInt, docVLANID}},
 }
 
 func withoutMistypedEnums(p *schema.Provider) *schema.Provider {
-	for resource, fields := range mistypedEnumFields {
+	for resource, fields := range mistypedFields {
 		r := p.ResourcesMap[resource]
 		if r == nil {
 			// A rename upstream would otherwise surface as a nil
 			// dereference partway through provider construction.
-			panic("mistypedEnumFields: no upstream resource " + resource)
+			panic("mistypedFields: no upstream resource " + resource)
 		}
-		for _, field := range fields {
-			s := r.Schema[field]
+		for _, f := range fields {
+			s := r.Schema[f.field]
 			if s == nil {
-				panic("mistypedEnumFields: " + resource + " has no field " + field)
+				panic("mistypedFields: " + resource + " has no field " + f.field)
 			}
 			s.Type = schema.TypeString
 			s.Default = nil
-			s.Description += enumValueDocs[field]
+			s.Description += f.doc
 		}
 	}
 	return p

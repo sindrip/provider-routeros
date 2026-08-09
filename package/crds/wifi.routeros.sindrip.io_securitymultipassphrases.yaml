@@ -118,9 +118,8 @@ spec:
                   vlanId:
                     description: |-
                       id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-                      vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-                    format: int64
-                    type: integer
+                      vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               initProvider:
                 description: |-
@@ -178,9 +177,8 @@ spec:
                   vlanId:
                     description: |-
                       id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-                      vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-                    format: int64
-                    type: integer
+                      vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               managementPolicies:
                 default:
@@ -306,9 +304,8 @@ spec:
                   vlanId:
                     description: |-
                       id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-                      vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join.
-                    format: int64
-                    type: integer
+                      vlan-id that will be assigned to clients using this passphrase Only supported on wifi-qcom interfaces, if wifi-qcom-ac AP has a client that uses a passphrase that has vlan-id associated with it, the client will not be able to join. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

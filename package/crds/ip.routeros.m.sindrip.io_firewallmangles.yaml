@@ -239,9 +239,8 @@ spec:
                   newDscp:
                     description: |-
                       (Number) Sets a new DSCP value for a packet.
-                      Sets a new DSCP value for a packet.
-                    format: int64
-                    type: integer
+                      Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+                    type: string
                   newMss:
                     description: |-
                       (String) Sets a new MSS for a packet.
@@ -599,9 +598,8 @@ spec:
                   newDscp:
                     description: |-
                       (Number) Sets a new DSCP value for a packet.
-                      Sets a new DSCP value for a packet.
-                    format: int64
-                    type: integer
+                      Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+                    type: string
                   newMss:
                     description: |-
                       (String) Sets a new MSS for a packet.
@@ -1029,9 +1027,8 @@ spec:
                   newDscp:
                     description: |-
                       (Number) Sets a new DSCP value for a packet.
-                      Sets a new DSCP value for a packet.
-                    format: int64
-                    type: integer
+                      Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+                    type: string
                   newMss:
                     description: |-
                       (String) Sets a new MSS for a packet.

@@ -132,9 +132,8 @@ spec:
                   l2tpv3CookieLength:
                     description: |-
                       (Number) Configures an L2TPv3 pseudowire static session cookie.
-                      Configures an L2TPv3 pseudowire static session cookie.
-                    format: int64
-                    type: integer
+                      Configures an L2TPv3 pseudowire static session cookie. RouterOS accepts "0", "4-bytes" or "8-bytes".
+                    type: string
                   l2tpv3DigestHash:
                     description: |-
                       (String) Specifies which hash function to be used.
@@ -292,9 +291,8 @@ spec:
                   l2tpv3CookieLength:
                     description: |-
                       (Number) Configures an L2TPv3 pseudowire static session cookie.
-                      Configures an L2TPv3 pseudowire static session cookie.
-                    format: int64
-                    type: integer
+                      Configures an L2TPv3 pseudowire static session cookie. RouterOS accepts "0", "4-bytes" or "8-bytes".
+                    type: string
                   l2tpv3DigestHash:
                     description: |-
                       (String) Specifies which hash function to be used.
@@ -496,9 +494,8 @@ spec:
                   l2tpv3CookieLength:
                     description: |-
                       (Number) Configures an L2TPv3 pseudowire static session cookie.
-                      Configures an L2TPv3 pseudowire static session cookie.
-                    format: int64
-                    type: integer
+                      Configures an L2TPv3 pseudowire static session cookie. RouterOS accepts "0", "4-bytes" or "8-bytes".
+                    type: string
                   l2tpv3DigestHash:
                     description: |-
                       (String) Specifies which hash function to be used.

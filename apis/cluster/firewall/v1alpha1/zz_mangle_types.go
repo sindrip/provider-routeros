@@ -121,8 +121,8 @@ type MangleInitParameters struct {
 	// Sets a new connection-mark value.
 	NewConnectionMark *string `json:"newConnectionMark,omitempty" tf:"new_connection_mark,omitempty"`
 
-	// Sets a new DSCP value for a packet.
-	NewDscp *int64 `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
+	// Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+	NewDscp *string `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
 
 	// Sets a new MSS for a packet.
 	// * clamp-to-pmtu feature sets (DF) bit in the IP header to dynamically discover the PMTU of a path.
@@ -339,8 +339,8 @@ type MangleObservation struct {
 	// Sets a new connection-mark value.
 	NewConnectionMark *string `json:"newConnectionMark,omitempty" tf:"new_connection_mark,omitempty"`
 
-	// Sets a new DSCP value for a packet.
-	NewDscp *int64 `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
+	// Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+	NewDscp *string `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
 
 	// Sets a new MSS for a packet.
 	// * clamp-to-pmtu feature sets (DF) bit in the IP header to dynamically discover the PMTU of a path.
@@ -586,9 +586,9 @@ type MangleParameters struct {
 	// +kubebuilder:validation:Optional
 	NewConnectionMark *string `json:"newConnectionMark,omitempty" tf:"new_connection_mark,omitempty"`
 
-	// Sets a new DSCP value for a packet.
+	// Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
 	// +kubebuilder:validation:Optional
-	NewDscp *int64 `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
+	NewDscp *string `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
 
 	// Sets a new MSS for a packet.
 	// * clamp-to-pmtu feature sets (DF) bit in the IP header to dynamically discover the PMTU of a path.

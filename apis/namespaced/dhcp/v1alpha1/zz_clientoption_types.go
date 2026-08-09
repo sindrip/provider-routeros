@@ -16,8 +16,8 @@ import (
 type ClientOptionInitParameters struct {
 
 	// client option code.
-	// The dhcp-client option code.
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	// The dhcp-client option code. RouterOS accepts a DHCP option code 1..254, or "client-id", "hostname", "vendor-class-id" or "vendor-specific"; 0 is out of range.
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// client.
 	// The name that will be used in dhcp-client.
@@ -35,8 +35,8 @@ type ClientOptionInitParameters struct {
 type ClientOptionObservation struct {
 
 	// client option code.
-	// The dhcp-client option code.
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	// The dhcp-client option code. RouterOS accepts a DHCP option code 1..254, or "client-id", "hostname", "vendor-class-id" or "vendor-specific"; 0 is out of range.
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// (String) The ID of this resource.
 	ID *string `json:"id,omitempty" tf:"id,omitempty"`
@@ -57,9 +57,9 @@ type ClientOptionObservation struct {
 type ClientOptionParameters struct {
 
 	// client option code.
-	// The dhcp-client option code.
+	// The dhcp-client option code. RouterOS accepts a DHCP option code 1..254, or "client-id", "hostname", "vendor-class-id" or "vendor-specific"; 0 is out of range.
 	// +kubebuilder:validation:Optional
-	Code *int64 `json:"code,omitempty" tf:"code,omitempty"`
+	Code *string `json:"code,omitempty" tf:"code,omitempty"`
 
 	// client.
 	// The name that will be used in dhcp-client.

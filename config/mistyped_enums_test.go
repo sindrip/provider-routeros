@@ -21,21 +21,21 @@ func TestMistypedEnumsRetypesBothSchemas(t *testing.T) {
 		"runtime":    providerForRuntime(),
 		"generation": providerForGeneration(),
 	} {
-		for resource, fields := range mistypedEnumFields {
-			for _, field := range fields {
-				s := p.ResourcesMap[resource].Schema[field]
+		for resource, fields := range mistypedFields {
+			for _, f := range fields {
+				s := p.ResourcesMap[resource].Schema[f.field]
 				if s == nil {
-					t.Fatalf("%s: %s has no %s field", which, resource, field)
+					t.Fatalf("%s: %s has no %s field", which, resource, f.field)
 				}
 				if s.Type != schema.TypeString {
-					t.Errorf("%s: %s.%s type = %v, want string", which, resource, field, s.Type)
+					t.Errorf("%s: %s.%s type = %v, want string", which, resource, f.field, s.Type)
 				}
 				if s.Default != nil {
 					t.Errorf("%s: %s.%s keeps default %v; a defaulted field is sent on every request",
-						which, resource, field, s.Default)
+						which, resource, f.field, s.Default)
 				}
-				if doc := enumValueDocs[field]; doc != "" && !strings.Contains(s.Description, doc) {
-					t.Errorf("%s: %s.%s description does not carry the accepted values", which, resource, field)
+				if f.doc != "" && !strings.Contains(s.Description, f.doc) {
+					t.Errorf("%s: %s.%s description does not carry the accepted values", which, resource, f.field)
 				}
 			}
 		}
@@ -45,20 +45,20 @@ func TestMistypedEnumsRetypesBothSchemas(t *testing.T) {
 // Upstream must still be modelling it as a bool, or the override is redundant
 // and should be dropped rather than left to rot.
 func TestMistypedEnumsGates(t *testing.T) {
-	for resource, fields := range mistypedEnumFields {
+	for resource, fields := range mistypedFields {
 		upstream := routeros.Provider().ResourcesMap[resource]
 		if upstream == nil {
 			t.Fatalf("%s is not an upstream resource", resource)
 		}
-		for _, field := range fields {
-			s := upstream.Schema[field]
+		for _, f := range fields {
+			s := upstream.Schema[f.field]
 			if s == nil {
-				t.Errorf("%s.%s no longer exists upstream; drop it from mistypedEnumFields", resource, field)
+				t.Errorf("%s.%s no longer exists upstream; drop it from mistypedFields", resource, f.field)
 				continue
 			}
-			if s.Type != schema.TypeBool {
-				t.Errorf("%s.%s is now %v upstream, not bool; the retype is redundant, drop it",
-					resource, field, s.Type)
+			if s.Type != f.upstream {
+				t.Errorf("%s.%s is now %v upstream, not %v; the retype is redundant or the entry is stale, re-triage it",
+					resource, f.field, s.Type, f.upstream)
 			}
 		}
 	}

@@ -72,8 +72,8 @@ type AccessListInitParameters struct {
 	Time *string `json:"time,omitempty" tf:"time,omitempty"`
 
 	// (Number) VLAN ID to use for VLAN tagging or `none`.
-	// VLAN ID to use for VLAN tagging or `none`.
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	// VLAN ID to use for VLAN tagging or `none`. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 type AccessListObservation struct {
@@ -150,8 +150,8 @@ type AccessListObservation struct {
 	Time *string `json:"time,omitempty" tf:"time,omitempty"`
 
 	// (Number) VLAN ID to use for VLAN tagging or `none`.
-	// VLAN ID to use for VLAN tagging or `none`.
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	// VLAN ID to use for VLAN tagging or `none`. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 type AccessListParameters struct {
@@ -227,9 +227,9 @@ type AccessListParameters struct {
 	Time *string `json:"time,omitempty" tf:"time,omitempty"`
 
 	// (Number) VLAN ID to use for VLAN tagging or `none`.
-	// VLAN ID to use for VLAN tagging or `none`.
+	// VLAN ID to use for VLAN tagging or `none`. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
 	// +kubebuilder:validation:Optional
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 // AccessListSpec defines the desired state of AccessList

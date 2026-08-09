@@ -118,8 +118,8 @@ type BridgeFilterInitParameters struct {
 	NewPacketMark *string `json:"newPacketMark,omitempty" tf:"new_packet_mark,omitempty"`
 
 	// (Number) Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-	// Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-	NewPriority *int64 `json:"newPriority,omitempty" tf:"new_priority,omitempty"`
+	// Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority RouterOS accepts a priority number, or "from-ingress".
+	NewPriority *string `json:"newPriority,omitempty" tf:"new_priority,omitempty"`
 
 	// (String) Bridge interface through which the packet going out.
 	// Bridge interface through which the packet going out.
@@ -215,8 +215,8 @@ type BridgeFilterInitParameters struct {
 	TLSHost *string `json:"tlsHost,omitempty" tf:"tls_host,omitempty"`
 
 	// (Number) Matches the MAC protocol type encapsulated in the VLAN frame.
-	// Matches the MAC protocol type encapsulated in the VLAN frame.
-	VlanEncap *int64 `json:"vlanEncap,omitempty" tf:"vlan_encap,omitempty"`
+	// Matches the MAC protocol type encapsulated in the VLAN frame. RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol name such as "arp", "ip", "ipv6" or "vlan".
+	VlanEncap *string `json:"vlanEncap,omitempty" tf:"vlan_encap,omitempty"`
 
 	// (Number) Matches the VLAN identifier field.
 	// Matches the VLAN identifier field.
@@ -339,8 +339,8 @@ type BridgeFilterObservation struct {
 	NewPacketMark *string `json:"newPacketMark,omitempty" tf:"new_packet_mark,omitempty"`
 
 	// (Number) Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-	// Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-	NewPriority *int64 `json:"newPriority,omitempty" tf:"new_priority,omitempty"`
+	// Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority RouterOS accepts a priority number, or "from-ingress".
+	NewPriority *string `json:"newPriority,omitempty" tf:"new_priority,omitempty"`
 
 	// (String) Bridge interface through which the packet going out.
 	// Bridge interface through which the packet going out.
@@ -436,8 +436,8 @@ type BridgeFilterObservation struct {
 	TLSHost *string `json:"tlsHost,omitempty" tf:"tls_host,omitempty"`
 
 	// (Number) Matches the MAC protocol type encapsulated in the VLAN frame.
-	// Matches the MAC protocol type encapsulated in the VLAN frame.
-	VlanEncap *int64 `json:"vlanEncap,omitempty" tf:"vlan_encap,omitempty"`
+	// Matches the MAC protocol type encapsulated in the VLAN frame. RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol name such as "arp", "ip", "ipv6" or "vlan".
+	VlanEncap *string `json:"vlanEncap,omitempty" tf:"vlan_encap,omitempty"`
 
 	// (Number) Matches the VLAN identifier field.
 	// Matches the VLAN identifier field.
@@ -579,9 +579,9 @@ type BridgeFilterParameters struct {
 	NewPacketMark *string `json:"newPacketMark,omitempty" tf:"new_packet_mark,omitempty"`
 
 	// (Number) Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-	// Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
+	// Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority RouterOS accepts a priority number, or "from-ingress".
 	// +kubebuilder:validation:Optional
-	NewPriority *int64 `json:"newPriority,omitempty" tf:"new_priority,omitempty"`
+	NewPriority *string `json:"newPriority,omitempty" tf:"new_priority,omitempty"`
 
 	// (String) Bridge interface through which the packet going out.
 	// Bridge interface through which the packet going out.
@@ -700,9 +700,9 @@ type BridgeFilterParameters struct {
 	TLSHost *string `json:"tlsHost,omitempty" tf:"tls_host,omitempty"`
 
 	// (Number) Matches the MAC protocol type encapsulated in the VLAN frame.
-	// Matches the MAC protocol type encapsulated in the VLAN frame.
+	// Matches the MAC protocol type encapsulated in the VLAN frame. RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol name such as "arp", "ip", "ipv6" or "vlan".
 	// +kubebuilder:validation:Optional
-	VlanEncap *int64 `json:"vlanEncap,omitempty" tf:"vlan_encap,omitempty"`
+	VlanEncap *string `json:"vlanEncap,omitempty" tf:"vlan_encap,omitempty"`
 
 	// (Number) Matches the VLAN identifier field.
 	// Matches the VLAN identifier field.

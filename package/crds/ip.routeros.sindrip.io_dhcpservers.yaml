@@ -118,9 +118,8 @@ spec:
                   clientMacLimit:
                     description: |-
                       (Number) Specifies whether to limit specific number of clients per single MAC address.
-                      Specifies whether to limit specific number of clients per single MAC address.
-                    format: int64
-                    type: integer
+                      Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+                    type: string
                   comment:
                     description: (String)
                     type: string
@@ -265,9 +264,8 @@ spec:
                   clientMacLimit:
                     description: |-
                       (Number) Specifies whether to limit specific number of clients per single MAC address.
-                      Specifies whether to limit specific number of clients per single MAC address.
-                    format: int64
-                    type: integer
+                      Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+                    type: string
                   comment:
                     description: (String)
                     type: string
@@ -499,9 +497,8 @@ spec:
                   clientMacLimit:
                     description: |-
                       (Number) Specifies whether to limit specific number of clients per single MAC address.
-                      Specifies whether to limit specific number of clients per single MAC address.
-                    format: int64
-                    type: integer
+                      Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+                    type: string
                   comment:
                     description: (String)
                     type: string

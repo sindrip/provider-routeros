@@ -76,9 +76,8 @@ spec:
                   code:
                     description: |-
                       (Number) The number of the DHCP option
-                      The number of the DHCP option
-                    format: int64
-                    type: integer
+                      The number of the DHCP option RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+                    type: string
                   comment:
                     description: (String)
                     type: string
@@ -114,9 +113,8 @@ spec:
                   code:
                     description: |-
                       (Number) The number of the DHCP option
-                      The number of the DHCP option
-                    format: int64
-                    type: integer
+                      The number of the DHCP option RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+                    type: string
                   comment:
                     description: (String)
                     type: string
@@ -243,9 +241,8 @@ spec:
                   code:
                     description: |-
                       (Number) The number of the DHCP option
-                      The number of the DHCP option
-                    format: int64
-                    type: integer
+                      The number of the DHCP option RouterOS accepts a DHCP option code 1..254, or "vendor-specific"; 0 is out of range.
+                    type: string
                   comment:
                     description: (String)
                     type: string

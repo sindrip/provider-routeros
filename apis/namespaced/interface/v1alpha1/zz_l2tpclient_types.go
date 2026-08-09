@@ -64,8 +64,8 @@ type L2TpClientInitParameters struct {
 	L2Tpv3CircuitID *string `json:"l2tpv3CircuitId,omitempty" tf:"l2tpv3_circuit_id,omitempty"`
 
 	// (Number) Configures an L2TPv3 pseudowire static session cookie.
-	// Configures an L2TPv3 pseudowire static session cookie.
-	L2Tpv3CookieLength *int64 `json:"l2tpv3CookieLength,omitempty" tf:"l2tpv3_cookie_length,omitempty"`
+	// Configures an L2TPv3 pseudowire static session cookie. RouterOS accepts "0", "4-bytes" or "8-bytes".
+	L2Tpv3CookieLength *string `json:"l2tpv3CookieLength,omitempty" tf:"l2tpv3_cookie_length,omitempty"`
 
 	// (String) Specifies which hash function to be used.
 	// Specifies which hash function to be used.
@@ -165,8 +165,8 @@ type L2TpClientObservation struct {
 	L2Tpv3CircuitID *string `json:"l2tpv3CircuitId,omitempty" tf:"l2tpv3_circuit_id,omitempty"`
 
 	// (Number) Configures an L2TPv3 pseudowire static session cookie.
-	// Configures an L2TPv3 pseudowire static session cookie.
-	L2Tpv3CookieLength *int64 `json:"l2tpv3CookieLength,omitempty" tf:"l2tpv3_cookie_length,omitempty"`
+	// Configures an L2TPv3 pseudowire static session cookie. RouterOS accepts "0", "4-bytes" or "8-bytes".
+	L2Tpv3CookieLength *string `json:"l2tpv3CookieLength,omitempty" tf:"l2tpv3_cookie_length,omitempty"`
 
 	// (String) Specifies which hash function to be used.
 	// Specifies which hash function to be used.
@@ -278,9 +278,9 @@ type L2TpClientParameters struct {
 	L2Tpv3CircuitID *string `json:"l2tpv3CircuitId,omitempty" tf:"l2tpv3_circuit_id,omitempty"`
 
 	// (Number) Configures an L2TPv3 pseudowire static session cookie.
-	// Configures an L2TPv3 pseudowire static session cookie.
+	// Configures an L2TPv3 pseudowire static session cookie. RouterOS accepts "0", "4-bytes" or "8-bytes".
 	// +kubebuilder:validation:Optional
-	L2Tpv3CookieLength *int64 `json:"l2tpv3CookieLength,omitempty" tf:"l2tpv3_cookie_length,omitempty"`
+	L2Tpv3CookieLength *string `json:"l2tpv3CookieLength,omitempty" tf:"l2tpv3_cookie_length,omitempty"`
 
 	// (String) Specifies which hash function to be used.
 	// Specifies which hash function to be used.

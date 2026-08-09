@@ -115,9 +115,8 @@ spec:
                   vlanId:
                     description: |-
                       (Number) Default VLAN ID to assign to client devices connecting to this interface.
-                      Default VLAN ID to assign to client devices connecting to this interface.
-                    format: int64
-                    type: integer
+                      Default VLAN ID to assign to client devices connecting to this interface. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               initProvider:
                 description: |-
@@ -174,9 +173,8 @@ spec:
                   vlanId:
                     description: |-
                       (Number) Default VLAN ID to assign to client devices connecting to this interface.
-                      Default VLAN ID to assign to client devices connecting to this interface.
-                    format: int64
-                    type: integer
+                      Default VLAN ID to assign to client devices connecting to this interface. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               managementPolicies:
                 default:
@@ -319,9 +317,8 @@ spec:
                   vlanId:
                     description: |-
                       (Number) Default VLAN ID to assign to client devices connecting to this interface.
-                      Default VLAN ID to assign to client devices connecting to this interface.
-                    format: int64
-                    type: integer
+                      Default VLAN ID to assign to client devices connecting to this interface. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

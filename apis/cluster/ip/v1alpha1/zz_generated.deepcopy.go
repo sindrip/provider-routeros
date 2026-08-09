@@ -1033,7 +1033,7 @@ func (in *DHCPClientOptionInitParameters) DeepCopyInto(out *DHCPClientOptionInit
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Name != nil {
@@ -1100,7 +1100,7 @@ func (in *DHCPClientOptionObservation) DeepCopyInto(out *DHCPClientOptionObserva
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.ID != nil {
@@ -1140,7 +1140,7 @@ func (in *DHCPClientOptionParameters) DeepCopyInto(out *DHCPClientOptionParamete
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Name != nil {
@@ -1912,7 +1912,7 @@ func (in *DHCPServerInitParameters) DeepCopyInto(out *DHCPServerInitParameters) 
 	}
 	if in.ClientMacLimit != nil {
 		in, out := &in.ClientMacLimit, &out.ClientMacLimit
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3028,7 +3028,7 @@ func (in *DHCPServerObservation) DeepCopyInto(out *DHCPServerObservation) {
 	}
 	if in.ClientMacLimit != nil {
 		in, out := &in.ClientMacLimit, &out.ClientMacLimit
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3180,7 +3180,7 @@ func (in *DHCPServerOptionInitParameters) DeepCopyInto(out *DHCPServerOptionInit
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3284,7 +3284,7 @@ func (in *DHCPServerOptionMatcherInitParameters) DeepCopyInto(out *DHCPServerOpt
 	}
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3376,7 +3376,7 @@ func (in *DHCPServerOptionMatcherObservation) DeepCopyInto(out *DHCPServerOption
 	}
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3441,7 +3441,7 @@ func (in *DHCPServerOptionMatcherParameters) DeepCopyInto(out *DHCPServerOptionM
 	}
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3531,7 +3531,7 @@ func (in *DHCPServerOptionObservation) DeepCopyInto(out *DHCPServerOptionObserva
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -3581,7 +3581,7 @@ func (in *DHCPServerOptionParameters) DeepCopyInto(out *DHCPServerOptionParamete
 	*out = *in
 	if in.Code != nil {
 		in, out := &in.Code, &out.Code
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -4080,7 +4080,7 @@ func (in *DHCPServerParameters) DeepCopyInto(out *DHCPServerParameters) {
 	}
 	if in.ClientMacLimit != nil {
 		in, out := &in.ClientMacLimit, &out.ClientMacLimit
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Comment != nil {
@@ -7701,7 +7701,7 @@ func (in *FirewallMangleInitParameters) DeepCopyInto(out *FirewallMangleInitPara
 	}
 	if in.NewDscp != nil {
 		in, out := &in.NewDscp, &out.NewDscp
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.NewMss != nil {
@@ -8103,7 +8103,7 @@ func (in *FirewallMangleObservation) DeepCopyInto(out *FirewallMangleObservation
 	}
 	if in.NewDscp != nil {
 		in, out := &in.NewDscp, &out.NewDscp
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.NewMss != nil {
@@ -8458,7 +8458,7 @@ func (in *FirewallMangleParameters) DeepCopyInto(out *FirewallMangleParameters) 
 	}
 	if in.NewDscp != nil {
 		in, out := &in.NewDscp, &out.NewDscp
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 	if in.NewMss != nil {

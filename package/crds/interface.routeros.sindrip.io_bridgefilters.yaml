@@ -204,9 +204,8 @@ spec:
                   newPriority:
                     description: |-
                       (Number) Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-                      Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-                    format: int64
-                    type: integer
+                      Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority RouterOS accepts a priority number, or "from-ingress".
+                    type: string
                   outBridge:
                     description: |-
                       (String) Bridge interface through which the packet going out.
@@ -332,9 +331,8 @@ spec:
                   vlanEncap:
                     description: |-
                       (Number) Matches the MAC protocol type encapsulated in the VLAN frame.
-                      Matches the MAC protocol type encapsulated in the VLAN frame.
-                    format: int64
-                    type: integer
+                      Matches the MAC protocol type encapsulated in the VLAN frame. RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol name such as "arp", "ip", "ipv6" or "vlan".
+                    type: string
                   vlanId:
                     description: |-
                       (Number) Matches the VLAN identifier field.
@@ -493,9 +491,8 @@ spec:
                   newPriority:
                     description: |-
                       (Number) Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-                      Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-                    format: int64
-                    type: integer
+                      Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority RouterOS accepts a priority number, or "from-ingress".
+                    type: string
                   outBridge:
                     description: |-
                       (String) Bridge interface through which the packet going out.
@@ -621,9 +618,8 @@ spec:
                   vlanEncap:
                     description: |-
                       (Number) Matches the MAC protocol type encapsulated in the VLAN frame.
-                      Matches the MAC protocol type encapsulated in the VLAN frame.
-                    format: int64
-                    type: integer
+                      Matches the MAC protocol type encapsulated in the VLAN frame. RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol name such as "arp", "ip", "ipv6" or "vlan".
+                    type: string
                   vlanId:
                     description: |-
                       (Number) Matches the VLAN identifier field.
@@ -877,9 +873,8 @@ spec:
                   newPriority:
                     description: |-
                       (Number) Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-                      Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority
-                    format: int64
-                    type: integer
+                      Sets a new priority for a packet. This can be the VLAN, WMM or MPLS EXP priority RouterOS accepts a priority number, or "from-ingress".
+                    type: string
                   outBridge:
                     description: |-
                       (String) Bridge interface through which the packet going out.
@@ -1005,9 +1000,8 @@ spec:
                   vlanEncap:
                     description: |-
                       (Number) Matches the MAC protocol type encapsulated in the VLAN frame.
-                      Matches the MAC protocol type encapsulated in the VLAN frame.
-                    format: int64
-                    type: integer
+                      Matches the MAC protocol type encapsulated in the VLAN frame. RouterOS accepts an EtherType 0x0000..0xFFFF, or a protocol name such as "arp", "ip", "ipv6" or "vlan".
+                    type: string
                   vlanId:
                     description: |-
                       (Number) Matches the VLAN identifier field.

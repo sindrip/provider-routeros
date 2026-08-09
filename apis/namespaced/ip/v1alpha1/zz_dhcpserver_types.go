@@ -49,8 +49,8 @@ type DHCPServerInitParameters struct {
 	BootpSupport *string `json:"bootpSupport,omitempty" tf:"bootp_support,omitempty"`
 
 	// (Number) Specifies whether to limit specific number of clients per single MAC address.
-	// Specifies whether to limit specific number of clients per single MAC address.
-	ClientMacLimit *int64 `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
+	// Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+	ClientMacLimit *string `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
 
 	// (String)
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
@@ -158,8 +158,8 @@ type DHCPServerObservation struct {
 	BootpSupport *string `json:"bootpSupport,omitempty" tf:"bootp_support,omitempty"`
 
 	// (Number) Specifies whether to limit specific number of clients per single MAC address.
-	// Specifies whether to limit specific number of clients per single MAC address.
-	ClientMacLimit *int64 `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
+	// Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
+	ClientMacLimit *string `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
 
 	// (String)
 	Comment *string `json:"comment,omitempty" tf:"comment,omitempty"`
@@ -285,9 +285,9 @@ type DHCPServerParameters struct {
 	BootpSupport *string `json:"bootpSupport,omitempty" tf:"bootp_support,omitempty"`
 
 	// (Number) Specifies whether to limit specific number of clients per single MAC address.
-	// Specifies whether to limit specific number of clients per single MAC address.
+	// Specifies whether to limit specific number of clients per single MAC address. RouterOS accepts a number of clients, or "unlimited" (its default). Note that 0 is a limit of zero, not unlimited.
 	// +kubebuilder:validation:Optional
-	ClientMacLimit *int64 `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
+	ClientMacLimit *string `json:"clientMacLimit,omitempty" tf:"client_mac_limit,omitempty"`
 
 	// (String)
 	// +kubebuilder:validation:Optional

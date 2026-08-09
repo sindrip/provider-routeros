@@ -49,8 +49,8 @@ type DatapathInitParameters struct {
 	TrafficProcessing *string `json:"trafficProcessing,omitempty" tf:"traffic_processing,omitempty"`
 
 	// (Number) Default VLAN ID to assign to client devices connecting to this interface.
-	// Default VLAN ID to assign to client devices connecting to this interface.
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	// Default VLAN ID to assign to client devices connecting to this interface. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 type DatapathObservation struct {
@@ -92,8 +92,8 @@ type DatapathObservation struct {
 	TrafficProcessing *string `json:"trafficProcessing,omitempty" tf:"traffic_processing,omitempty"`
 
 	// (Number) Default VLAN ID to assign to client devices connecting to this interface.
-	// Default VLAN ID to assign to client devices connecting to this interface.
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	// Default VLAN ID to assign to client devices connecting to this interface. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 type DatapathParameters struct {
@@ -141,9 +141,9 @@ type DatapathParameters struct {
 	TrafficProcessing *string `json:"trafficProcessing,omitempty" tf:"traffic_processing,omitempty"`
 
 	// (Number) Default VLAN ID to assign to client devices connecting to this interface.
-	// Default VLAN ID to assign to client devices connecting to this interface.
+	// Default VLAN ID to assign to client devices connecting to this interface. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
 	// +kubebuilder:validation:Optional
-	VlanID *int64 `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
+	VlanID *string `json:"vlanId,omitempty" tf:"vlan_id,omitempty"`
 }
 
 // DatapathSpec defines the desired state of Datapath

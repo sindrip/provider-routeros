@@ -61,9 +61,8 @@ spec:
                   code:
                     description: |-
                       client option code.
-                      The dhcp-client option code.
-                    format: int64
-                    type: integer
+                      The dhcp-client option code. RouterOS accepts a DHCP option code 1..254, or "client-id", "hostname", "vendor-class-id" or "vendor-specific"; 0 is out of range.
+                    type: string
                   name:
                     description: |-
                       client.
@@ -96,9 +95,8 @@ spec:
                   code:
                     description: |-
                       client option code.
-                      The dhcp-client option code.
-                    format: int64
-                    type: integer
+                      The dhcp-client option code. RouterOS accepts a DHCP option code 1..254, or "client-id", "hostname", "vendor-class-id" or "vendor-specific"; 0 is out of range.
+                    type: string
                   name:
                     description: |-
                       client.
@@ -190,9 +188,8 @@ spec:
                   code:
                     description: |-
                       client option code.
-                      The dhcp-client option code.
-                    format: int64
-                    type: integer
+                      The dhcp-client option code. RouterOS accepts a DHCP option code 1..254, or "client-id", "hostname", "vendor-class-id" or "vendor-specific"; 0 is out of range.
+                    type: string
                   id:
                     description: (String) The ID of this resource.
                     type: string

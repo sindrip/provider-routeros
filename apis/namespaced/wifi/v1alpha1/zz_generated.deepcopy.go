@@ -409,7 +409,7 @@ func (in *AccessListInitParameters) DeepCopyInto(out *AccessListInitParameters) 
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -551,7 +551,7 @@ func (in *AccessListObservation) DeepCopyInto(out *AccessListObservation) {
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -641,7 +641,7 @@ func (in *AccessListParameters) DeepCopyInto(out *AccessListParameters) {
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -1761,7 +1761,7 @@ func (in *DatapathInitParameters) DeepCopyInto(out *DatapathInitParameters) {
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -1863,7 +1863,7 @@ func (in *DatapathObservation) DeepCopyInto(out *DatapathObservation) {
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -1928,7 +1928,7 @@ func (in *DatapathParameters) DeepCopyInto(out *DatapathParameters) {
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -3505,7 +3505,7 @@ func (in *SecurityMultiPassphraseInitParameters) DeepCopyInto(out *SecurityMulti
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -3587,7 +3587,7 @@ func (in *SecurityMultiPassphraseObservation) DeepCopyInto(out *SecurityMultiPas
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }
@@ -3637,7 +3637,7 @@ func (in *SecurityMultiPassphraseParameters) DeepCopyInto(out *SecurityMultiPass
 	}
 	if in.VlanID != nil {
 		in, out := &in.VlanID, &out.VlanID
-		*out = new(int64)
+		*out = new(string)
 		**out = **in
 	}
 }

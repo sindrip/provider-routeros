@@ -99,9 +99,10 @@ spec:
                     type: string
                   clientMacLimit:
                     description: Specifies whether to limit specific number of clients
-                      per single MAC address.
-                    format: int64
-                    type: integer
+                      per single MAC address. RouterOS accepts a number of clients,
+                      or "unlimited" (its default). Note that 0 is a limit of zero,
+                      not unlimited.
+                    type: string
                   comment:
                     type: string
                   conflictDetection:
@@ -224,9 +225,10 @@ spec:
                     type: string
                   clientMacLimit:
                     description: Specifies whether to limit specific number of clients
-                      per single MAC address.
-                    format: int64
-                    type: integer
+                      per single MAC address. RouterOS accepts a number of clients,
+                      or "unlimited" (its default). Note that 0 is a limit of zero,
+                      not unlimited.
+                    type: string
                   comment:
                     type: string
                   conflictDetection:
@@ -408,9 +410,10 @@ spec:
                     type: string
                   clientMacLimit:
                     description: Specifies whether to limit specific number of clients
-                      per single MAC address.
-                    format: int64
-                    type: integer
+                      per single MAC address. RouterOS accepts a number of clients,
+                      or "unlimited" (its default). Note that 0 is a limit of zero,
+                      not unlimited.
+                    type: string
                   comment:
                     type: string
                   conflictDetection:

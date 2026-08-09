@@ -130,9 +130,8 @@ spec:
                   vlanId:
                     description: |-
                       (Number) VLAN ID to use for VLAN tagging or `none`.
-                      VLAN ID to use for VLAN tagging or `none`.
-                    format: int64
-                    type: integer
+                      VLAN ID to use for VLAN tagging or `none`. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               initProvider:
                 description: |-
@@ -218,9 +217,8 @@ spec:
                   vlanId:
                     description: |-
                       (Number) VLAN ID to use for VLAN tagging or `none`.
-                      VLAN ID to use for VLAN tagging or `none`.
-                    format: int64
-                    type: integer
+                      VLAN ID to use for VLAN tagging or `none`. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               managementPolicies:
                 default:
@@ -375,9 +373,8 @@ spec:
                   vlanId:
                     description: |-
                       (Number) VLAN ID to use for VLAN tagging or `none`.
-                      VLAN ID to use for VLAN tagging or `none`.
-                    format: int64
-                    type: integer
+                      VLAN ID to use for VLAN tagging or `none`. RouterOS accepts a VLAN id 1..4095, or "none"; 0 is out of range.
+                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

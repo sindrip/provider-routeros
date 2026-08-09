@@ -158,8 +158,8 @@ type FirewallMangleInitParameters struct {
 	NewConnectionMark *string `json:"newConnectionMark,omitempty" tf:"new_connection_mark,omitempty"`
 
 	// (Number) Sets a new DSCP value for a packet.
-	// Sets a new DSCP value for a packet.
-	NewDscp *int64 `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
+	// Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+	NewDscp *string `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
 
 	// (String) Sets a new MSS for a packet.
 	// Sets a new MSS for a packet.
@@ -447,8 +447,8 @@ type FirewallMangleObservation struct {
 	NewConnectionMark *string `json:"newConnectionMark,omitempty" tf:"new_connection_mark,omitempty"`
 
 	// (Number) Sets a new DSCP value for a packet.
-	// Sets a new DSCP value for a packet.
-	NewDscp *int64 `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
+	// Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
+	NewDscp *string `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
 
 	// (String) Sets a new MSS for a packet.
 	// Sets a new MSS for a packet.
@@ -762,9 +762,9 @@ type FirewallMangleParameters struct {
 	NewConnectionMark *string `json:"newConnectionMark,omitempty" tf:"new_connection_mark,omitempty"`
 
 	// (Number) Sets a new DSCP value for a packet.
-	// Sets a new DSCP value for a packet.
+	// Sets a new DSCP value for a packet. RouterOS accepts a DSCP number, or "from-priority" or "from-priority-to-high-3-bits".
 	// +kubebuilder:validation:Optional
-	NewDscp *int64 `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
+	NewDscp *string `json:"newDscp,omitempty" tf:"new_dscp,omitempty"`
 
 	// (String) Sets a new MSS for a packet.
 	// Sets a new MSS for a packet.

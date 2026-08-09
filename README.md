@@ -322,6 +322,19 @@ before upgrading:
   applies, and here the stale status *is* the exposed secret, so clear it on
   every affected resource regardless of which version you upgrade from; assume
   any key that was in `status.atProvider` has been read.
+- **v0.26.0** — no migration. The CRDs are byte-identical to v0.25.0; only the
+  schema upjet plans against changed. It stops a WireGuard interface with a
+  declared `privateKeySecretRef` rewriting itself forever: upjet keeps a
+  sensitive attribute in its state redacted, `Computed` made it rebuild that
+  attribute's prior state from the redaction rather than from the
+  configuration, and a redaction never equals the real key resolved from the
+  Secret. The update fired at reconcile speed with a payload of nothing but
+  `mtu` and `name`, changed nothing on the device, and reported `Synced` and
+  `Ready` throughout — so the first symptom was a router's flash wearing.
+  Affected anyone declaring that key on any earlier release; upgrading is the
+  whole fix. If you worked around it by removing `privateKeySecretRef`, you can
+  put it back — and should, since an undeclared key does not survive a factory
+  reset, which for WireGuard means re-enrolling every client.
 
 The releases absent from that list need nothing: v0.1.0 predates the identity
 work, v0.13.0 fixed a create path that could never have succeeded, so no

@@ -29,11 +29,26 @@
 //
 //   - read-only properties never appear under add or set, so a writable-only
 //     sweep cannot see them at all — loop-protect-status is the case that
-//     exposed this. They are enumerated from "/menu/print where " (which
-//     completes to every property the menu has, read-only included) and
-//     typed as "/menu/print where prop=". A mistyped read-only field is not
-//     harmless: it is observed into atProvider, so a bool over the router's
-//     sha256 reads back false.
+//     exposed this. How they are reached depends on whether the menu holds
+//     rows. Where it does, "/menu/print where " completes to every property
+//     it has, read-only included, and each is typed as
+//     "/menu/print where prop=". A settings singleton holds no rows, so
+//     `where` has nothing to filter and the console answers with print's
+//     *own* arguments (as-value, comments, file, interval, without-paging,
+//     plus oid where SNMP applies) — a reply shaped exactly like a property
+//     list. Recording it would invent five fields on every singleton, so
+//     enumerate compares that reply against plain "/menu/print " and falls
+//     back to "/menu/get ", which returns exactly the REST field set. Their
+//     read-only half has no cursor position in either completion or syntax,
+//     so it is reported as kind "unknown" rather than guessed.
+//
+//     Rowlessness cannot be read off the console tree: `add` is absent from
+//     plenty of menus that do hold rows (interface/ethernet's fixed ports,
+//     routing/route and ip/firewall/connection's read-only tables), and an
+//     unpopulated row-bearing menu still completes `where` to its properties.
+//
+// A mistyped read-only field is not harmless: it is observed into atProvider,
+// so a bool over the router's sha256 reads back false.
 //
 // Output is sorted by menu then property so a dump pinned in-repo diffs
 // cleanly across RouterOS versions, and the version is stamped in the header.
@@ -191,13 +206,21 @@ type argType struct {
 	Ranges  []string    `json:"ranges,omitempty"`
 	Syntax  []syntaxRow `json:"syntax,omitempty"`
 	Error   string      `json:"error,omitempty"`
+
+	// rowless marks a read-only property of a menu that holds no rows, so
+	// there is no print filter to put a cursor in. Not serialized.
+	rowless bool
 }
 
 // input is the partial command line that puts the cursor at this property's
-// value. Read-only properties have no add/set form, so they are approached
-// through the print filter instead.
+// value, or "" when the console offers no such position. Read-only properties
+// have no add/set form, so they are approached through the print filter —
+// which only exists where there are rows to filter.
 func (a *argType) input() string {
 	if a.Access == "read-only" {
+		if a.rowless {
+			return ""
+		}
 		return "/" + a.Path + "/print where " + a.Arg + "="
 	}
 	return "/" + a.Path + "/" + a.Command + " " + a.Arg + "="
@@ -212,13 +235,21 @@ type dump struct {
 
 const note = "Types as the router states them, via /console/inspect request=completion " +
 	"(vocabulary) and request=syntax (grammar of freeform values). kind: enum = closed set, " +
-	"open-enum = suggestions plus freeform, scalar = freeform only. access: writable = an " +
-	"add/set argument, read-only = a property only the print filter exposes."
+	"open-enum = suggestions plus freeform, scalar = freeform only, unknown = the router " +
+	"states no type. access: writable = an add/set argument, read-only = everything else the " +
+	"menu exposes. command records how the property was enumerated: print (menus with rows, " +
+	"via `print where`) or get (rowless menus — settings singletons and read-only tables — " +
+	"where `print where` would answer with print's own arguments instead of properties). " +
+	"Read-only properties of get-enumerated menus have no console cursor position, so they " +
+	"are kind unknown by construction."
 
-// Console bookkeeping that "print where" lists alongside real properties.
+// Console bookkeeping that the enumerating commands list alongside real
+// properties.
 var notProperties = map[string]bool{
 	".dead": true, ".id": true, ".nextid": true, "about": true,
-	"numbers": true, // addresses rows for `set`, not a property
+	"numbers":    true, // addresses rows for `set`, not a property
+	"value-name": true, // `get`'s own argument, as is the bare "="
+	"=":          true,
 }
 
 // writable walks the tree and returns one probe per (menu, argument), keyed
@@ -260,28 +291,122 @@ func writable(nodes []*node) map[string]*argType {
 	return out
 }
 
-// printable returns every menu that has a `print` command, which is where
-// read-only properties can be enumerated from.
-func printable(nodes []*node) []string {
-	var out []string
+// menu is one menu whose properties can be enumerated, and the commands
+// available for doing so.
+type menu struct {
+	Path     string
+	HasPrint bool
+	HasGet   bool
+	// GetArgs are `get`'s own arguments for this menu, taken from the tree
+	// (as-string, as-string-value, value-name, number, values). They come
+	// back from completion looking exactly like properties.
+	GetArgs map[string]bool
+}
+
+// enumerable returns every menu that offers `print` or `get`. Which of the two
+// actually answers is decided per menu at probe time by enumerate, because the
+// console tree cannot tell rowless menus apart: `add` is absent from plenty of
+// menus that do hold rows (interface/ethernet's fixed ports, routing/route and
+// ip/firewall/connection's read-only tables).
+func enumerable(nodes []*node) []menu {
+	var out []menu
 	var walk func(nodes []*node, path []string)
 	walk = func(nodes []*node, path []string) {
 		for _, n := range nodes {
 			p := append(append([]string{}, path...), n.Name)
 			switch n.NodeType {
 			case "dir", "path":
+				var m menu
 				for _, c := range n.Children {
-					if c.NodeType == "cmd" && c.Name == "print" {
-						out = append(out, strings.Join(p, "/"))
-						break
+					if c.NodeType != "cmd" {
+						continue
 					}
+					switch c.Name {
+					case "print":
+						m.HasPrint = true
+					case "get":
+						m.HasGet = true
+						m.GetArgs = map[string]bool{}
+						for _, a := range c.Children {
+							if a.NodeType == "arg" {
+								m.GetArgs[a.Name] = true
+							}
+						}
+					}
+				}
+				if m.HasPrint || m.HasGet {
+					m.Path = strings.Join(p, "/")
+					out = append(out, m)
 				}
 				walk(n.Children, p)
 			}
 		}
 	}
 	walk(nodes, nil)
-	sort.Strings(out)
+	sort.Slice(out, func(i, j int) bool { return out[i].Path < out[j].Path })
+	return out
+}
+
+// enumerate lists a menu's properties and reports which command answered.
+//
+// "print where " is preferred, because on a menu that holds rows it completes
+// to every property, read-only included. On a rowless menu — a settings
+// singleton — `where` has nothing to filter and the console answers with
+// print's own arguments instead (as-value, comments, file, interval,
+// without-paging, plus oid where SNMP applies). That reply is shaped exactly
+// like a property list, so it is caught by comparison rather than by a fixed
+// list of option names: subtract what plain "print " offers, and on a rowless
+// menu nothing is left. Those menus are enumerated from `get`, which returns
+// exactly the REST field set.
+//
+// The test keys on the menu being rowless by nature, not merely empty: an
+// unpopulated row-bearing menu still completes `where` to its properties.
+func enumerate(m menu) (props []string, cmd string) {
+	if m.HasPrint {
+		rows, err := inspect("completion", "/"+m.Path+"/print where ")
+		if err == nil {
+			where, _ := shown(rows)
+			rows, err = inspect("completion", "/"+m.Path+"/print ")
+			if err != nil {
+				return where, "print"
+			}
+			opts, _ := shown(rows)
+			if beyond := without(where, opts); len(beyond) > 0 {
+				return where, "print"
+			}
+		}
+	}
+	if m.HasGet {
+		rows, err := inspect("completion", "/"+m.Path+"/get ")
+		if err == nil {
+			get, _ := shown(rows)
+			// `get` offers its own arguments alongside the properties;
+			// the tree already names them, so drop those rather than
+			// guessing which completions are furniture.
+			var props []string
+			for _, p := range get {
+				if !m.GetArgs[p] {
+					props = append(props, p)
+				}
+			}
+			return props, "get"
+		}
+	}
+	return nil, ""
+}
+
+// without returns the elements of a that are not in b.
+func without(a, b []string) []string {
+	drop := make(map[string]bool, len(b))
+	for _, s := range b {
+		drop[s] = true
+	}
+	var out []string
+	for _, s := range a {
+		if !drop[s] {
+			out = append(out, s)
+		}
+	}
 	return out
 }
 
@@ -296,6 +421,13 @@ var (
 // when a freeform value is accepted, which is where completion goes silent.
 func probe(a *argType) {
 	input := a.input()
+	if input == "" {
+		// A read-only property of a rowless menu: neither completion nor
+		// syntax has a cursor position for it, so the router states no
+		// type. Recorded as unknown rather than guessed at.
+		a.Kind, a.Error = "unknown", "no console position: read-only property of a rowless menu"
+		return
+	}
 
 	rows, err := inspect("completion", input)
 	if err != nil {
@@ -439,26 +571,26 @@ func main() {
 
 	// Read-only properties are not in the tree at all: ask each menu what
 	// it has and keep whatever add/set did not already claim.
-	menus := printable(t.Tree)
+	menus := enumerable(t.Tree)
 	var mu sync.Mutex
-	each("menus enumerated", menus, func(menu string) {
-		rows, err := inspect("completion", "/"+menu+"/print where ")
-		if err != nil {
+	each("menus enumerated", menus, func(m menu) {
+		props, cmd := enumerate(m)
+		if cmd == "" {
 			return
 		}
-		props, _ := shown(rows)
 		mu.Lock()
 		defer mu.Unlock()
 		for _, p := range props {
 			if notProperties[p] {
 				continue
 			}
-			key := menu + "\x00" + p
+			key := m.Path + "\x00" + p
 			if _, ok := byKey[key]; ok {
 				continue
 			}
 			byKey[key] = &argType{
-				Path: menu, Command: "print", Arg: p, Access: "read-only",
+				Path: m.Path, Command: cmd, Arg: p, Access: "read-only",
+				rowless: cmd == "get",
 			}
 		}
 	})

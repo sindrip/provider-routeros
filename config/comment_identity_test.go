@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"slices"
 	"strings"
@@ -27,25 +28,27 @@ const (
 	testComment      = "wan masquerade"
 )
 
-// fakeRouter emulates the REST surface the wrapped NAT CRUD touches:
-// list-with-comment-filter, get/patch/delete by id, and create.
+// fakeRouter emulates the REST surface the wrapped CRUD touches:
+// list-with-field-filter, get/patch/delete by id, and create. calls records
+// every request in order, so a test can assert that an operation reached the
+// router — or that it deliberately did not.
 type fakeRouter struct {
+	path   string                       // REST path the menu lives at
 	items  map[string]map[string]string // .id -> item
 	nextID int
+	calls  []string // "METHOD id", in order
 }
 
 func (f *fakeRouter) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := strings.TrimPrefix(r.URL.Path, "/rest/ip/firewall/nat")
+		id := strings.TrimPrefix(r.URL.Path, f.path)
 		id = strings.TrimPrefix(id, "/")
+		f.calls = append(f.calls, strings.TrimSpace(r.Method+" "+id))
 		switch {
 		case r.Method == http.MethodGet && id == "":
 			out := []map[string]string{}
 			for _, it := range f.items {
-				if c, filtered := r.URL.Query()[commentField]; filtered && it[commentField] != c[0] {
-					continue
-				}
-				if c, filtered := r.URL.Query()[attrID]; filtered && it[attrID] != c[0] {
+				if !matchesQuery(it, r.URL.Query()) {
 					continue
 				}
 				out = append(out, it)
@@ -86,9 +89,20 @@ func (f *fakeRouter) handler() http.Handler {
 	})
 }
 
+// matchesQuery applies the REST field filters the wrapped lookups send; every
+// query pair must equal the item's field for the item to be listed.
+func matchesQuery(item map[string]string, query url.Values) bool {
+	for field, want := range query {
+		if item[field] != want[0] {
+			return false
+		}
+	}
+	return true
+}
+
 func natHarness(t *testing.T) (*fakeRouter, *schema.Resource, routeros.Client) {
 	t.Helper()
-	router := &fakeRouter{items: map[string]map[string]string{}}
+	router := &fakeRouter{path: "/rest/ip/firewall/nat", items: map[string]map[string]string{}}
 	srv := httptest.NewServer(router.handler())
 	t.Cleanup(srv.Close)
 	res := providerForRuntime().ResourcesMap["routeros_ip_firewall_nat"]

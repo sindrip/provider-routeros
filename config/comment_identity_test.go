@@ -141,7 +141,7 @@ func testClient(t *testing.T, hosturl string) routeros.Client {
 	pd := schema.TestResourceDataRaw(t, routeros.Provider().Schema, map[string]any{
 		"hosturl":          hosturl,
 		"username":         "admin",
-		"routeros_version": "7.23.2",
+		"routeros_version": pinnedRouterOSVersion,
 	})
 	c, dg := routeros.NewClient(context.Background(), pd)
 	if dg.HasError() {

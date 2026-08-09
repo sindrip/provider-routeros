@@ -69,7 +69,7 @@ type verdict struct {
 
 type uniqueness struct {
 	RouterOSVersion string    `json:"routeros_version"`
-	GeneratedBy     string    `json:"generated_by"`
+	GeneratedBy     string    `json:"generator"`
 	Verdicts        []verdict `json:"verdicts"`
 }
 
@@ -115,14 +115,25 @@ func run() error {
 	}
 
 	c := ir.Census()
-	fmt.Fprintf(os.Stderr, "%d menus: %d ordered, %d list, %d singleton, %d read-only\n",
-		len(ir.Menus), c[schema.ClassOrdered], c[schema.ClassList], c[schema.ClassSingleton], c[schema.ClassReadOnly])
+	fmt.Fprintf(os.Stderr, "%d menus: %d ordered, %d list, %d singleton; %d writable\n",
+		len(ir.Menus), c[schema.ClassOrdered], c[schema.ClassList], c[schema.ClassSingleton], writable(ir))
 	return nil
+}
+
+func writable(ir *schema.IR) int {
+	var n int
+	for _, m := range ir.Menus {
+		if m.Writable {
+			n++
+		}
+	}
+	return n
 }
 
 func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness) []schema.Menu {
 	fields := fieldsByMenu(types)
 	verdicts := verdictsByMenu(uniq)
+	rowless := rowlessByMenu(types)
 
 	var menus []schema.Menu
 	var walk func(nodes []*treeNode, path []string)
@@ -141,16 +152,27 @@ func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness) []schema.Men
 			}
 			slices.Sort(cmds)
 
+			// A node with neither print nor get is a namespace, not a
+			// menu: /ip and /system group other menus but hold nothing
+			// readable of their own.
+			if !slices.Contains(cmds, "print") && !slices.Contains(cmds, "get") {
+				walk(n.Children, p)
+				continue
+			}
+
 			f, typed := fields[menuPath]
 			slices.SortFunc(f, func(a, b schema.Field) int { return strings.Compare(a.Name, b.Name) })
 
+			class, ev := classify(cmds, rowless[menuPath])
 			menus = append(menus, schema.Menu{
-				Path:     "/" + menuPath,
-				Class:    classify(cmds),
-				Commands: cmds,
-				Identity: identify(f, verdicts[menuPath]),
-				Fields:   f,
-				Typed:    typed,
+				Path:          "/" + menuPath,
+				Class:         class,
+				Commands:      cmds,
+				Identity:      identify(f, verdicts[menuPath]),
+				Fields:        f,
+				Typed:         typed,
+				Writable:      slices.Contains(cmds, "add") || slices.Contains(cmds, "set"),
+				ClassEvidence: ev,
 			})
 			walk(n.Children, p)
 		}
@@ -160,24 +182,66 @@ func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness) []schema.Men
 	return menus
 }
 
-// classify derives a menu's shape from the commands it exposes.
+// classify derives a menu's shape, preferring evidence over inference.
 //
-// move implies order carries meaning; add implies rows; set without add is a
-// settings singleton. Nothing else is consulted, because nothing else is
-// reliable — an absent add does not imply an absent row, as interface/ethernet
-// and the read-only tables demonstrate.
-func classify(cmds []string) schema.Class {
+// move is decisive on its own: only a menu with rows can reorder them.
+//
+// Otherwise the question is whether the menu holds rows, and the tempting
+// inference — no add command, therefore no rows — is simply false:
+// /interface, /interface/ethernet, /routing/route and /ip/firewall/connection
+// all hold rows without one. hack/typedump settled it per menu by discovering
+// which command could enumerate the properties, and records the answer, so
+// that is used where it exists. Only a menu typedump never reached falls back
+// to the command list, and says so.
+func classify(cmds []string, rows rowEvidence) (schema.Class, schema.Evidence) {
 	has := func(c string) bool { return slices.Contains(cmds, c) }
-	switch {
-	case has("move"):
-		return schema.ClassOrdered
-	case has("add"):
-		return schema.ClassList
-	case has("set"):
-		return schema.ClassSingleton
-	default:
-		return schema.ClassReadOnly
+	if has("move") {
+		return schema.ClassOrdered, schema.Probed
 	}
+	switch rows {
+	case rowsPresent:
+		return schema.ClassList, schema.Probed
+	case rowsAbsent:
+		return schema.ClassSingleton, schema.Probed
+	case rowsUnknown:
+		// typedump never reached this menu; fall through to inference.
+	}
+	// No evidence: add proves rows exist, find implies them. Anything else
+	// is taken for a singleton, and flagged as a guess.
+	if has("add") || has("find") {
+		return schema.ClassList, schema.Inferred
+	}
+	return schema.ClassSingleton, schema.Inferred
+}
+
+// rowEvidence is what hack/typedump discovered about a menu's cardinality.
+type rowEvidence int
+
+const (
+	rowsUnknown rowEvidence = iota
+	rowsPresent
+	rowsAbsent
+)
+
+// rowlessByMenu reads typedump's per-menu enumeration command as a cardinality
+// oracle: read-only properties reached through `print where` mean the menu has
+// rows to filter, and through `get` mean it has none.
+func rowlessByMenu(types *argTypes) map[string]rowEvidence {
+	out := map[string]rowEvidence{}
+	for _, a := range types.Args {
+		if a.Access != "read-only" {
+			continue
+		}
+		switch a.Command {
+		case "print":
+			out[a.Path] = rowsPresent
+		case "get":
+			if out[a.Path] != rowsPresent {
+				out[a.Path] = rowsAbsent
+			}
+		}
+	}
+	return out
 }
 
 // identityCandidates are the fields that could key a row, most preferred

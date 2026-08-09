@@ -14,7 +14,7 @@
     },
     {
       "artifact": "name-uniqueness.json",
-      "producer": "",
+      "producer": "hack/uniqprobe",
       "routeros_version": "7.23.2 (stable)"
     }
   ],
@@ -429,11 +429,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/certificate/builtin",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -595,7 +597,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/certificate/crl",
@@ -806,7 +810,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/certificate/scep-server",
@@ -881,11 +887,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/certificate/scep-server/otp",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "generate",
@@ -929,7 +937,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/certificate/scep-server/ra",
@@ -1063,11 +1073,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/certificate/scep-server/requests",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -1176,7 +1188,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/certificate/settings",
@@ -1284,20 +1298,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/console",
-      "class": "read-only",
-      "commands": [
-        "clear-history",
-        "export",
-        "inspect"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/console/settings",
@@ -1344,7 +1347,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/disk",
@@ -2313,7 +2318,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/disk/settings",
@@ -2377,18 +2384,22 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/environment",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "print"
       ],
       "identity": {
         "verdict": "UNPROBED"
       },
-      "typed": false
+      "typed": false,
+      "writable": false,
+      "class_evidence": "inferred"
     },
     {
       "path": "/file",
@@ -2507,11 +2518,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "blink",
         "comment",
@@ -2866,7 +2879,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/6to4",
@@ -3011,7 +3026,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bonding",
@@ -3265,7 +3282,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge",
@@ -3808,7 +3827,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/calea",
@@ -4595,7 +4616,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/filter",
@@ -5402,7 +5425,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/host",
@@ -5558,7 +5583,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/mdb",
@@ -5667,7 +5694,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/msti",
@@ -5757,7 +5786,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/nat",
@@ -6584,7 +6615,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/port",
@@ -7209,7 +7242,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/port/mst-override",
@@ -7312,7 +7347,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/settings",
@@ -7394,7 +7431,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/vlan",
@@ -7537,11 +7576,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/bridge/vlan/mvrp",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -7625,7 +7666,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/detect-internet",
@@ -7696,11 +7739,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/detect-internet/state",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -7755,18 +7800,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/interface/dot1x",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/dot1x/client",
@@ -7877,7 +7913,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/dot1x/server",
@@ -8050,7 +8088,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/dot1x/server/active",
@@ -8116,11 +8156,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/dot1x/server/state",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -8148,7 +8190,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/eoip",
@@ -8381,7 +8425,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/eoipv6",
@@ -8607,11 +8653,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ethernet",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "blink",
         "cable-test",
@@ -10094,7 +10142,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/gre",
@@ -10249,7 +10299,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/gre6",
@@ -10398,7 +10450,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ipip",
@@ -10563,7 +10617,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ipipv6",
@@ -10711,7 +10767,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/l2tp-client",
@@ -10967,7 +11025,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/l2tp-ether",
@@ -11218,7 +11278,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/l2tp-server",
@@ -11335,7 +11397,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/l2tp-server/server",
@@ -11527,7 +11591,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/list",
@@ -11619,7 +11685,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/list/member",
@@ -11699,11 +11767,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/lte",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "at-chat",
         "cell-monitor",
@@ -11883,7 +11953,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/lte/apn",
@@ -12060,11 +12132,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/lte/esim",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "activate",
         "deactivate",
@@ -12125,7 +12199,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/lte/settings",
@@ -12178,7 +12254,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/macsec",
@@ -12570,7 +12648,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/macsec/profile",
@@ -12639,7 +12719,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/macvlan",
@@ -12803,7 +12885,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/mesh",
@@ -13023,11 +13107,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/mesh/fdb",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -13128,7 +13214,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/mesh/port",
@@ -13258,7 +13346,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ovpn-client",
@@ -13520,7 +13610,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ovpn-server",
@@ -13639,7 +13731,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ovpn-server/server",
@@ -13897,7 +13991,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ppp-client",
@@ -14156,7 +14252,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/ppp-server",
@@ -14310,7 +14408,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/pppoe-client",
@@ -14520,7 +14620,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/pppoe-server",
@@ -14664,7 +14766,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/pppoe-server/server",
@@ -14846,7 +14950,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/pptp-client",
@@ -15023,7 +15129,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/pptp-server",
@@ -15140,7 +15248,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/pptp-server/server",
@@ -15222,7 +15332,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/sstp-client",
@@ -15490,7 +15602,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/sstp-server",
@@ -15608,7 +15722,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/sstp-server/server",
@@ -15745,7 +15861,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/vlan",
@@ -15938,7 +16056,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/vpls",
@@ -16170,7 +16290,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/vrrp",
@@ -16482,7 +16604,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/vxlan",
@@ -16787,11 +16911,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/vxlan/fdb",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -16825,7 +16951,9 @@
           "type": "IP address"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/vxlan/vteps",
@@ -16904,7 +17032,9 @@
           "type": "IP address"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi",
@@ -18441,7 +18571,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/aaa",
@@ -18548,7 +18680,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/access-list",
@@ -18757,7 +18891,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/cap",
@@ -18897,7 +19033,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/capsman",
@@ -18997,11 +19135,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/capsman/remote-cap",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -19079,7 +19219,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/channel",
@@ -19252,7 +19394,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/configuration",
@@ -20624,7 +20768,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/datapath",
@@ -20745,7 +20891,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/interworking",
@@ -21125,7 +21273,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/network",
@@ -21637,7 +21787,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/network/radio",
@@ -22107,7 +22259,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/provisioning",
@@ -22264,11 +22418,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/radio",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "export",
         "find",
@@ -22868,7 +23024,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/radio/settings",
@@ -22905,11 +23063,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/registration-table",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -23113,7 +23273,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/security",
@@ -23456,7 +23618,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/security/multi-passphrase",
@@ -23557,7 +23721,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wifi/steering",
@@ -23686,11 +23852,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/interface/wifi/steering/neighbor-group",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "comment",
         "edit",
@@ -23727,7 +23895,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wireguard",
@@ -23832,7 +24002,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/interface/wireguard/peers",
@@ -24051,19 +24223,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ip",
-      "class": "read-only",
-      "commands": [
-        "export",
-        "recursive-print"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/address",
@@ -24214,7 +24376,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/arp",
@@ -24365,7 +24529,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/cloud",
@@ -24530,7 +24696,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/cloud/advanced",
@@ -24558,7 +24726,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/dhcp-client",
@@ -24864,7 +25034,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-client/option",
@@ -24950,7 +25122,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-relay",
@@ -25074,7 +25248,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-server",
@@ -25379,7 +25555,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-server/alert",
@@ -25474,7 +25652,9 @@
           "type": "MAC address|max 10 times"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-server/config",
@@ -25526,7 +25706,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/dhcp-server/lease",
@@ -25863,7 +26045,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-server/matcher",
@@ -25970,7 +26154,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/dhcp-server/network",
@@ -26116,7 +26302,9 @@
           "type": "IP address|max 100 times"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-server/option",
@@ -26194,7 +26382,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dhcp-server/option/sets",
@@ -26243,7 +26433,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/dns",
@@ -26400,7 +26592,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dns/adlist",
@@ -26492,11 +26686,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dns/cache",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "flush",
@@ -26552,11 +26748,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dns/cache/all",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -26683,7 +26881,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/dns/forwarders",
@@ -26761,7 +26961,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/dns/static",
@@ -26953,18 +27155,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ip/firewall",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/address-list",
@@ -27058,7 +27251,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/calea",
@@ -27843,11 +28038,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/connection",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "export",
         "find",
@@ -28243,7 +28440,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/connection/tracking",
@@ -28390,7 +28589,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/filter",
@@ -29245,7 +29446,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/layer7-protocol",
@@ -29295,7 +29498,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/firewall/mangle",
@@ -30256,7 +30461,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/nat",
@@ -31095,7 +31302,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/raw",
@@ -31801,11 +32010,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/firewall/service-port",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "disable",
         "edit",
@@ -31875,7 +32086,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot",
@@ -32030,11 +32243,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/active",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -32210,11 +32425,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/cookie",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -32259,11 +32476,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/host",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -32477,7 +32696,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/ip-binding",
@@ -32590,7 +32811,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/profile",
@@ -32832,11 +33055,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/service-port",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "disable",
         "edit",
@@ -32881,7 +33106,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/user",
@@ -33086,7 +33313,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/user/profile",
@@ -33328,7 +33557,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/walled-garden",
@@ -33492,7 +33723,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/hotspot/walled-garden/ip",
@@ -33681,18 +33914,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ip/ipsec",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/active-peers",
@@ -33887,7 +34111,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/identity",
@@ -34087,11 +34313,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/installed-sa",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -34328,18 +34556,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ip/ipsec/key",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNTESTED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/key/psk",
@@ -34381,7 +34600,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/ipsec/key/qkd",
@@ -34467,11 +34688,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/key/rsa",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "export-pub-key",
@@ -34527,7 +34750,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/mode-config",
@@ -34663,7 +34888,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/peer",
@@ -34813,7 +35040,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/policy",
@@ -35108,7 +35337,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/policy/group",
@@ -35165,7 +35396,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/profile",
@@ -35336,7 +35569,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/proposal",
@@ -35466,7 +35701,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ipsec/settings",
@@ -35518,11 +35755,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/ipsec/statistics",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -35658,7 +35897,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/kid-control",
@@ -35886,7 +36127,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/kid-control/device",
@@ -36039,7 +36282,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/media",
@@ -36130,7 +36375,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/media/settings",
@@ -36154,7 +36401,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/nat-pmp",
@@ -36182,7 +36431,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/nat-pmp/interfaces",
@@ -36257,11 +36508,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/neighbor",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "export",
         "find",
@@ -36427,7 +36680,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/neighbor/discovery-settings",
@@ -36553,11 +36808,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/neighbor/lldp",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -36695,7 +36952,9 @@
           "type": "MAC address"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/packing",
@@ -36775,7 +37034,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/pool",
@@ -36863,11 +37124,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/pool/used",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -36904,7 +37167,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/proxy",
@@ -37071,7 +37336,9 @@
           "type": "IP address"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/proxy/access",
@@ -37239,7 +37506,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/cache",
@@ -37399,7 +37668,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/cache-contents",
@@ -37474,11 +37745,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/connections",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "comment",
         "edit",
@@ -37578,7 +37851,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/direct",
@@ -37738,11 +38013,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/inserts",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -37778,11 +38055,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/lookups",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -37823,11 +38102,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/proxy/refreshes",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -37873,7 +38154,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/reverse-proxy",
@@ -37968,7 +38251,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/route",
@@ -38272,11 +38557,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/service",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "disable",
         "edit",
@@ -38485,7 +38772,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/service/webserver",
@@ -38613,7 +38902,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/settings",
@@ -38820,7 +39111,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/smb",
@@ -38880,7 +39173,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/smb/shares",
@@ -39001,7 +39296,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/smb/users",
@@ -39095,7 +39392,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/socks",
@@ -39172,7 +39471,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/socks/access",
@@ -39286,11 +39587,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/socks/connections",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -39356,7 +39659,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/socks/users",
@@ -39425,7 +39730,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/socksify",
@@ -39535,7 +39842,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/ssh",
@@ -39631,7 +39940,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/tftp",
@@ -39765,7 +40076,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/tftp/settings",
@@ -39794,7 +40107,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/traffic-flow",
@@ -39910,7 +40225,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/traffic-flow/ipfix",
@@ -40288,7 +40605,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/traffic-flow/target",
@@ -40376,7 +40695,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/upnp",
@@ -40424,7 +40745,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ip/upnp/interfaces",
@@ -40499,7 +40822,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ip/vrf",
@@ -40586,19 +40911,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ipv6",
-      "class": "read-only",
-      "commands": [
-        "export",
-        "recursive-print"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/address",
@@ -40889,7 +41204,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-client",
@@ -41205,7 +41522,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-client/option",
@@ -41280,7 +41599,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-relay",
@@ -41395,7 +41716,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-relay/option",
@@ -41482,11 +41805,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-relay/routes",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -41527,7 +41852,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-server",
@@ -41745,7 +42072,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-server/binding",
@@ -42025,7 +42354,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-server/option",
@@ -42090,7 +42421,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/dhcp-server/option/sets",
@@ -42139,18 +42472,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ipv6/firewall",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ipv6/firewall/address-list",
@@ -42240,11 +42564,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/firewall/connection",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -42635,7 +42961,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/firewall/filter",
@@ -43416,7 +43744,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/firewall/mangle",
@@ -44316,7 +44646,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/firewall/nat",
@@ -45085,7 +45417,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/firewall/raw",
@@ -45758,7 +46092,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/nd",
@@ -45974,7 +46310,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/nd/prefix",
@@ -46123,7 +46461,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/nd/prefix/default",
@@ -46177,7 +46517,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ipv6/nd/proxy",
@@ -46241,7 +46583,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ipv6/nd/settings",
@@ -46277,7 +46621,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ipv6/neighbor",
@@ -46394,7 +46740,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/pool",
@@ -46501,11 +46849,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/pool/used",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -46542,7 +46892,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/route",
@@ -46845,7 +47197,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ipv6/settings",
@@ -47017,11 +47371,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/log",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "debug",
         "error",
@@ -47190,22 +47546,13 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/mpls",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/forwarding-table",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -47329,7 +47676,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/interface",
@@ -47428,7 +47777,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/ldp",
@@ -47572,7 +47923,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/ldp/accept-filter",
@@ -47656,7 +48009,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/ldp/advertise-filter",
@@ -47740,7 +48095,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/ldp/interface",
@@ -47838,7 +48195,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/mpls/ldp/local-mapping",
@@ -47993,7 +48352,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/ldp/neighbor",
@@ -48197,7 +48558,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/ldp/remote-mapping",
@@ -48333,7 +48696,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/mangle",
@@ -48440,7 +48805,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/settings",
@@ -48496,22 +48863,13 @@
           "bool": true
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/mpls/traffic-eng",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/traffic-eng/flow",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -48674,7 +49032,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/traffic-eng/interface",
@@ -48864,7 +49224,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/mpls/traffic-eng/path",
@@ -48995,7 +49357,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/mpls/traffic-eng/tunnel",
@@ -49264,11 +49628,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/port",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "export",
@@ -49431,7 +49797,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/port/remote-access",
@@ -49592,18 +49960,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/ppp",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ppp/aaa",
@@ -49666,11 +50025,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ppp/active",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -49773,7 +50134,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/ppp/l2tp-secret",
@@ -49824,7 +50187,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/ppp/profile",
@@ -50179,7 +50544,9 @@
           "type": "IP address|max 2 times"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/ppp/secret",
@@ -50356,23 +50723,13 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/queue",
-      "class": "read-only",
-      "commands": [
-        "export",
-        "monitor"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/queue/interface",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "export",
@@ -50453,7 +50810,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/queue/simple",
@@ -50889,7 +51248,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/queue/tree",
@@ -51126,7 +51487,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/queue/type",
@@ -51644,7 +52007,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/radius",
@@ -51827,7 +52192,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/radius/incoming",
@@ -51874,30 +52241,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing",
-      "class": "read-only",
-      "commands": [
-        "discourse",
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
-    },
-    {
-      "path": "/routing/bfd",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/bfd/configuration",
@@ -52029,11 +52375,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bfd/session",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -52208,22 +52556,13 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/bgp",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/advertisements",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -52395,7 +52734,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/connection",
@@ -52982,7 +53323,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/evpn",
@@ -53080,7 +53423,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/instance",
@@ -53204,11 +53549,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/session",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "clear",
         "dump-saved-advertisements",
@@ -54500,7 +54847,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/template",
@@ -54961,7 +55310,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/vpls",
@@ -55150,7 +55501,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/bgp/vpn",
@@ -55290,7 +55643,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/fantasy",
@@ -55467,25 +55822,13 @@
           "bool": true
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/filter",
-      "class": "read-only",
-      "commands": [
-        "export",
-        "filter-wizard",
-        "sync",
-        "test-as-path-regexp"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/chain",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -55525,7 +55868,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/community-ext-list",
@@ -55605,7 +55950,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/community-large-list",
@@ -55681,7 +56028,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/community-list",
@@ -55774,7 +56123,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/num-list",
@@ -55842,7 +56193,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/rule",
@@ -55930,7 +56283,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/filter/select-rule",
@@ -56114,7 +56469,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/gmp",
@@ -56193,7 +56550,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/id",
@@ -56305,7 +56664,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/igmp-proxy",
@@ -56351,7 +56712,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/igmp-proxy/interface",
@@ -56511,7 +56874,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/igmp-proxy/mfc",
@@ -56641,18 +57006,9 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/isis",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/isis/instance",
@@ -56924,11 +57280,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/isis/interface",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -57138,7 +57496,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/isis/interface-template",
@@ -57445,11 +57805,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/isis/lsp",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -57537,11 +57899,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/isis/neighbor",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -57612,11 +57976,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/nexthop",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "dump-dot",
         "find",
@@ -57849,18 +58215,9 @@
           "bool": true
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/ospf",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/area",
@@ -57991,7 +58348,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/area/range",
@@ -58079,7 +58438,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/instance",
@@ -58261,7 +58622,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/interface",
@@ -58511,7 +58874,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/interface-template",
@@ -58726,11 +59091,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/lsa",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -58862,11 +59229,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/neighbor",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "comment",
         "edit",
@@ -59021,7 +59390,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/ospf/static-neighbor",
@@ -59109,22 +59480,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/pimsm",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/bsr",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -59200,7 +59562,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/bsr/candidate",
@@ -59307,7 +59671,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/bsr/rp-candidate",
@@ -59394,11 +59760,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/bsr/rp-set",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -59438,11 +59806,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/igmp-interface-template",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -59477,7 +59847,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/pimsm/instance",
@@ -59619,11 +59991,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/interface",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -59726,7 +60100,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/interface-template",
@@ -59850,11 +60226,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/neighbor",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -59925,7 +60303,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/static-rp",
@@ -59998,11 +60378,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/uib-g",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -60061,11 +60443,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/pimsm/uib-sg",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -60144,18 +60528,9 @@
           "bool": true
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/rip",
-      "class": "read-only",
-      "commands": [
-        "export"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/rip/instance",
@@ -60302,11 +60677,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/rip/interface",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -60348,7 +60725,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/rip/interface-template",
@@ -60471,7 +60850,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/rip/keys",
@@ -60554,11 +60935,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/rip/neighbor",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -60636,7 +61019,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/rip/static-neighbor",
@@ -60690,11 +61075,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/route",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "comment",
         "disable",
@@ -61620,7 +62007,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/rpki",
@@ -61735,11 +62124,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/rpki/session",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -61820,7 +62211,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/rule",
@@ -61994,7 +62387,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/settings",
@@ -62074,20 +62469,13 @@
           "bool": true
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/routing/stats",
-      "class": "read-only",
-      "commands": null,
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/routing/stats/memory",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -62298,11 +62686,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/stats/origin",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -62586,11 +62976,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/stats/pcap",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -62808,11 +63200,13 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/stats/process",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -63088,11 +63482,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/stats/step",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -63299,7 +63695,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/routing/table",
@@ -63394,11 +63792,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/safe-mode",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -63433,7 +63833,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/snmp",
@@ -63545,7 +63947,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/snmp/community",
@@ -63683,7 +64087,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/special-login",
@@ -63746,46 +64152,13 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/system",
-      "class": "read-only",
-      "commands": [
-        "check-disk",
-        "check-installation",
-        "export",
-        "reboot",
-        "recursive-print",
-        "reset-configuration",
-        "serial-terminal",
-        "shell",
-        "shutdown",
-        "ssh",
-        "ssh-exec",
-        "sup-output",
-        "telnet"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
-    },
-    {
-      "path": "/system/backup",
-      "class": "read-only",
-      "commands": [
-        "load",
-        "save"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/backup/cloud",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "download-file",
         "find",
@@ -63847,7 +64220,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/clock",
@@ -64503,7 +64878,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/clock/manual",
@@ -64555,7 +64932,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/console",
@@ -64665,7 +65044,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/console/screen",
@@ -64693,11 +65074,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/default-configuration",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -64723,11 +65106,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/default-configuration/caps-mode-script",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -64743,11 +65128,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/default-configuration/custom-script",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -64763,11 +65150,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/default-configuration/script",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -64783,11 +65172,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/device-mode",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -64919,11 +65310,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/health",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "export",
@@ -64981,11 +65374,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/history",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -65090,7 +65485,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/identity",
@@ -65117,7 +65514,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/leds",
@@ -65240,7 +65639,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/leds/settings",
@@ -65269,11 +65670,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/license",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "generate-new-id",
@@ -65311,7 +65714,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/logging",
@@ -65522,7 +65927,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/logging/action",
@@ -65824,7 +66231,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/note",
@@ -65868,19 +66277,9 @@
           "bool": true
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/system/ntp",
-      "class": "read-only",
-      "commands": [
-        "export",
-        "monitor-peers"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/ntp/client",
@@ -65959,7 +66358,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/ntp/client/servers",
@@ -66064,7 +66465,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/ntp/key",
@@ -66115,7 +66518,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/ntp/server",
@@ -66214,11 +66619,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/package",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "apply-changes",
         "disable",
@@ -66340,11 +66747,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/package/local-update",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "download",
         "download-all",
@@ -66410,7 +66819,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/package/local-update/mirror",
@@ -66477,7 +66888,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/package/local-update/update-package-source",
@@ -66521,7 +66934,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/package/update",
@@ -66598,11 +67013,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/regulatory",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -66618,11 +67035,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/resource",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -66724,11 +67143,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/resource/cpu",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -66772,11 +67193,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/resource/hardware",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "authorize",
         "export",
@@ -66936,7 +67359,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/resource/hardware/usb-settings",
@@ -66964,11 +67389,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/resource/irq",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "export",
@@ -67048,11 +67475,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/resource/irq/rps",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "disable",
         "edit",
@@ -67092,11 +67521,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/rtrace",
-      "class": "read-only",
+      "class": "singleton",
       "commands": [
         "export",
         "get",
@@ -67114,7 +67545,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/scheduler",
@@ -67254,7 +67687,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/script",
@@ -67369,11 +67804,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/script/environment",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "comment",
         "edit",
@@ -67411,11 +67848,13 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/script/job",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "comment",
         "edit",
@@ -67512,7 +67951,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/system/ups",
@@ -67589,7 +68030,9 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/system/watchdog",
@@ -67675,7 +68118,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/task",
@@ -67824,50 +68269,9 @@
           "type": "string"
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/terminal",
-      "class": "read-only",
-      "commands": [
-        "ask",
-        "cuu",
-        "el",
-        "inkey",
-        "style"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
-    },
-    {
-      "path": "/tool",
-      "class": "read-only",
-      "commands": [
-        "bandwidth-test",
-        "dns-update",
-        "export",
-        "fetch",
-        "flood-ping",
-        "ip-scan",
-        "mac-scan",
-        "mac-telnet",
-        "ping",
-        "ping-speed",
-        "profile",
-        "recursive-print",
-        "snmp-get",
-        "snmp-walk",
-        "speed-test",
-        "torch",
-        "traceroute",
-        "wol"
-      ],
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/bandwidth-server",
@@ -67938,11 +68342,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/bandwidth-server/session",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -68101,7 +68507,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/e-mail",
@@ -68191,7 +68599,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/graphing",
@@ -68227,7 +68637,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/graphing/interface",
@@ -68306,7 +68718,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/graphing/queue",
@@ -68391,7 +68805,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/graphing/resource",
@@ -68458,7 +68874,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/mac-server",
@@ -68487,7 +68905,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/mac-server/mac-winbox",
@@ -68516,7 +68936,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/mac-server/ping",
@@ -68544,11 +68966,13 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/mac-server/sessions",
-      "class": "singleton",
+      "class": "list",
       "commands": [
         "edit",
         "find",
@@ -68584,7 +69008,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/tool/netwatch",
@@ -69056,7 +69482,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/romon",
@@ -69104,7 +69532,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/romon/port",
@@ -69212,7 +69642,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sms",
@@ -69316,11 +69748,13 @@
           "kind": "unknown"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sms/inbox",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -69380,7 +69814,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sniffer",
@@ -70461,11 +70897,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sniffer/connection",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -70525,11 +70963,13 @@
           "type": "IP address"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sniffer/host",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -70573,11 +71013,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sniffer/packet",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -70837,11 +71279,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/sniffer/protocol",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -71189,7 +71633,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator",
@@ -71260,7 +71706,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/packet-template",
@@ -72368,7 +72816,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/port",
@@ -72460,7 +72910,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/raw-packet-template",
@@ -72638,20 +73090,13 @@
           ]
         }
       ],
-      "typed": true
-    },
-    {
-      "path": "/tool/traffic-generator/stats",
-      "class": "read-only",
-      "commands": null,
-      "identity": {
-        "verdict": "UNPROBED"
-      },
-      "typed": false
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/stats/latency-distribution",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -72691,11 +73136,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/stats/port",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -72904,11 +73351,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/stats/raw",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -73119,11 +73568,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/stats/stream",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -73323,7 +73774,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-generator/stream",
@@ -73447,7 +73900,9 @@
           "kind": "scalar"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/tool/traffic-monitor",
@@ -73557,7 +74012,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/user",
@@ -73684,7 +74141,9 @@
           "type": "string"
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/user/aaa",
@@ -73747,7 +74206,9 @@
           "bool": true
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/user/active",
@@ -73845,7 +74306,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/user/group",
@@ -73927,7 +74390,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/user/settings",
@@ -73963,7 +74428,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "inferred"
     },
     {
       "path": "/user/ssh-keys",
@@ -74040,11 +74507,13 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": true,
+      "class_evidence": "probed"
     },
     {
       "path": "/user/ssh-keys/private",
-      "class": "read-only",
+      "class": "list",
       "commands": [
         "find",
         "get",
@@ -74108,7 +74577,9 @@
           ]
         }
       ],
-      "typed": true
+      "typed": true,
+      "writable": false,
+      "class_evidence": "probed"
     }
   ]
 }

@@ -65,25 +65,40 @@ type Source struct {
 	Version  string `json:"routeros_version,omitempty"`
 }
 
-// Class is how a menu behaves, derived from the commands it exposes. This is
-// mechanical: RouterOS tells the console tree which commands a menu has, and
-// the shape follows from that rather than from anyone's judgement.
+// Class is a menu's cardinality, and nothing else.
+//
+// Cardinality and mutability are independent, and an earlier version of this
+// type conflated them: it had a read-only class, which left no way to say that
+// /ip/firewall/connection holds thousands of rows the device maintains and no
+// caller may write. Whether a menu can be written is Menu.Writable.
 type Class string
 
 const (
-	// ClassOrdered menus expose move, so position carries meaning and
-	// first-match-wins semantics apply. Firewall chains are the archetype.
+	// ClassOrdered holds rows whose order carries meaning — the menu
+	// exposes move, and first-match-wins applies. Firewall chains.
 	ClassOrdered Class = "ordered-list"
-	// ClassList menus expose add: they hold rows, in no significant order.
+	// ClassList holds rows in no significant order.
 	ClassList Class = "list"
-	// ClassSingleton menus expose set but not add — one row of settings,
-	// which also means print has nothing to filter.
+	// ClassSingleton holds one implicit record. Such a menu has nothing for
+	// `print where` to filter, which is how it can be told apart.
 	ClassSingleton Class = "singleton"
-	// ClassReadOnly menus expose neither: a table the device maintains.
-	ClassReadOnly Class = "read-only"
+)
+
+// Evidence is how firmly a derived fact is held.
+type Evidence string
+
+const (
+	// Probed means a live router demonstrated it.
+	Probed Evidence = "probed"
+	// Inferred means it follows from the console tree's shape alone, which
+	// is weaker and has been wrong before.
+	Inferred Evidence = "inferred"
 )
 
 // Menu is one addressable RouterOS menu.
+//
+// Namespaces are not menus and do not appear: /ip and /system group other
+// menus but expose no print or get of their own, so there is nothing to read.
 type Menu struct {
 	Path     string   `json:"path"`
 	Class    Class    `json:"class"`
@@ -93,9 +108,23 @@ type Menu struct {
 	// Typed is false when hack/typedump never reached this menu, so the
 	// fields below are structure without types.
 	Typed bool `json:"typed"`
+	// Writable is whether the menu accepts add or set. It is independent of
+	// Class: a menu may hold many rows and accept no writes at all.
+	Writable bool `json:"writable"`
+	// ClassEvidence distinguishes a class a router demonstrated from one
+	// inferred off the command list.
+	//
+	// The distinction is load-bearing. The obvious inference — no add
+	// command means no rows — is false: /interface, /interface/ethernet and
+	// the read-only tables all hold rows without one. What settles it is
+	// which command could enumerate the menu's properties, since `print
+	// where` has nothing to filter on a menu that holds no rows and answers
+	// with print's own arguments instead.
+	ClassEvidence Evidence `json:"class_evidence"`
 }
 
-// Rows reports whether the menu holds rows that can be addressed individually.
+// Rows reports whether the menu holds rows that can be addressed
+// individually, as opposed to one implicit record.
 func (m Menu) Rows() bool { return m.Class == ClassOrdered || m.Class == ClassList }
 
 // Verdict is what a uniqueness probe concluded.

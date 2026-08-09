@@ -60,7 +60,7 @@ func TestSensitiveFieldsGates(t *testing.T) {
 func TestSensitiveFieldsLeaveCorrectlyMarkedAlone(t *testing.T) {
 	for _, ref := range []struct{ resource, field string }{
 		{"routeros_interface_wireguard_peer", "preshared_key"},
-		{"routeros_interface_wireguard", "private_key"},
+		{"routeros_interface_wireguard", fieldPrivateKey},
 	} {
 		s := routeros.Provider().ResourcesMap[ref.resource].Schema[ref.field]
 		if s == nil {

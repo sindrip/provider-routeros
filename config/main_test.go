@@ -20,6 +20,11 @@ const (
 	schemaGeneration = "generation"
 )
 
+// fieldPrivateKey recurs across the WireGuard overrides: it is Sensitive on
+// two resources and additionally Computed on one, which is the combination
+// withoutMaskedDiff exists for.
+const fieldPrivateKey = "private_key"
+
 // TestMain pins the upstream provider's RouterOS version for the whole
 // package.
 //

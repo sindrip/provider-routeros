@@ -9,6 +9,19 @@
 #   hack/chr/run.sh stop     shut the VM down
 #   hack/chr/run.sh status   report whether it is running
 #
+# CHR_UDP_PORT forwards a host UDP port to the guest, which qemu's user
+# networking does not do by default — without it nothing outside can reach a
+# listening service on the CHR, so a WireGuard peer never completes a
+# handshake and every field that only moves on an established tunnel
+# (last-handshake, rx, tx) stays frozen at its initial value. Set it to give a
+# real client a way in:
+#
+#   CHR_UDP_PORT=13231 hack/chr/run.sh          # host 13231 -> guest 13231
+#   CHR_UDP_PORT=13232 CHR_UDP_GUEST_PORT=13231 hack/chr/run.sh
+#
+# The second form is what two concurrent CHRs need: the guest port is fixed by
+# the router's listen-port, so the host ports have to differ.
+#
 # On arm64 hosts this boots MikroTik's arm64 CHR image under TCG with
 # -cpu cortex-a72 (REST in ~25s); everywhere else, the x86-64 image under
 # whatever qemu-system-x86_64 does natively (TCG on Apple Silicon: a minute
@@ -41,6 +54,20 @@ arm64 | aarch64)
     QEMU=qemu-system-x86_64
     ;;
 esac
+
+UDP_PORT="${CHR_UDP_PORT:-}"
+UDP_GUEST_PORT="${CHR_UDP_GUEST_PORT:-$UDP_PORT}"
+# A loopback-bound forward is reachable from the host but not from another
+# CHR: qemu's slirp sends a guest's traffic for 10.0.2.2 from the host's own
+# address, not from 127.0.0.1, so it never matches. Bind 0.0.0.0 to let two
+# CHRs peer with each other.
+UDP_BIND="${CHR_UDP_BIND:-127.0.0.1}"
+# qemu user networking forwards nothing inbound unless asked; empty when
+# CHR_UDP_PORT is unset, so the command line is unchanged by default.
+UDPFWD=""
+if [ -n "$UDP_PORT" ]; then
+    UDPFWD=",hostfwd=udp:$UDP_BIND:$UDP_PORT-:$UDP_GUEST_PORT"
+fi
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 WORK="$ROOT/.work/chr"
@@ -103,7 +130,7 @@ if [ -n "$SUFFIX" ]; then
         -drive if=pflash,format=raw,unit=1,file="$WORK/vars-$PORT.fd" \
         -drive file="$RUN_IMG",format=raw,if=none,id=hd0 \
         -device virtio-blk-pci,drive=hd0 \
-        -netdev user,id=n0,hostfwd=tcp:127.0.0.1:$PORT-:80 \
+        -netdev user,id=n0,hostfwd=tcp:127.0.0.1:$PORT-:80$UDPFWD \
         -device virtio-net-pci,netdev=n0 \
         -netdev user,id=n1 -device virtio-net-pci,netdev=n1 \
         -netdev user,id=n2 -device virtio-net-pci,netdev=n2 \
@@ -113,7 +140,7 @@ else
     "$QEMU" \
         -machine pc -m 512 -smp 2 \
         -drive file="$RUN_IMG",format=raw,if=virtio \
-        -netdev user,id=n0,hostfwd=tcp:127.0.0.1:$PORT-:80 \
+        -netdev user,id=n0,hostfwd=tcp:127.0.0.1:$PORT-:80$UDPFWD \
         -device virtio-net-pci,netdev=n0 \
         -netdev user,id=n1 -device virtio-net-pci,netdev=n1 \
         -netdev user,id=n2 -device virtio-net-pci,netdev=n2 \

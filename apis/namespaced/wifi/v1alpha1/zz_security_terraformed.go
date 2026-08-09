@@ -21,7 +21,7 @@ func (mg *Security) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this Security
 func (tr *Security) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"eap_password": "eapPasswordSecretRef", "passphrase": "passphraseSecretRef"}
 }
 
 // GetObservation of this Security

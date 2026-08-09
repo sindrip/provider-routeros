@@ -21,7 +21,7 @@ func (mg *LteApn) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this LteApn
 func (tr *LteApn) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"password": "passwordSecretRef"}
 }
 
 // GetObservation of this LteApn

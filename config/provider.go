@@ -50,7 +50,7 @@ func GetProviderNamespacedRuntime() *ujconfig.Provider {
 }
 
 func providerForRuntime() *schema.Provider {
-	return withCommentSequence(withCertificateRemoval(withInterfaceIdentity(withFactoryIdentity(withCommentIdentity(withNameIdentity(injectRouterComment(injectRouterName(withoutPolicyExpansion(withRouterReadOnly(withoutMistypedEnums(withoutPhantomDefaults(routeros.Provider()))))))))))))
+	return withCommentSequence(withCertificateRemoval(withInterfaceIdentity(withFactoryIdentity(withCommentIdentity(withNameIdentity(injectRouterComment(injectRouterName(withoutPolicyExpansion(withSensitiveFields(withRouterReadOnly(withoutMistypedEnums(withoutPhantomDefaults(routeros.Provider())))))))))))))
 }
 
 // kindOverrides replaces derived Kubernetes kinds that Terraform names alone
@@ -117,7 +117,7 @@ func newProvider(rootGroup string, namespaced bool, terraformProvider *schema.Pr
 }
 
 func providerForGeneration() *schema.Provider {
-	p := documentCommentSequence(injectRouterComment(injectRouterName(withRouterReadOnly(withoutMistypedEnums(routeros.Provider())))))
+	p := documentCommentSequence(injectRouterComment(injectRouterName(withSensitiveFields(withRouterReadOnly(withoutMistypedEnums(routeros.Provider()))))))
 	renameFieldForGeneration(p, "routeros_ipv6_nd_prefix", "6to4_interface", "six_to_four_interface")
 	renameFieldForGeneration(p, "routeros_wifi_interworking", "3gpp_info", "three_gpp_info")
 	renameFieldForGeneration(p, "routeros_wifi_interworking", "3gpp_raw", "three_gpp_raw")

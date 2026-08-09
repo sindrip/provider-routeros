@@ -21,7 +21,7 @@ func (mg *ManagerAdvanced) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this ManagerAdvanced
 func (tr *ManagerAdvanced) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"paypal_password": "paypalPasswordSecretRef", "web_private_password": "webPrivatePasswordSecretRef"}
 }
 
 // GetObservation of this ManagerAdvanced

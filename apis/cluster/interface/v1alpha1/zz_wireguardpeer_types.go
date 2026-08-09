@@ -75,7 +75,7 @@ type WireguardPeerInitParameters struct {
 
 	// (String) A base64 private key. If not specified, it will be automatically generated upon interface creation.
 	// A base64 private key. If not specified, it will be automatically generated upon interface creation.
-	PrivateKey *string `json:"privateKey,omitempty" tf:"private_key,omitempty"`
+	PrivateKeySecretRef *v2.SecretKeySelector `json:"privateKeySecretRef,omitempty" tf:"-"`
 
 	// (String) The remote peer's calculated public key.
 	// The remote peer's calculated public key.
@@ -156,10 +156,6 @@ type WireguardPeerObservation struct {
 	// (String) A seconds interval, between 1 and 65535 inclusive, of how often to send an authenticated empty packet to the peer for the purpose of keeping a stateful firewall or NAT mapping valid persistently. For example, if the interface very rarely sends traffic, but it might at anytime receive traffic from a peer, and it is behind NAT, the interface might benefit from having a persistent keepalive interval of 25 seconds.
 	// A seconds interval, between 1 and 65535 inclusive, of how often to send an authenticated empty packet to the peer for the purpose of keeping a stateful firewall or NAT mapping valid persistently. For example, if the interface very rarely sends traffic, but it might at anytime receive traffic from a peer, and it is behind NAT, the interface might benefit from having a persistent keepalive interval of 25 seconds.
 	PersistentKeepalive *string `json:"persistentKeepalive,omitempty" tf:"persistent_keepalive,omitempty"`
-
-	// (String) A base64 private key. If not specified, it will be automatically generated upon interface creation.
-	// A base64 private key. If not specified, it will be automatically generated upon interface creation.
-	PrivateKey *string `json:"privateKey,omitempty" tf:"private_key,omitempty"`
 
 	// (String) The remote peer's calculated public key.
 	// The remote peer's calculated public key.
@@ -252,7 +248,7 @@ type WireguardPeerParameters struct {
 	// (String) A base64 private key. If not specified, it will be automatically generated upon interface creation.
 	// A base64 private key. If not specified, it will be automatically generated upon interface creation.
 	// +kubebuilder:validation:Optional
-	PrivateKey *string `json:"privateKey,omitempty" tf:"private_key,omitempty"`
+	PrivateKeySecretRef *v2.SecretKeySelector `json:"privateKeySecretRef,omitempty" tf:"-"`
 
 	// (String) The remote peer's calculated public key.
 	// The remote peer's calculated public key.

@@ -82,11 +82,25 @@ spec:
                       (String) The currency related to price setting in which users will be billed.
                       The currency related to price setting in which users will be billed.
                     type: string
-                  paypalPassword:
+                  paypalPasswordSecretRef:
                     description: |-
                       (String) The password of the PayPal API account.
                       The password of the PayPal API account.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   paypalSignature:
                     description: |-
                       (String) The signature of the PayPal API account.
@@ -102,11 +116,25 @@ spec:
                       (String) The username of the PayPal API account.
                       The username of the PayPal API account.
                     type: string
-                  webPrivatePassword:
+                  webPrivatePasswordSecretRef:
                     description: |-
                       (String) The password for accessing `/um/PRIVATE/` section over HTTP.
                       The password for accessing `/um/PRIVATE/` section over HTTP.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   webPrivateUsername:
                     description: |-
                       (String) The username for accessing `/um/PRIVATE/` section over HTTP.
@@ -136,11 +164,25 @@ spec:
                       (String) The currency related to price setting in which users will be billed.
                       The currency related to price setting in which users will be billed.
                     type: string
-                  paypalPassword:
+                  paypalPasswordSecretRef:
                     description: |-
                       (String) The password of the PayPal API account.
                       The password of the PayPal API account.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   paypalSignature:
                     description: |-
                       (String) The signature of the PayPal API account.
@@ -156,11 +198,25 @@ spec:
                       (String) The username of the PayPal API account.
                       The username of the PayPal API account.
                     type: string
-                  webPrivatePassword:
+                  webPrivatePasswordSecretRef:
                     description: |-
                       (String) The password for accessing `/um/PRIVATE/` section over HTTP.
                       The password for accessing `/um/PRIVATE/` section over HTTP.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   webPrivateUsername:
                     description: |-
                       (String) The username for accessing `/um/PRIVATE/` section over HTTP.
@@ -271,11 +327,6 @@ spec:
                       (String) The currency related to price setting in which users will be billed.
                       The currency related to price setting in which users will be billed.
                     type: string
-                  paypalPassword:
-                    description: |-
-                      (String) The password of the PayPal API account.
-                      The password of the PayPal API account.
-                    type: string
                   paypalSignature:
                     description: |-
                       (String) The signature of the PayPal API account.
@@ -290,11 +341,6 @@ spec:
                     description: |-
                       (String) The username of the PayPal API account.
                       The username of the PayPal API account.
-                    type: string
-                  webPrivatePassword:
-                    description: |-
-                      (String) The password for accessing `/um/PRIVATE/` section over HTTP.
-                      The password for accessing `/um/PRIVATE/` section over HTTP.
                     type: string
                   webPrivateUsername:
                     description: |-

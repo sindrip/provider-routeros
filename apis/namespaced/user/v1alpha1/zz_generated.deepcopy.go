@@ -53,9 +53,9 @@ func (in *ManagerAdvancedInitParameters) DeepCopyInto(out *ManagerAdvancedInitPa
 		*out = new(string)
 		**out = **in
 	}
-	if in.PaypalPassword != nil {
-		in, out := &in.PaypalPassword, &out.PaypalPassword
-		*out = new(string)
+	if in.PaypalPasswordSecretRef != nil {
+		in, out := &in.PaypalPasswordSecretRef, &out.PaypalPasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.PaypalSignature != nil {
@@ -73,9 +73,9 @@ func (in *ManagerAdvancedInitParameters) DeepCopyInto(out *ManagerAdvancedInitPa
 		*out = new(string)
 		**out = **in
 	}
-	if in.WebPrivatePassword != nil {
-		in, out := &in.WebPrivatePassword, &out.WebPrivatePassword
-		*out = new(string)
+	if in.WebPrivatePasswordSecretRef != nil {
+		in, out := &in.WebPrivatePasswordSecretRef, &out.WebPrivatePasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.WebPrivateUsername != nil {
@@ -145,11 +145,6 @@ func (in *ManagerAdvancedObservation) DeepCopyInto(out *ManagerAdvancedObservati
 		*out = new(string)
 		**out = **in
 	}
-	if in.PaypalPassword != nil {
-		in, out := &in.PaypalPassword, &out.PaypalPassword
-		*out = new(string)
-		**out = **in
-	}
 	if in.PaypalSignature != nil {
 		in, out := &in.PaypalSignature, &out.PaypalSignature
 		*out = new(string)
@@ -162,11 +157,6 @@ func (in *ManagerAdvancedObservation) DeepCopyInto(out *ManagerAdvancedObservati
 	}
 	if in.PaypalUser != nil {
 		in, out := &in.PaypalUser, &out.PaypalUser
-		*out = new(string)
-		**out = **in
-	}
-	if in.WebPrivatePassword != nil {
-		in, out := &in.WebPrivatePassword, &out.WebPrivatePassword
 		*out = new(string)
 		**out = **in
 	}
@@ -200,9 +190,9 @@ func (in *ManagerAdvancedParameters) DeepCopyInto(out *ManagerAdvancedParameters
 		*out = new(string)
 		**out = **in
 	}
-	if in.PaypalPassword != nil {
-		in, out := &in.PaypalPassword, &out.PaypalPassword
-		*out = new(string)
+	if in.PaypalPasswordSecretRef != nil {
+		in, out := &in.PaypalPasswordSecretRef, &out.PaypalPasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.PaypalSignature != nil {
@@ -220,9 +210,9 @@ func (in *ManagerAdvancedParameters) DeepCopyInto(out *ManagerAdvancedParameters
 		*out = new(string)
 		**out = **in
 	}
-	if in.WebPrivatePassword != nil {
-		in, out := &in.WebPrivatePassword, &out.WebPrivatePassword
-		*out = new(string)
+	if in.WebPrivatePasswordSecretRef != nil {
+		in, out := &in.WebPrivatePasswordSecretRef, &out.WebPrivatePasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.WebPrivateUsername != nil {
@@ -2355,14 +2345,14 @@ func (in *ManagerUserInitParameters) DeepCopyInto(out *ManagerUserInitParameters
 		*out = new(string)
 		**out = **in
 	}
-	if in.OtpSecret != nil {
-		in, out := &in.OtpSecret, &out.OtpSecret
-		*out = new(string)
+	if in.OtpSecretSecretRef != nil {
+		in, out := &in.OtpSecretSecretRef, &out.OtpSecretSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
-	if in.Password != nil {
-		in, out := &in.Password, &out.Password
-		*out = new(string)
+	if in.PasswordSecretRef != nil {
+		in, out := &in.PasswordSecretRef, &out.PasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.SharedUsers != nil {
@@ -2458,16 +2448,6 @@ func (in *ManagerUserObservation) DeepCopyInto(out *ManagerUserObservation) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.OtpSecret != nil {
-		in, out := &in.OtpSecret, &out.OtpSecret
-		*out = new(string)
-		**out = **in
-	}
-	if in.Password != nil {
-		in, out := &in.Password, &out.Password
-		*out = new(string)
-		**out = **in
-	}
 	if in.SharedUsers != nil {
 		in, out := &in.SharedUsers, &out.SharedUsers
 		*out = new(int64)
@@ -2524,14 +2504,14 @@ func (in *ManagerUserParameters) DeepCopyInto(out *ManagerUserParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.OtpSecret != nil {
-		in, out := &in.OtpSecret, &out.OtpSecret
-		*out = new(string)
+	if in.OtpSecretSecretRef != nil {
+		in, out := &in.OtpSecretSecretRef, &out.OtpSecretSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
-	if in.Password != nil {
-		in, out := &in.Password, &out.Password
-		*out = new(string)
+	if in.PasswordSecretRef != nil {
+		in, out := &in.PasswordSecretRef, &out.PasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.SharedUsers != nil {

@@ -25,7 +25,7 @@ type ManagerAdvancedInitParameters struct {
 
 	// (String) The password of the PayPal API account.
 	// The password of the PayPal API account.
-	PaypalPassword *string `json:"paypalPassword,omitempty" tf:"paypal_password,omitempty"`
+	PaypalPasswordSecretRef *v2.SecretKeySelector `json:"paypalPasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) The signature of the PayPal API account.
 	// The signature of the PayPal API account.
@@ -41,7 +41,7 @@ type ManagerAdvancedInitParameters struct {
 
 	// (String) The password for accessing `/um/PRIVATE/` section over HTTP.
 	// The password for accessing `/um/PRIVATE/` section over HTTP.
-	WebPrivatePassword *string `json:"webPrivatePassword,omitempty" tf:"web_private_password,omitempty"`
+	WebPrivatePasswordSecretRef *v2.SecretKeySelector `json:"webPrivatePasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) The username for accessing `/um/PRIVATE/` section over HTTP.
 	// The username for accessing `/um/PRIVATE/` section over HTTP.
@@ -61,10 +61,6 @@ type ManagerAdvancedObservation struct {
 	// The currency related to price setting in which users will be billed.
 	PaypalCurrency *string `json:"paypalCurrency,omitempty" tf:"paypal_currency,omitempty"`
 
-	// (String) The password of the PayPal API account.
-	// The password of the PayPal API account.
-	PaypalPassword *string `json:"paypalPassword,omitempty" tf:"paypal_password,omitempty"`
-
 	// (String) The signature of the PayPal API account.
 	// The signature of the PayPal API account.
 	PaypalSignature *string `json:"paypalSignature,omitempty" tf:"paypal_signature,omitempty"`
@@ -76,10 +72,6 @@ type ManagerAdvancedObservation struct {
 	// (String) The username of the PayPal API account.
 	// The username of the PayPal API account.
 	PaypalUser *string `json:"paypalUser,omitempty" tf:"paypal_user,omitempty"`
-
-	// (String) The password for accessing `/um/PRIVATE/` section over HTTP.
-	// The password for accessing `/um/PRIVATE/` section over HTTP.
-	WebPrivatePassword *string `json:"webPrivatePassword,omitempty" tf:"web_private_password,omitempty"`
 
 	// (String) The username for accessing `/um/PRIVATE/` section over HTTP.
 	// The username for accessing `/um/PRIVATE/` section over HTTP.
@@ -101,7 +93,7 @@ type ManagerAdvancedParameters struct {
 	// (String) The password of the PayPal API account.
 	// The password of the PayPal API account.
 	// +kubebuilder:validation:Optional
-	PaypalPassword *string `json:"paypalPassword,omitempty" tf:"paypal_password,omitempty"`
+	PaypalPasswordSecretRef *v2.SecretKeySelector `json:"paypalPasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) The signature of the PayPal API account.
 	// The signature of the PayPal API account.
@@ -121,7 +113,7 @@ type ManagerAdvancedParameters struct {
 	// (String) The password for accessing `/um/PRIVATE/` section over HTTP.
 	// The password for accessing `/um/PRIVATE/` section over HTTP.
 	// +kubebuilder:validation:Optional
-	WebPrivatePassword *string `json:"webPrivatePassword,omitempty" tf:"web_private_password,omitempty"`
+	WebPrivatePasswordSecretRef *v2.SecretKeySelector `json:"webPrivatePasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) The username for accessing `/um/PRIVATE/` section over HTTP.
 	// The username for accessing `/um/PRIVATE/` section over HTTP.

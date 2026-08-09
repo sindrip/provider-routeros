@@ -127,11 +127,25 @@ spec:
                       > Please check the effect of this option, as it does not work as you think!
                       > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
                     type: string
-                  privatePassphrase:
+                  privatePassphraseSecretRef:
                     description: |-
                       (String) PSK passphrase for the client if some PSK authentication algorithm is used.
                       PSK passphrase for the client if some PSK authentication algorithm is used.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   radiusAccounting:
                     description: |-
                       (Boolean) An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
@@ -232,11 +246,25 @@ spec:
                       > Please check the effect of this option, as it does not work as you think!
                       > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
                     type: string
-                  privatePassphrase:
+                  privatePassphraseSecretRef:
                     description: |-
                       (String) PSK passphrase for the client if some PSK authentication algorithm is used.
                       PSK passphrase for the client if some PSK authentication algorithm is used.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   radiusAccounting:
                     description: |-
                       (Boolean) An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
@@ -417,11 +445,6 @@ spec:
                       Before which position the rule will be inserted.
                       > Please check the effect of this option, as it does not work as you think!
                       > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
-                    type: string
-                  privatePassphrase:
-                    description: |-
-                      (String) PSK passphrase for the client if some PSK authentication algorithm is used.
-                      PSK passphrase for the client if some PSK authentication algorithm is used.
                     type: string
                   radiusAccounting:
                     description: |-

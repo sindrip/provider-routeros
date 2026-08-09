@@ -11544,9 +11544,9 @@ func (in *LteApnInitParameters) DeepCopyInto(out *LteApnInitParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Password != nil {
-		in, out := &in.Password, &out.Password
-		*out = new(string)
+	if in.PasswordSecretRef != nil {
+		in, out := &in.PasswordSecretRef, &out.PasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.UseNetworkApn != nil {
@@ -11681,11 +11681,6 @@ func (in *LteApnObservation) DeepCopyInto(out *LteApnObservation) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Password != nil {
-		in, out := &in.Password, &out.Password
-		*out = new(string)
-		**out = **in
-	}
 	if in.UseNetworkApn != nil {
 		in, out := &in.UseNetworkApn, &out.UseNetworkApn
 		*out = new(bool)
@@ -11776,9 +11771,9 @@ func (in *LteApnParameters) DeepCopyInto(out *LteApnParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Password != nil {
-		in, out := &in.Password, &out.Password
-		*out = new(string)
+	if in.PasswordSecretRef != nil {
+		in, out := &in.PasswordSecretRef, &out.PasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.UseNetworkApn != nil {
@@ -18269,9 +18264,9 @@ func (in *WireguardPeerInitParameters) DeepCopyInto(out *WireguardPeerInitParame
 		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
+	if in.PrivateKeySecretRef != nil {
+		in, out := &in.PrivateKeySecretRef, &out.PrivateKeySecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.PublicKey != nil {
@@ -18427,11 +18422,6 @@ func (in *WireguardPeerObservation) DeepCopyInto(out *WireguardPeerObservation) 
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
-		**out = **in
-	}
 	if in.PublicKey != nil {
 		in, out := &in.PublicKey, &out.PublicKey
 		*out = new(string)
@@ -18543,9 +18533,9 @@ func (in *WireguardPeerParameters) DeepCopyInto(out *WireguardPeerParameters) {
 		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
+	if in.PrivateKeySecretRef != nil {
+		in, out := &in.PrivateKeySecretRef, &out.PrivateKeySecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.PublicKey != nil {
@@ -18747,14 +18737,14 @@ func (in *WirelessAccessListInitParameters) DeepCopyInto(out *WirelessAccessList
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
+	if in.PrivateKeySecretRef != nil {
+		in, out := &in.PrivateKeySecretRef, &out.PrivateKeySecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
-	if in.PrivatePreSharedKey != nil {
-		in, out := &in.PrivatePreSharedKey, &out.PrivatePreSharedKey
-		*out = new(string)
+	if in.PrivatePreSharedKeySecretRef != nil {
+		in, out := &in.PrivatePreSharedKeySecretRef, &out.PrivatePreSharedKeySecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.SignalRange != nil {
@@ -18884,16 +18874,6 @@ func (in *WirelessAccessListObservation) DeepCopyInto(out *WirelessAccessListObs
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
-		**out = **in
-	}
-	if in.PrivatePreSharedKey != nil {
-		in, out := &in.PrivatePreSharedKey, &out.PrivatePreSharedKey
-		*out = new(string)
-		**out = **in
-	}
 	if in.SignalRange != nil {
 		in, out := &in.SignalRange, &out.SignalRange
 		*out = new(string)
@@ -18984,14 +18964,14 @@ func (in *WirelessAccessListParameters) DeepCopyInto(out *WirelessAccessListPara
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
+	if in.PrivateKeySecretRef != nil {
+		in, out := &in.PrivateKeySecretRef, &out.PrivateKeySecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
-	if in.PrivatePreSharedKey != nil {
-		in, out := &in.PrivatePreSharedKey, &out.PrivatePreSharedKey
-		*out = new(string)
+	if in.PrivatePreSharedKeySecretRef != nil {
+		in, out := &in.PrivatePreSharedKeySecretRef, &out.PrivatePreSharedKeySecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.SignalRange != nil {
@@ -21763,9 +21743,9 @@ func (in *WirelessSecurityProfilesInitParameters) DeepCopyInto(out *WirelessSecu
 		*out = new(string)
 		**out = **in
 	}
-	if in.Mschapv2Password != nil {
-		in, out := &in.Mschapv2Password, &out.Mschapv2Password
-		*out = new(string)
+	if in.Mschapv2PasswordSecretRef != nil {
+		in, out := &in.Mschapv2PasswordSecretRef, &out.Mschapv2PasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.Mschapv2Username != nil {
@@ -22006,11 +21986,6 @@ func (in *WirelessSecurityProfilesObservation) DeepCopyInto(out *WirelessSecurit
 		*out = new(string)
 		**out = **in
 	}
-	if in.Mschapv2Password != nil {
-		in, out := &in.Mschapv2Password, &out.Mschapv2Password
-		*out = new(string)
-		**out = **in
-	}
 	if in.Mschapv2Username != nil {
 		in, out := &in.Mschapv2Username, &out.Mschapv2Username
 		*out = new(string)
@@ -22172,9 +22147,9 @@ func (in *WirelessSecurityProfilesParameters) DeepCopyInto(out *WirelessSecurity
 		*out = new(string)
 		**out = **in
 	}
-	if in.Mschapv2Password != nil {
-		in, out := &in.Mschapv2Password, &out.Mschapv2Password
-		*out = new(string)
+	if in.Mschapv2PasswordSecretRef != nil {
+		in, out := &in.Mschapv2PasswordSecretRef, &out.Mschapv2PasswordSecretRef
+		*out = new(v2.LocalSecretKeySelector)
 		**out = **in
 	}
 	if in.Mschapv2Username != nil {

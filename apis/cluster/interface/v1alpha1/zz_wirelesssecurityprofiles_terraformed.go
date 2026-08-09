@@ -21,7 +21,7 @@ func (mg *WirelessSecurityProfiles) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this WirelessSecurityProfiles
 func (tr *WirelessSecurityProfiles) GetConnectionDetailsMapping() map[string]string {
-	return map[string]string{"management_protection_key": "managementProtectionKeySecretRef", "static_key_0": "staticKey0SecretRef", "static_key_1": "staticKey1SecretRef", "static_key_2": "staticKey2SecretRef", "static_key_3": "staticKey3SecretRef", "static_sta_private_key": "staticStaPrivateKeySecretRef", "supplicant_identity": "supplicantIdentitySecretRef", "wpa2_pre_shared_key": "wpa2PreSharedKeySecretRef", "wpa_pre_shared_key": "wpaPreSharedKeySecretRef"}
+	return map[string]string{"management_protection_key": "managementProtectionKeySecretRef", "mschapv2_password": "mschapv2PasswordSecretRef", "static_key_0": "staticKey0SecretRef", "static_key_1": "staticKey1SecretRef", "static_key_2": "staticKey2SecretRef", "static_key_3": "staticKey3SecretRef", "static_sta_private_key": "staticStaPrivateKeySecretRef", "supplicant_identity": "supplicantIdentitySecretRef", "wpa2_pre_shared_key": "wpa2PreSharedKeySecretRef", "wpa_pre_shared_key": "wpaPreSharedKeySecretRef"}
 }
 
 // GetObservation of this WirelessSecurityProfiles

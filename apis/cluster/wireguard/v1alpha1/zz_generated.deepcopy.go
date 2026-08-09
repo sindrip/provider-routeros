@@ -343,9 +343,9 @@ func (in *PeerInitParameters) DeepCopyInto(out *PeerInitParameters) {
 		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
+	if in.PrivateKeySecretRef != nil {
+		in, out := &in.PrivateKeySecretRef, &out.PrivateKeySecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.PublicKey != nil {
@@ -501,11 +501,6 @@ func (in *PeerObservation) DeepCopyInto(out *PeerObservation) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
-		**out = **in
-	}
 	if in.PublicKey != nil {
 		in, out := &in.PublicKey, &out.PublicKey
 		*out = new(string)
@@ -617,9 +612,9 @@ func (in *PeerParameters) DeepCopyInto(out *PeerParameters) {
 		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
-	if in.PrivateKey != nil {
-		in, out := &in.PrivateKey, &out.PrivateKey
-		*out = new(string)
+	if in.PrivateKeySecretRef != nil {
+		in, out := &in.PrivateKeySecretRef, &out.PrivateKeySecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.PublicKey != nil {

@@ -62,7 +62,7 @@ type SecurityInitParameters struct {
 
 	// (String) Password to use when the chosen EAP method requires one.
 	// Password to use when the chosen EAP method requires one.
-	EapPassword *string `json:"eapPassword,omitempty" tf:"eap_password,omitempty"`
+	EapPasswordSecretRef *v2.SecretKeySelector `json:"eapPasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
 	// Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
@@ -135,7 +135,7 @@ type SecurityInitParameters struct {
 
 	// (String) Passphrase to use for PSK authentication types.
 	// Passphrase to use for PSK authentication types.
-	Passphrase *string `json:"passphrase,omitempty" tf:"passphrase,omitempty"`
+	PassphraseSecretRef *v2.SecretKeySelector `json:"passphraseSecretRef,omitempty" tf:"-"`
 
 	// progress SAE authentications.
 	// A parameter to mitigate DoS attacks by specifying a threshold of in-progress SAE authentications.
@@ -200,10 +200,6 @@ type SecurityObservation struct {
 	// A set of EAP methods to consider for authentication.
 	// +listType=set
 	EapMethods []*string `json:"eapMethods,omitempty" tf:"eap_methods,omitempty"`
-
-	// (String) Password to use when the chosen EAP method requires one.
-	// Password to use when the chosen EAP method requires one.
-	EapPassword *string `json:"eapPassword,omitempty" tf:"eap_password,omitempty"`
 
 	// (String) Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
 	// Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
@@ -276,10 +272,6 @@ type SecurityObservation struct {
 	// (String) Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
 	// Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
 	OweTransitionInterface *string `json:"oweTransitionInterface,omitempty" tf:"owe_transition_interface,omitempty"`
-
-	// (String) Passphrase to use for PSK authentication types.
-	// Passphrase to use for PSK authentication types.
-	Passphrase *string `json:"passphrase,omitempty" tf:"passphrase,omitempty"`
 
 	// progress SAE authentications.
 	// A parameter to mitigate DoS attacks by specifying a threshold of in-progress SAE authentications.
@@ -359,7 +351,7 @@ type SecurityParameters struct {
 	// (String) Password to use when the chosen EAP method requires one.
 	// Password to use when the chosen EAP method requires one.
 	// +kubebuilder:validation:Optional
-	EapPassword *string `json:"eapPassword,omitempty" tf:"eap_password,omitempty"`
+	EapPasswordSecretRef *v2.SecretKeySelector `json:"eapPasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
 	// Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
@@ -450,7 +442,7 @@ type SecurityParameters struct {
 	// (String) Passphrase to use for PSK authentication types.
 	// Passphrase to use for PSK authentication types.
 	// +kubebuilder:validation:Optional
-	Passphrase *string `json:"passphrase,omitempty" tf:"passphrase,omitempty"`
+	PassphraseSecretRef *v2.SecretKeySelector `json:"passphraseSecretRef,omitempty" tf:"-"`
 
 	// progress SAE authentications.
 	// A parameter to mitigate DoS attacks by specifying a threshold of in-progress SAE authentications.

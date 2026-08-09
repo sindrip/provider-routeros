@@ -61,7 +61,7 @@ type AccessListInitParameters struct {
 
 	// (String) PSK passphrase for the client if some PSK authentication algorithm is used.
 	// PSK passphrase for the client if some PSK authentication algorithm is used.
-	PrivatePassphrase *string `json:"privatePassphrase,omitempty" tf:"private_passphrase,omitempty"`
+	PrivatePassphraseSecretRef *v2.SecretKeySelector `json:"privatePassphraseSecretRef,omitempty" tf:"-"`
 
 	// (Boolean) An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
 	// An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
@@ -136,10 +136,6 @@ type AccessListObservation struct {
 	// > Please check the effect of this option, as it does not work as you think!
 	// > Best way to use in conjunction with a data source. See [example](../data-sources/ip_firewall.md#example-usage).
 	PlaceBefore *string `json:"placeBefore,omitempty" tf:"place_before,omitempty"`
-
-	// (String) PSK passphrase for the client if some PSK authentication algorithm is used.
-	// PSK passphrase for the client if some PSK authentication algorithm is used.
-	PrivatePassphrase *string `json:"privatePassphrase,omitempty" tf:"private_passphrase,omitempty"`
 
 	// (Boolean) An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
 	// An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
@@ -226,7 +222,7 @@ type AccessListParameters struct {
 	// (String) PSK passphrase for the client if some PSK authentication algorithm is used.
 	// PSK passphrase for the client if some PSK authentication algorithm is used.
 	// +kubebuilder:validation:Optional
-	PrivatePassphrase *string `json:"privatePassphrase,omitempty" tf:"private_passphrase,omitempty"`
+	PrivatePassphraseSecretRef *v2.SecretKeySelector `json:"privatePassphraseSecretRef,omitempty" tf:"-"`
 
 	// (Boolean) An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.
 	// An option that specifies if RADIUS traffic accounting should be used in case of RADIUS authentication of the client.

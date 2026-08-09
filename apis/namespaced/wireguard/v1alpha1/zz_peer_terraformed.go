@@ -21,7 +21,7 @@ func (mg *Peer) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this Peer
 func (tr *Peer) GetConnectionDetailsMapping() map[string]string {
-	return map[string]string{"preshared_key": "presharedKeySecretRef"}
+	return map[string]string{"preshared_key": "presharedKeySecretRef", "private_key": "privateKeySecretRef"}
 }
 
 // GetObservation of this Peer

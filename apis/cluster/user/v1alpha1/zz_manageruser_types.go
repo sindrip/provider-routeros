@@ -39,11 +39,11 @@ type ManagerUserInitParameters struct {
 
 	// time code that will be attached to the password.
 	// A token of a one-time code that will be attached to the password.
-	OtpSecret *string `json:"otpSecret,omitempty" tf:"otp_secret,omitempty"`
+	OtpSecretSecretRef *v2.SecretKeySelector `json:"otpSecretSecretRef,omitempty" tf:"-"`
 
 	// (String) The password of the user for session authentication.
 	// The password of the user for session authentication.
-	Password *string `json:"password,omitempty" tf:"password,omitempty"`
+	PasswordSecretRef *v2.SecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (Number) The total amount of sessions the user can simultaneously establish.
 	// The total amount of sessions the user can simultaneously establish.
@@ -76,14 +76,6 @@ type ManagerUserObservation struct {
 	// (String) Username for session authentication.
 	// Username for session authentication.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
-
-	// time code that will be attached to the password.
-	// A token of a one-time code that will be attached to the password.
-	OtpSecret *string `json:"otpSecret,omitempty" tf:"otp_secret,omitempty"`
-
-	// (String) The password of the user for session authentication.
-	// The password of the user for session authentication.
-	Password *string `json:"password,omitempty" tf:"password,omitempty"`
 
 	// (Number) The total amount of sessions the user can simultaneously establish.
 	// The total amount of sessions the user can simultaneously establish.
@@ -123,12 +115,12 @@ type ManagerUserParameters struct {
 	// time code that will be attached to the password.
 	// A token of a one-time code that will be attached to the password.
 	// +kubebuilder:validation:Optional
-	OtpSecret *string `json:"otpSecret,omitempty" tf:"otp_secret,omitempty"`
+	OtpSecretSecretRef *v2.SecretKeySelector `json:"otpSecretSecretRef,omitempty" tf:"-"`
 
 	// (String) The password of the user for session authentication.
 	// The password of the user for session authentication.
 	// +kubebuilder:validation:Optional
-	Password *string `json:"password,omitempty" tf:"password,omitempty"`
+	PasswordSecretRef *v2.SecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (Number) The total amount of sessions the user can simultaneously establish.
 	// The total amount of sessions the user can simultaneously establish.

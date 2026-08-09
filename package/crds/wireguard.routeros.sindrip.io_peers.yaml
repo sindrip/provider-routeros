@@ -159,10 +159,24 @@ spec:
                     - name
                     - namespace
                     type: object
-                  privateKey:
+                  privateKeySecretRef:
                     description: A base64 private key. If not specified, it will be
                       automatically generated upon interface creation.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   publicKey:
                     description: The remote peer's calculated public key.
                     type: string
@@ -265,10 +279,24 @@ spec:
                     - name
                     - namespace
                     type: object
-                  privateKey:
+                  privateKeySecretRef:
                     description: A base64 private key. If not specified, it will be
                       automatically generated upon interface creation.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   publicKey:
                     description: The remote peer's calculated public key.
                     type: string
@@ -459,10 +487,6 @@ spec:
                       sends traffic, but it might at anytime receive traffic from
                       a peer, and it is behind NAT, the interface might benefit from
                       having a persistent keepalive interval of 25 seconds.
-                    type: string
-                  privateKey:
-                    description: A base64 private key. If not specified, it will be
-                      automatically generated upon interface creation.
                     type: string
                   publicKey:
                     description: The remote peer's calculated public key.

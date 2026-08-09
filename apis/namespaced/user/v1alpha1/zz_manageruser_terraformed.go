@@ -21,7 +21,7 @@ func (mg *ManagerUser) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this ManagerUser
 func (tr *ManagerUser) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"otp_secret": "otpSecretSecretRef", "password": "passwordSecretRef"}
 }
 
 // GetObservation of this ManagerUser

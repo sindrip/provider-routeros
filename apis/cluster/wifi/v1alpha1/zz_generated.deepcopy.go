@@ -377,9 +377,9 @@ func (in *AccessListInitParameters) DeepCopyInto(out *AccessListInitParameters) 
 		*out = new(string)
 		**out = **in
 	}
-	if in.Passphrase != nil {
-		in, out := &in.Passphrase, &out.Passphrase
-		*out = new(string)
+	if in.PassphraseSecretRef != nil {
+		in, out := &in.PassphraseSecretRef, &out.PassphraseSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.PlaceBefore != nil {
@@ -519,11 +519,6 @@ func (in *AccessListObservation) DeepCopyInto(out *AccessListObservation) {
 		*out = new(int64)
 		**out = **in
 	}
-	if in.Passphrase != nil {
-		in, out := &in.Passphrase, &out.Passphrase
-		*out = new(string)
-		**out = **in
-	}
 	if in.PlaceBefore != nil {
 		in, out := &in.PlaceBefore, &out.PlaceBefore
 		*out = new(string)
@@ -609,9 +604,9 @@ func (in *AccessListParameters) DeepCopyInto(out *AccessListParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Passphrase != nil {
-		in, out := &in.Passphrase, &out.Passphrase
-		*out = new(string)
+	if in.PassphraseSecretRef != nil {
+		in, out := &in.PassphraseSecretRef, &out.PassphraseSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.PlaceBefore != nil {
@@ -3278,9 +3273,9 @@ func (in *SecurityInitParameters) DeepCopyInto(out *SecurityInitParameters) {
 			}
 		}
 	}
-	if in.EapPassword != nil {
-		in, out := &in.EapPassword, &out.EapPassword
-		*out = new(string)
+	if in.EapPasswordSecretRef != nil {
+		in, out := &in.EapPasswordSecretRef, &out.EapPasswordSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.EapTLSCertificate != nil {
@@ -3374,9 +3369,9 @@ func (in *SecurityInitParameters) DeepCopyInto(out *SecurityInitParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Passphrase != nil {
-		in, out := &in.Passphrase, &out.Passphrase
-		*out = new(string)
+	if in.PassphraseSecretRef != nil {
+		in, out := &in.PassphraseSecretRef, &out.PassphraseSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.SaeAntiCloggingThreshold != nil {
@@ -3763,11 +3758,6 @@ func (in *SecurityObservation) DeepCopyInto(out *SecurityObservation) {
 			}
 		}
 	}
-	if in.EapPassword != nil {
-		in, out := &in.EapPassword, &out.EapPassword
-		*out = new(string)
-		**out = **in
-	}
 	if in.EapTLSCertificate != nil {
 		in, out := &in.EapTLSCertificate, &out.EapTLSCertificate
 		*out = new(string)
@@ -3861,11 +3851,6 @@ func (in *SecurityObservation) DeepCopyInto(out *SecurityObservation) {
 	}
 	if in.OweTransitionInterface != nil {
 		in, out := &in.OweTransitionInterface, &out.OweTransitionInterface
-		*out = new(string)
-		**out = **in
-	}
-	if in.Passphrase != nil {
-		in, out := &in.Passphrase, &out.Passphrase
 		*out = new(string)
 		**out = **in
 	}
@@ -3977,9 +3962,9 @@ func (in *SecurityParameters) DeepCopyInto(out *SecurityParameters) {
 			}
 		}
 	}
-	if in.EapPassword != nil {
-		in, out := &in.EapPassword, &out.EapPassword
-		*out = new(string)
+	if in.EapPasswordSecretRef != nil {
+		in, out := &in.EapPasswordSecretRef, &out.EapPasswordSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.EapTLSCertificate != nil {
@@ -4073,9 +4058,9 @@ func (in *SecurityParameters) DeepCopyInto(out *SecurityParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.Passphrase != nil {
-		in, out := &in.Passphrase, &out.Passphrase
-		*out = new(string)
+	if in.PassphraseSecretRef != nil {
+		in, out := &in.PassphraseSecretRef, &out.PassphraseSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.SaeAntiCloggingThreshold != nil {

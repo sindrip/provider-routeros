@@ -120,11 +120,20 @@ spec:
                       type: string
                     type: array
                     x-kubernetes-list-type: set
-                  eapPassword:
+                  eapPasswordSecretRef:
                     description: |-
                       (String) Password to use when the chosen EAP method requires one.
                       Password to use when the chosen EAP method requires one.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   eapTlsCertificate:
                     description: |-
                       (String) Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
@@ -213,11 +222,20 @@ spec:
                       (String) Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
                       Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
                     type: string
-                  passphrase:
+                  passphraseSecretRef:
                     description: |-
                       (String) Passphrase to use for PSK authentication types.
                       Passphrase to use for PSK authentication types.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   saeAntiCloggingThreshold:
                     description: |-
                       progress SAE authentications.
@@ -313,11 +331,20 @@ spec:
                       type: string
                     type: array
                     x-kubernetes-list-type: set
-                  eapPassword:
+                  eapPasswordSecretRef:
                     description: |-
                       (String) Password to use when the chosen EAP method requires one.
                       Password to use when the chosen EAP method requires one.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   eapTlsCertificate:
                     description: |-
                       (String) Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
@@ -406,11 +433,20 @@ spec:
                       (String) Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
                       Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
                     type: string
-                  passphrase:
+                  passphraseSecretRef:
                     description: |-
                       (String) Passphrase to use for PSK authentication types.
                       Passphrase to use for PSK authentication types.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   saeAntiCloggingThreshold:
                     description: |-
                       progress SAE authentications.
@@ -561,11 +597,6 @@ spec:
                       type: string
                     type: array
                     x-kubernetes-list-type: set
-                  eapPassword:
-                    description: |-
-                      (String) Password to use when the chosen EAP method requires one.
-                      Password to use when the chosen EAP method requires one.
-                    type: string
                   eapTlsCertificate:
                     description: |-
                       (String) Name or id of a certificate in the device's certificate store to use when the chosen EAP authentication method requires one.
@@ -656,11 +687,6 @@ spec:
                     description: |-
                       (String) Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
                       Name or internal ID of an interface which MAC address and SSID to advertise as the matching AP when running in OWE transition mode.
-                    type: string
-                  passphrase:
-                    description: |-
-                      (String) Passphrase to use for PSK authentication types.
-                      Passphrase to use for PSK authentication types.
                     type: string
                   saeAntiCloggingThreshold:
                     description: |-

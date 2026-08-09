@@ -114,16 +114,34 @@ spec:
                       (String) Only for `WEP` modes.
                       Only for `WEP` modes.
                     type: string
-                  privateKey:
+                  privateKeySecretRef:
                     description: |-
                       (String) Only for `WEP` modes (HEX).
                       Only for `WEP` modes (HEX).
-                    type: string
-                  privatePreSharedKey:
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  privatePreSharedKeySecretRef:
                     description: |-
                       (String) Used in `WPA PSK` mode.
                       Used in `WPA PSK` mode.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   signalRange:
                     description: |-
                       (String) Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
@@ -214,16 +232,34 @@ spec:
                       (String) Only for `WEP` modes.
                       Only for `WEP` modes.
                     type: string
-                  privateKey:
+                  privateKeySecretRef:
                     description: |-
                       (String) Only for `WEP` modes (HEX).
                       Only for `WEP` modes (HEX).
-                    type: string
-                  privatePreSharedKey:
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
+                  privatePreSharedKeySecretRef:
                     description: |-
                       (String) Used in `WPA PSK` mode.
                       Used in `WPA PSK` mode.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   signalRange:
                     description: |-
                       (String) Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
@@ -366,16 +402,6 @@ spec:
                     description: |-
                       (String) Only for `WEP` modes.
                       Only for `WEP` modes.
-                    type: string
-                  privateKey:
-                    description: |-
-                      (String) Only for `WEP` modes (HEX).
-                      Only for `WEP` modes (HEX).
-                    type: string
-                  privatePreSharedKey:
-                    description: |-
-                      (String) Used in `WPA PSK` mode.
-                      Used in `WPA PSK` mode.
                     type: string
                   signalRange:
                     description: |-

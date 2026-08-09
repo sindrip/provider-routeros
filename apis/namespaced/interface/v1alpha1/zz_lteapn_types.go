@@ -64,7 +64,7 @@ type LteApnInitParameters struct {
 
 	// (String) Password used if any of the authentication protocols are active.
 	// Password used if any of the authentication protocols are active.
-	Password *string `json:"password,omitempty" tf:"password,omitempty"`
+	PasswordSecretRef *v2.LocalSecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (Boolean) Parameter is available starting from RouterOS v7 and used only for MBIM modems. If set to yes, uses network provided APN.
 	// Parameter is available starting from RouterOS v7 and used only for MBIM modems. If set to yes, uses network provided APN.
@@ -134,10 +134,6 @@ type LteApnObservation struct {
 	// (String) `auto` selects the smallest possible subnet to be used for the passthrough interface. `p2p` sets the passthrough interface subnet as `/32` and picks gateway address from `10.177.0.0/16` range. The gateway address stays the same until the apn configuration is changed.
 	// `auto` selects the smallest possible subnet to be used for the passthrough interface. `p2p` sets the passthrough interface subnet as `/32` and picks gateway address from `10.177.0.0/16` range. The gateway address stays the same until the apn configuration is changed.
 	PassthroughSubnetSelection *string `json:"passthroughSubnetSelection,omitempty" tf:"passthrough_subnet_selection,omitempty"`
-
-	// (String) Password used if any of the authentication protocols are active.
-	// Password used if any of the authentication protocols are active.
-	Password *string `json:"password,omitempty" tf:"password,omitempty"`
 
 	// (Boolean) Parameter is available starting from RouterOS v7 and used only for MBIM modems. If set to yes, uses network provided APN.
 	// Parameter is available starting from RouterOS v7 and used only for MBIM modems. If set to yes, uses network provided APN.
@@ -216,7 +212,7 @@ type LteApnParameters struct {
 	// (String) Password used if any of the authentication protocols are active.
 	// Password used if any of the authentication protocols are active.
 	// +kubebuilder:validation:Optional
-	Password *string `json:"password,omitempty" tf:"password,omitempty"`
+	PasswordSecretRef *v2.LocalSecretKeySelector `json:"passwordSecretRef,omitempty" tf:"-"`
 
 	// (Boolean) Parameter is available starting from RouterOS v7 and used only for MBIM modems. If set to yes, uses network provided APN.
 	// Parameter is available starting from RouterOS v7 and used only for MBIM modems. If set to yes, uses network provided APN.

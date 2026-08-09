@@ -12,6 +12,14 @@ import (
 // run and a unit run agree on which drift compensation applies.
 const pinnedRouterOSVersion = "7.23.2"
 
+// The two schemas an override can have to reach. Overrides that change a
+// generated CRD's shape — a field's type, whether it is settable, whether it
+// is a secret — have to be applied to both, and each is checked against both.
+const (
+	schemaRuntime    = "runtime"
+	schemaGeneration = "generation"
+)
+
 // TestMain pins the upstream provider's RouterOS version for the whole
 // package.
 //

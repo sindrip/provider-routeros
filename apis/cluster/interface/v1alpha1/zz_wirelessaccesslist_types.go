@@ -61,11 +61,11 @@ type WirelessAccessListInitParameters struct {
 
 	// (String) Only for `WEP` modes (HEX).
 	// Only for `WEP` modes (HEX).
-	PrivateKey *string `json:"privateKey,omitempty" tf:"private_key,omitempty"`
+	PrivateKeySecretRef *v2.SecretKeySelector `json:"privateKeySecretRef,omitempty" tf:"-"`
 
 	// (String) Used in `WPA PSK` mode.
 	// Used in `WPA PSK` mode.
-	PrivatePreSharedKey *string `json:"privatePreSharedKey,omitempty" tf:"private_pre_shared_key,omitempty"`
+	PrivatePreSharedKeySecretRef *v2.SecretKeySelector `json:"privatePreSharedKeySecretRef,omitempty" tf:"-"`
 
 	// (String) Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
 	// Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
@@ -132,14 +132,6 @@ type WirelessAccessListObservation struct {
 	// (String) Only for `WEP` modes.
 	// Only for `WEP` modes.
 	PrivateAlgo *string `json:"privateAlgo,omitempty" tf:"private_algo,omitempty"`
-
-	// (String) Only for `WEP` modes (HEX).
-	// Only for `WEP` modes (HEX).
-	PrivateKey *string `json:"privateKey,omitempty" tf:"private_key,omitempty"`
-
-	// (String) Used in `WPA PSK` mode.
-	// Used in `WPA PSK` mode.
-	PrivatePreSharedKey *string `json:"privatePreSharedKey,omitempty" tf:"private_pre_shared_key,omitempty"`
 
 	// (String) Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
 	// Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
@@ -218,12 +210,12 @@ type WirelessAccessListParameters struct {
 	// (String) Only for `WEP` modes (HEX).
 	// Only for `WEP` modes (HEX).
 	// +kubebuilder:validation:Optional
-	PrivateKey *string `json:"privateKey,omitempty" tf:"private_key,omitempty"`
+	PrivateKeySecretRef *v2.SecretKeySelector `json:"privateKeySecretRef,omitempty" tf:"-"`
 
 	// (String) Used in `WPA PSK` mode.
 	// Used in `WPA PSK` mode.
 	// +kubebuilder:validation:Optional
-	PrivatePreSharedKey *string `json:"privatePreSharedKey,omitempty" tf:"private_pre_shared_key,omitempty"`
+	PrivatePreSharedKeySecretRef *v2.SecretKeySelector `json:"privatePreSharedKeySecretRef,omitempty" tf:"-"`
 
 	// (String) Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.
 	// Rule matches if signal strength of the station is within the range.If signal strength of the station will go out of the range that is specified in the rule, access point will disconnect that station.

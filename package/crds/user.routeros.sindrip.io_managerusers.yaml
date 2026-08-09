@@ -100,16 +100,44 @@ spec:
                       (String) Username for session authentication.
                       Username for session authentication.
                     type: string
-                  otpSecret:
+                  otpSecretSecretRef:
                     description: |-
                       time code that will be attached to the password.
                       A token of a one-time code that will be attached to the password.
-                    type: string
-                  password:
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  passwordSecretRef:
                     description: |-
                       (String) The password of the user for session authentication.
                       The password of the user for session authentication.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   sharedUsers:
                     description: |-
                       (Number) The total amount of sessions the user can simultaneously establish.
@@ -158,16 +186,44 @@ spec:
                       (String) Username for session authentication.
                       Username for session authentication.
                     type: string
-                  otpSecret:
+                  otpSecretSecretRef:
                     description: |-
                       time code that will be attached to the password.
                       A token of a one-time code that will be attached to the password.
-                    type: string
-                  password:
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
+                  passwordSecretRef:
                     description: |-
                       (String) The password of the user for session authentication.
                       The password of the user for session authentication.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   sharedUsers:
                     description: |-
                       (Number) The total amount of sessions the user can simultaneously establish.
@@ -301,16 +357,6 @@ spec:
                     description: |-
                       (String) Username for session authentication.
                       Username for session authentication.
-                    type: string
-                  otpSecret:
-                    description: |-
-                      time code that will be attached to the password.
-                      A token of a one-time code that will be attached to the password.
-                    type: string
-                  password:
-                    description: |-
-                      (String) The password of the user for session authentication.
-                      The password of the user for session authentication.
                     type: string
                   sharedUsers:
                     description: |-

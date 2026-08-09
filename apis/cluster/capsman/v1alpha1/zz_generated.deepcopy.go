@@ -317,9 +317,9 @@ func (in *AccessListInitParameters) DeepCopyInto(out *AccessListInitParameters) 
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivatePassphrase != nil {
-		in, out := &in.PrivatePassphrase, &out.PrivatePassphrase
-		*out = new(string)
+	if in.PrivatePassphraseSecretRef != nil {
+		in, out := &in.PrivatePassphraseSecretRef, &out.PrivatePassphraseSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.RadiusAccounting != nil {
@@ -459,11 +459,6 @@ func (in *AccessListObservation) DeepCopyInto(out *AccessListObservation) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivatePassphrase != nil {
-		in, out := &in.PrivatePassphrase, &out.PrivatePassphrase
-		*out = new(string)
-		**out = **in
-	}
 	if in.RadiusAccounting != nil {
 		in, out := &in.RadiusAccounting, &out.RadiusAccounting
 		*out = new(bool)
@@ -564,9 +559,9 @@ func (in *AccessListParameters) DeepCopyInto(out *AccessListParameters) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.PrivatePassphrase != nil {
-		in, out := &in.PrivatePassphrase, &out.PrivatePassphrase
-		*out = new(string)
+	if in.PrivatePassphraseSecretRef != nil {
+		in, out := &in.PrivatePassphraseSecretRef, &out.PrivatePassphraseSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.RadiusAccounting != nil {

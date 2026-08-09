@@ -25,7 +25,7 @@ type DHCPServerConfigInitParameters struct {
 
 	// (String) An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
 	// An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
-	RadiusPassword *string `json:"radiusPassword,omitempty" tf:"radius_password,omitempty"`
+	RadiusPasswordSecretRef *v2.LocalSecretKeySelector `json:"radiusPasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) An option of how often the DHCP leases will be stored on disk.
 	// An option of how often the DHCP leases will be stored on disk.
@@ -44,10 +44,6 @@ type DHCPServerConfigObservation struct {
 	// (String) An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
 	// An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
 	InterimUpdate *string `json:"interimUpdate,omitempty" tf:"interim_update,omitempty"`
-
-	// (String) An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
-	// An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
-	RadiusPassword *string `json:"radiusPassword,omitempty" tf:"radius_password,omitempty"`
 
 	// (String) An option of how often the DHCP leases will be stored on disk.
 	// An option of how often the DHCP leases will be stored on disk.
@@ -69,7 +65,7 @@ type DHCPServerConfigParameters struct {
 	// (String) An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
 	// An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
 	// +kubebuilder:validation:Optional
-	RadiusPassword *string `json:"radiusPassword,omitempty" tf:"radius_password,omitempty"`
+	RadiusPasswordSecretRef *v2.LocalSecretKeySelector `json:"radiusPasswordSecretRef,omitempty" tf:"-"`
 
 	// (String) An option of how often the DHCP leases will be stored on disk.
 	// An option of how often the DHCP leases will be stored on disk.

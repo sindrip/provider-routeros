@@ -95,11 +95,20 @@ spec:
                       (String) MAC address mask to apply when comparing clients' addresses.
                       MAC address mask to apply when comparing clients' addresses.
                     type: string
-                  passphrase:
+                  passphraseSecretRef:
                     description: |-
                       (String) PSK passphrase for the client if some PSK authentication algorithm is used.
                       PSK passphrase for the client if some PSK authentication algorithm is used.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   placeBefore:
                     description: |-
                       (String) Before which position the rule will be inserted.
@@ -182,11 +191,20 @@ spec:
                       (String) MAC address mask to apply when comparing clients' addresses.
                       MAC address mask to apply when comparing clients' addresses.
                     type: string
-                  passphrase:
+                  passphraseSecretRef:
                     description: |-
                       (String) PSK passphrase for the client if some PSK authentication algorithm is used.
                       PSK passphrase for the client if some PSK authentication algorithm is used.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   placeBefore:
                     description: |-
                       (String) Before which position the rule will be inserted.
@@ -338,11 +356,6 @@ spec:
                       Number of times this entry was matched.
                     format: int64
                     type: integer
-                  passphrase:
-                    description: |-
-                      (String) PSK passphrase for the client if some PSK authentication algorithm is used.
-                      PSK passphrase for the client if some PSK authentication algorithm is used.
-                    type: string
                   placeBefore:
                     description: |-
                       (String) Before which position the rule will be inserted.

@@ -68,11 +68,20 @@ spec:
                       (String) An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
                       An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
                     type: string
-                  radiusPassword:
+                  radiusPasswordSecretRef:
                     description: |-
                       (String) An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
                       An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   storeLeasesDisk:
                     description: |-
                       (String) An option of how often the DHCP leases will be stored on disk.
@@ -102,11 +111,20 @@ spec:
                       (String) An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
                       An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
                     type: string
-                  radiusPassword:
+                  radiusPasswordSecretRef:
                     description: |-
                       (String) An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
                       An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
-                    type: string
+                    properties:
+                      key:
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    type: object
                   storeLeasesDisk:
                     description: |-
                       (String) An option of how often the DHCP leases will be stored on disk.
@@ -188,11 +206,6 @@ spec:
                     description: |-
                       (String) An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
                       An option determining whether the DHCP server sends periodic updates to the accounting server during a lease.
-                    type: string
-                  radiusPassword:
-                    description: |-
-                      (String) An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
-                      An option to set the password parameter for the RADIUS server. This option is available in RouterOS starting from version 7.0.
                     type: string
                   storeLeasesDisk:
                     description: |-

@@ -1697,9 +1697,9 @@ func (in *DHCPServerConfigInitParameters) DeepCopyInto(out *DHCPServerConfigInit
 		*out = new(string)
 		**out = **in
 	}
-	if in.RadiusPassword != nil {
-		in, out := &in.RadiusPassword, &out.RadiusPassword
-		*out = new(string)
+	if in.RadiusPasswordSecretRef != nil {
+		in, out := &in.RadiusPasswordSecretRef, &out.RadiusPasswordSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.StoreLeasesDisk != nil {
@@ -1769,11 +1769,6 @@ func (in *DHCPServerConfigObservation) DeepCopyInto(out *DHCPServerConfigObserva
 		*out = new(string)
 		**out = **in
 	}
-	if in.RadiusPassword != nil {
-		in, out := &in.RadiusPassword, &out.RadiusPassword
-		*out = new(string)
-		**out = **in
-	}
 	if in.StoreLeasesDisk != nil {
 		in, out := &in.StoreLeasesDisk, &out.StoreLeasesDisk
 		*out = new(string)
@@ -1804,9 +1799,9 @@ func (in *DHCPServerConfigParameters) DeepCopyInto(out *DHCPServerConfigParamete
 		*out = new(string)
 		**out = **in
 	}
-	if in.RadiusPassword != nil {
-		in, out := &in.RadiusPassword, &out.RadiusPassword
-		*out = new(string)
+	if in.RadiusPasswordSecretRef != nil {
+		in, out := &in.RadiusPasswordSecretRef, &out.RadiusPasswordSecretRef
+		*out = new(v2.SecretKeySelector)
 		**out = **in
 	}
 	if in.StoreLeasesDisk != nil {

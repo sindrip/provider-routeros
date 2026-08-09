@@ -21,7 +21,7 @@ func (mg *WirelessAccessList) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this WirelessAccessList
 func (tr *WirelessAccessList) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"private_key": "privateKeySecretRef", "private_pre_shared_key": "privatePreSharedKeySecretRef"}
 }
 
 // GetObservation of this WirelessAccessList

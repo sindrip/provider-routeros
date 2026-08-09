@@ -57,7 +57,7 @@ type WirelessSecurityProfilesInitParameters struct {
 
 	// ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	// Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
-	Mschapv2Password *string `json:"mschapv2Password,omitempty" tf:"mschapv2_password,omitempty"`
+	Mschapv2PasswordSecretRef *v2.SecretKeySelector `json:"mschapv2PasswordSecretRef,omitempty" tf:"-"`
 
 	// ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	// Username to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
@@ -208,10 +208,6 @@ type WirelessSecurityProfilesObservation struct {
 	Mode *string `json:"mode,omitempty" tf:"mode,omitempty"`
 
 	// ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
-	// Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
-	Mschapv2Password *string `json:"mschapv2Password,omitempty" tf:"mschapv2_password,omitempty"`
-
-	// ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	// Username to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	Mschapv2Username *string `json:"mschapv2Username,omitempty" tf:"mschapv2_username,omitempty"`
 
@@ -337,7 +333,7 @@ type WirelessSecurityProfilesParameters struct {
 	// ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	// Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	// +kubebuilder:validation:Optional
-	Mschapv2Password *string `json:"mschapv2Password,omitempty" tf:"mschapv2_password,omitempty"`
+	Mschapv2PasswordSecretRef *v2.SecretKeySelector `json:"mschapv2PasswordSecretRef,omitempty" tf:"-"`
 
 	// ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
 	// Username to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.

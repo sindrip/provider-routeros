@@ -18,8 +18,8 @@ const (
 // the CRD's string is what has to deserialize into the runtime field.
 func TestMistypedEnumsRetypesBothSchemas(t *testing.T) {
 	for which, p := range map[string]*schema.Provider{
-		"runtime":    providerForRuntime(),
-		"generation": providerForGeneration(),
+		schemaRuntime:    providerForRuntime(),
+		schemaGeneration: providerForGeneration(),
 	} {
 		for resource, fields := range mistypedFields {
 			for _, f := range fields {

@@ -11,8 +11,8 @@ import (
 // generation schema as well as the runtime one.
 func TestRouterReadOnlyBothSchemas(t *testing.T) {
 	for which, p := range map[string]*schema.Provider{
-		"runtime":    providerForRuntime(),
-		"generation": providerForGeneration(),
+		schemaRuntime:    providerForRuntime(),
+		schemaGeneration: providerForGeneration(),
 	} {
 		for resource, fields := range routerReadOnlyFields {
 			for _, field := range fields {

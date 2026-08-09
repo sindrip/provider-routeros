@@ -47,7 +47,7 @@ type AccessListInitParameters struct {
 
 	// (String) PSK passphrase for the client if some PSK authentication algorithm is used.
 	// PSK passphrase for the client if some PSK authentication algorithm is used.
-	Passphrase *string `json:"passphrase,omitempty" tf:"passphrase,omitempty"`
+	PassphraseSecretRef *v2.SecretKeySelector `json:"passphraseSecretRef,omitempty" tf:"-"`
 
 	// (String) Before which position the rule will be inserted.
 	// Before which position the rule will be inserted.
@@ -123,10 +123,6 @@ type AccessListObservation struct {
 	// Number of times this entry was matched.
 	MatchCount *int64 `json:"matchCount,omitempty" tf:"match_count,omitempty"`
 
-	// (String) PSK passphrase for the client if some PSK authentication algorithm is used.
-	// PSK passphrase for the client if some PSK authentication algorithm is used.
-	Passphrase *string `json:"passphrase,omitempty" tf:"passphrase,omitempty"`
-
 	// (String) Before which position the rule will be inserted.
 	// Before which position the rule will be inserted.
 	// > Please check the effect of this option, as it does not work as you think!
@@ -197,7 +193,7 @@ type AccessListParameters struct {
 	// (String) PSK passphrase for the client if some PSK authentication algorithm is used.
 	// PSK passphrase for the client if some PSK authentication algorithm is used.
 	// +kubebuilder:validation:Optional
-	Passphrase *string `json:"passphrase,omitempty" tf:"passphrase,omitempty"`
+	PassphraseSecretRef *v2.SecretKeySelector `json:"passphraseSecretRef,omitempty" tf:"-"`
 
 	// (String) Before which position the rule will be inserted.
 	// Before which position the rule will be inserted.

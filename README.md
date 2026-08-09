@@ -301,6 +301,27 @@ before upgrading:
   not reconcile. Delete `loopProtectStatus` from `spec.forProvider` and read it
   from `status.atProvider`.
   The stale-status note under v0.23.0 applies to all fifteen of these fields.
+- **v0.25.0** — fifteen fields carrying key material become secrets. Upstream
+  marks some of its secrets `Sensitive` and missed these, and the omission did
+  more than force a cleartext spec: a field that is neither `Sensitive` nor
+  computed is generated into the observation too, and RouterOS answers a REST
+  read with these values in cleartext, so the provider copied whatever key the
+  router held into `status.atProvider` — readable by anyone with `get` on the
+  managed resource, stored in etcd, printed by `kubectl get -o yaml`, and
+  present whether or not any spec had declared one.
+  Each becomes a `*SecretRef` and leaves the observation: `privateKey` on both
+  WireGuard peer kinds and on wireless access lists, `privatePreSharedKey`
+  there too, `privatePassphrase` on CAPsMAN access lists, `passphrase` on wifi
+  access lists and wifi security, `eapPassword` there, `mschapv2Password` on
+  wireless security profiles, `radiusPassword` on DHCP server config,
+  `password` and `otpSecret` on user-manager users, `paypalPassword` and
+  `webPrivatePassword` on user-manager advanced, and `password` on LTE APNs.
+  Move each value into a Secret and point the field at it — `privateKey: abc`
+  becomes `privateKeySecretRef: {name: …, namespace: …, key: …}`.
+  **Rotate anything these fields held.** The stale-status patch under v0.23.0
+  applies, and here the stale status *is* the exposed secret, so clear it on
+  every affected resource regardless of which version you upgrade from; assume
+  any key that was in `status.atProvider` has been read.
 
 The releases absent from that list need nothing: v0.1.0 predates the identity
 work, v0.13.0 fixed a create path that could never have succeeded, so no

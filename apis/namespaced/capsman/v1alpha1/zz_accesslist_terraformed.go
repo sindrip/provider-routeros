@@ -21,7 +21,7 @@ func (mg *AccessList) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this AccessList
 func (tr *AccessList) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"private_passphrase": "privatePassphraseSecretRef"}
 }
 
 // GetObservation of this AccessList

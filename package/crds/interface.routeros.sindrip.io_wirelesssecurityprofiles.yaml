@@ -139,11 +139,25 @@ spec:
                       Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
                       Encryption mode for the security profile. `none` - Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
                     type: string
-                  mschapv2Password:
+                  mschapv2PasswordSecretRef:
                     description: |-
                       ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
                       Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   mschapv2Username:
                     description: |-
                       ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
@@ -461,11 +475,25 @@ spec:
                       Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
                       Encryption mode for the security profile. `none` - Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
                     type: string
-                  mschapv2Password:
+                  mschapv2PasswordSecretRef:
                     description: |-
                       ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
                       Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
-                    type: string
+                    properties:
+                      key:
+                        description: The key to select.
+                        type: string
+                      name:
+                        description: Name of the secret.
+                        type: string
+                      namespace:
+                        description: Namespace of the secret.
+                        type: string
+                    required:
+                    - key
+                    - name
+                    - namespace
+                    type: object
                   mschapv2Username:
                     description: |-
                       ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
@@ -855,11 +883,6 @@ spec:
                     description: |-
                       Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
                       Encryption mode for the security profile. `none` - Encryption is not used. Encrypted frames are not accepted. `static-keys-required` - WEP mode. Do not accept and do not send unencrypted frames. Station in static-keys-required mode will not connect to an Access Point in static-keys-optional mode. `static-keys-optional` - WEP mode. Support encryption and decryption, but allow also to receive and send unencrypted frames. Device will send unencrypted frames if encryption algorithm is specified as none. Station in static-keys-optional mode will not connect to an Access Point in `static-keys-required` mode. See also: static-sta-private-algo, static-transmit-key. `dynamic-keys` - WPA mode.
-                    type: string
-                  mschapv2Password:
-                    description: |-
-                      ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
-                      Password to use for authentication when `eap-ttls-mschapv2` or `peap` authentication method is being used. This property only has effect on Stations.
                     type: string
                   mschapv2Username:
                     description: |-

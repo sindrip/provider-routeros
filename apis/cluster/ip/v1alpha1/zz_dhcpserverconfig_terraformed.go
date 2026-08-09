@@ -21,7 +21,7 @@ func (mg *DHCPServerConfig) GetTerraformResourceType() string {
 
 // GetConnectionDetailsMapping for this DHCPServerConfig
 func (tr *DHCPServerConfig) GetConnectionDetailsMapping() map[string]string {
-	return nil
+	return map[string]string{"radius_password": "radiusPasswordSecretRef"}
 }
 
 // GetObservation of this DHCPServerConfig

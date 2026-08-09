@@ -16,8 +16,8 @@ import (
 type NeighborDiscoveryInitParameters struct {
 
 	// side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-	// Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-	AdvertiseDNS *bool `json:"advertiseDns,omitempty" tf:"advertise_dns,omitempty"`
+	// Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information. RouterOS accepts "self" (advertise the router's own address), "yes" or "no"; it rejects true and false.
+	AdvertiseDNS *string `json:"advertiseDns,omitempty" tf:"advertise_dns,omitempty"`
 
 	// layer address of the outgoing interface is included in the RA.
 	// When set, the link-layer address of the outgoing interface is included in the RA.
@@ -89,8 +89,8 @@ type NeighborDiscoveryInitParameters struct {
 type NeighborDiscoveryObservation struct {
 
 	// side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-	// Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-	AdvertiseDNS *bool `json:"advertiseDns,omitempty" tf:"advertise_dns,omitempty"`
+	// Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information. RouterOS accepts "self" (advertise the router's own address), "yes" or "no"; it rejects true and false.
+	AdvertiseDNS *string `json:"advertiseDns,omitempty" tf:"advertise_dns,omitempty"`
 
 	// layer address of the outgoing interface is included in the RA.
 	// When set, the link-layer address of the outgoing interface is included in the RA.
@@ -172,9 +172,9 @@ type NeighborDiscoveryObservation struct {
 type NeighborDiscoveryParameters struct {
 
 	// side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-	// Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
+	// Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information. RouterOS accepts "self" (advertise the router's own address), "yes" or "no"; it rejects true and false.
 	// +kubebuilder:validation:Optional
-	AdvertiseDNS *bool `json:"advertiseDns,omitempty" tf:"advertise_dns,omitempty"`
+	AdvertiseDNS *string `json:"advertiseDns,omitempty" tf:"advertise_dns,omitempty"`
 
 	// layer address of the outgoing interface is included in the RA.
 	// When set, the link-layer address of the outgoing interface is included in the RA.

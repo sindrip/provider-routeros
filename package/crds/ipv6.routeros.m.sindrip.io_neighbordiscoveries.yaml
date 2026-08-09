@@ -61,8 +61,8 @@ spec:
                   advertiseDns:
                     description: |-
                       side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-                      Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-                    type: boolean
+                      Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information. RouterOS accepts "self" (advertise the router's own address), "yes" or "no"; it rejects true and false.
+                    type: string
                   advertiseMacAddress:
                     description: |-
                       layer address of the outgoing interface is included in the RA.
@@ -165,8 +165,8 @@ spec:
                   advertiseDns:
                     description: |-
                       side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-                      Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-                    type: boolean
+                      Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information. RouterOS accepts "self" (advertise the router's own address), "yes" or "no"; it rejects true and false.
+                    type: string
                   advertiseMacAddress:
                     description: |-
                       layer address of the outgoing interface is included in the RA.
@@ -324,8 +324,8 @@ spec:
                   advertiseDns:
                     description: |-
                       side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-                      Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information.
-                    type: boolean
+                      Option to redistribute DNS server information using RADVD. You will need a running client-side software with Router Advertisement DNS support to take advantage of the advertised DNS information. RouterOS accepts "self" (advertise the router's own address), "yes" or "no"; it rejects true and false.
+                    type: string
                   advertiseMacAddress:
                     description: |-
                       layer address of the outgoing interface is included in the RA.

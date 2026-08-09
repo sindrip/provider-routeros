@@ -231,6 +231,16 @@ before upgrading:
   IPv6 neighbour discovery joins interface identity: the `interface=all` row
   the router ships is adopted rather than added, so it no longer has to be
   left unmanaged. Set the external-name to the interface.
+- **v0.22.0** — IPv6 neighbour discovery: `spec.forProvider.advertiseDns`
+  changes type from boolean to string, the first generated field whose type
+  this provider has had to correct. Rewrite `true` as `"yes"` and `false` as
+  `"no"`; a manifest left holding a boolean will not validate. RouterOS 7.23
+  takes `self|yes|no` there and rejects `true|false` outright, so the boolean
+  could neither set `self` — the setting the argument mostly exists for — nor
+  observe it: a device holding `self` read back as `false`, never matched its
+  spec, and was overwritten with `yes` on every reconcile. The field also
+  loses its schema default, so a spec that omits `advertiseDns` no longer
+  writes one; if you were relying on the implicit `yes`, set it explicitly.
 
 The releases absent from that list need nothing: v0.1.0 predates the identity
 work, v0.13.0 fixed a create path that could never have succeeded, so no

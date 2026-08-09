@@ -5564,7 +5564,7 @@ func (in *NeighborDiscoveryInitParameters) DeepCopyInto(out *NeighborDiscoveryIn
 	*out = *in
 	if in.AdvertiseDNS != nil {
 		in, out := &in.AdvertiseDNS, &out.AdvertiseDNS
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.AdvertiseMacAddress != nil {
@@ -5707,7 +5707,7 @@ func (in *NeighborDiscoveryObservation) DeepCopyInto(out *NeighborDiscoveryObser
 	*out = *in
 	if in.AdvertiseDNS != nil {
 		in, out := &in.AdvertiseDNS, &out.AdvertiseDNS
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.AdvertiseMacAddress != nil {
@@ -5833,7 +5833,7 @@ func (in *NeighborDiscoveryParameters) DeepCopyInto(out *NeighborDiscoveryParame
 	*out = *in
 	if in.AdvertiseDNS != nil {
 		in, out := &in.AdvertiseDNS, &out.AdvertiseDNS
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.AdvertiseMacAddress != nil {

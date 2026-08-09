@@ -110,8 +110,8 @@ spec:
                   loopProtectStatus:
                     description: |-
                       (Boolean) Loop protect status
-                      Loop protect status
-                    type: boolean
+                      Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
+                    type: string
                   macAddress:
                     description: |-
                       (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
@@ -186,8 +186,8 @@ spec:
                   loopProtectStatus:
                     description: |-
                       (Boolean) Loop protect status
-                      Loop protect status
-                    type: boolean
+                      Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
+                    type: string
                   macAddress:
                     description: |-
                       (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
@@ -358,8 +358,8 @@ spec:
                   loopProtectStatus:
                     description: |-
                       (Boolean) Loop protect status
-                      Loop protect status
-                    type: boolean
+                      Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
+                    type: string
                   macAddress:
                     description: |-
                       (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.

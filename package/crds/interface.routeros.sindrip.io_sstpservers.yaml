@@ -140,8 +140,8 @@ spec:
                   pfs:
                     description: |-
                       RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-                      Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-                    type: boolean
+                      Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE. RouterOS accepts "required" (demand perfect forward secrecy), "yes" or "no"; it rejects true and false.
+                    type: string
                   port:
                     description: |-
                       (String) Sets port used.
@@ -224,8 +224,8 @@ spec:
                   pfs:
                     description: |-
                       RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-                      Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-                    type: boolean
+                      Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE. RouterOS accepts "required" (demand perfect forward secrecy), "yes" or "no"; it rejects true and false.
+                    type: string
                   port:
                     description: |-
                       (String) Sets port used.
@@ -389,8 +389,8 @@ spec:
                   pfs:
                     description: |-
                       RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-                      Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-                    type: boolean
+                      Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE. RouterOS accepts "required" (demand perfect forward secrecy), "yes" or "no"; it rejects true and false.
+                    type: string
                   port:
                     description: |-
                       (String) Sets port used.

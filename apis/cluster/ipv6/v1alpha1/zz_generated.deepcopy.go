@@ -1240,7 +1240,7 @@ func (in *DHCPServerInitParameters) DeepCopyInto(out *DHCPServerInitParameters) 
 	}
 	if in.UseRadius != nil {
 		in, out := &in.UseRadius, &out.UseRadius
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.UseReconfigure != nil {
@@ -1414,7 +1414,7 @@ func (in *DHCPServerObservation) DeepCopyInto(out *DHCPServerObservation) {
 	}
 	if in.UseRadius != nil {
 		in, out := &in.UseRadius, &out.UseRadius
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.UseReconfigure != nil {
@@ -1952,7 +1952,7 @@ func (in *DHCPServerParameters) DeepCopyInto(out *DHCPServerParameters) {
 	}
 	if in.UseRadius != nil {
 		in, out := &in.UseRadius, &out.UseRadius
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.UseReconfigure != nil {

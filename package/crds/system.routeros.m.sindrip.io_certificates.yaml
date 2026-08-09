@@ -516,8 +516,10 @@ spec:
                     format: int64
                     type: integer
                   digestAlgorithm:
-                    description: (Boolean)
-                    type: boolean
+                    description: |-
+                      (Boolean)
+                      RouterOS accepts "md5", "sha1", "sha256", "sha384" or "sha512"; it rejects true, false, yes and no.
+                    type: string
                   dsa:
                     description: (Boolean)
                     type: boolean

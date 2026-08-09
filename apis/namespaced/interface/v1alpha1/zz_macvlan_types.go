@@ -48,8 +48,8 @@ type MacvlanInitParameters struct {
 	LoopProtectSendInterval *string `json:"loopProtectSendInterval,omitempty" tf:"loop_protect_send_interval,omitempty"`
 
 	// (Boolean) Loop protect status
-	// Loop protect status
-	LoopProtectStatus *bool `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
+	// Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
+	LoopProtectStatus *string `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
 
 	// (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
 	// Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
@@ -112,8 +112,8 @@ type MacvlanObservation struct {
 	LoopProtectSendInterval *string `json:"loopProtectSendInterval,omitempty" tf:"loop_protect_send_interval,omitempty"`
 
 	// (Boolean) Loop protect status
-	// Loop protect status
-	LoopProtectStatus *bool `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
+	// Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
+	LoopProtectStatus *string `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
 
 	// (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
 	// Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
@@ -180,9 +180,9 @@ type MacvlanParameters struct {
 	LoopProtectSendInterval *string `json:"loopProtectSendInterval,omitempty" tf:"loop_protect_send_interval,omitempty"`
 
 	// (Boolean) Loop protect status
-	// Loop protect status
+	// Loop protect status Read-only. RouterOS reports "on", "off" or "disabled".
 	// +kubebuilder:validation:Optional
-	LoopProtectStatus *bool `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
+	LoopProtectStatus *string `json:"loopProtectStatus,omitempty" tf:"loop_protect_status,omitempty"`
 
 	// (String) Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.
 	// Static MAC address of the interface. A randomly generated MAC address will be assigned when not specified.

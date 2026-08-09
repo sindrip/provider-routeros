@@ -12311,7 +12311,7 @@ func (in *MacvlanInitParameters) DeepCopyInto(out *MacvlanInitParameters) {
 	}
 	if in.LoopProtectStatus != nil {
 		in, out := &in.LoopProtectStatus, &out.LoopProtectStatus
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.MacAddress != nil {
@@ -12433,7 +12433,7 @@ func (in *MacvlanObservation) DeepCopyInto(out *MacvlanObservation) {
 	}
 	if in.LoopProtectStatus != nil {
 		in, out := &in.LoopProtectStatus, &out.LoopProtectStatus
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.MacAddress != nil {
@@ -12518,7 +12518,7 @@ func (in *MacvlanParameters) DeepCopyInto(out *MacvlanParameters) {
 	}
 	if in.LoopProtectStatus != nil {
 		in, out := &in.LoopProtectStatus, &out.LoopProtectStatus
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.MacAddress != nil {
@@ -12705,7 +12705,7 @@ func (in *OvpnClientInitParameters) DeepCopyInto(out *OvpnClientInitParameters) 
 	}
 	if in.UsePeerDNS != nil {
 		in, out := &in.UsePeerDNS, &out.UsePeerDNS
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.User != nil {
@@ -12862,7 +12862,7 @@ func (in *OvpnClientObservation) DeepCopyInto(out *OvpnClientObservation) {
 	}
 	if in.UsePeerDNS != nil {
 		in, out := &in.UsePeerDNS, &out.UsePeerDNS
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.User != nil {
@@ -12977,7 +12977,7 @@ func (in *OvpnClientParameters) DeepCopyInto(out *OvpnClientParameters) {
 	}
 	if in.UsePeerDNS != nil {
 		in, out := &in.UsePeerDNS, &out.UsePeerDNS
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.User != nil {
@@ -14558,7 +14558,7 @@ func (in *SstpClientInitParameters) DeepCopyInto(out *SstpClientInitParameters) 
 	out.PasswordSecretRef = in.PasswordSecretRef
 	if in.Pfs != nil {
 		in, out := &in.Pfs, &out.Pfs
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Port != nil {
@@ -14741,7 +14741,7 @@ func (in *SstpClientObservation) DeepCopyInto(out *SstpClientObservation) {
 	}
 	if in.Pfs != nil {
 		in, out := &in.Pfs, &out.Pfs
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Port != nil {
@@ -14888,7 +14888,7 @@ func (in *SstpClientParameters) DeepCopyInto(out *SstpClientParameters) {
 	out.PasswordSecretRef = in.PasswordSecretRef
 	if in.Pfs != nil {
 		in, out := &in.Pfs, &out.Pfs
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Port != nil {
@@ -15056,7 +15056,7 @@ func (in *SstpServerInitParameters) DeepCopyInto(out *SstpServerInitParameters) 
 	}
 	if in.Pfs != nil {
 		in, out := &in.Pfs, &out.Pfs
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Port != nil {
@@ -15179,7 +15179,7 @@ func (in *SstpServerObservation) DeepCopyInto(out *SstpServerObservation) {
 	}
 	if in.Pfs != nil {
 		in, out := &in.Pfs, &out.Pfs
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Port != nil {
@@ -15265,7 +15265,7 @@ func (in *SstpServerParameters) DeepCopyInto(out *SstpServerParameters) {
 	}
 	if in.Pfs != nil {
 		in, out := &in.Pfs, &out.Pfs
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Port != nil {

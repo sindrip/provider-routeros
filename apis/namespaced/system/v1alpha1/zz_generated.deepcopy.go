@@ -234,7 +234,7 @@ func (in *CertificateObservation) DeepCopyInto(out *CertificateObservation) {
 	}
 	if in.DigestAlgorithm != nil {
 		in, out := &in.DigestAlgorithm, &out.DigestAlgorithm
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 	if in.Dsa != nil {

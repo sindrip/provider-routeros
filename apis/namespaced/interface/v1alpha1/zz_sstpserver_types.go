@@ -53,8 +53,8 @@ type SstpServerInitParameters struct {
 	Mrru *string `json:"mrru,omitempty" tf:"mrru,omitempty"`
 
 	// RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-	// Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-	Pfs *bool `json:"pfs,omitempty" tf:"pfs,omitempty"`
+	// Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE. RouterOS accepts "required" (demand perfect forward secrecy), "yes" or "no"; it rejects true and false.
+	Pfs *string `json:"pfs,omitempty" tf:"pfs,omitempty"`
 
 	// (String) Sets port used.
 	// Sets port used.
@@ -112,8 +112,8 @@ type SstpServerObservation struct {
 	Mrru *string `json:"mrru,omitempty" tf:"mrru,omitempty"`
 
 	// RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-	// Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-	Pfs *bool `json:"pfs,omitempty" tf:"pfs,omitempty"`
+	// Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE. RouterOS accepts "required" (demand perfect forward secrecy), "yes" or "no"; it rejects true and false.
+	Pfs *string `json:"pfs,omitempty" tf:"pfs,omitempty"`
 
 	// (String) Sets port used.
 	// Sets port used.
@@ -177,9 +177,9 @@ type SstpServerParameters struct {
 	Mrru *string `json:"mrru,omitempty" tf:"mrru,omitempty"`
 
 	// RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
-	// Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE.
+	// Specifies which TLS authentication to use. With pfs=yes, TLS will use ECDHE-RSA- and DHE-RSA-. For maximum security setting pfs=required will use only ECDHE. RouterOS accepts "required" (demand perfect forward secrecy), "yes" or "no"; it rejects true and false.
 	// +kubebuilder:validation:Optional
-	Pfs *bool `json:"pfs,omitempty" tf:"pfs,omitempty"`
+	Pfs *string `json:"pfs,omitempty" tf:"pfs,omitempty"`
 
 	// (String) Sets port used.
 	// Sets port used.

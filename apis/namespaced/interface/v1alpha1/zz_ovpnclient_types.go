@@ -82,8 +82,8 @@ type OvpnClientInitParameters struct {
 	TLSVersion *string `json:"tlsVersion,omitempty" tf:"tls_version,omitempty"`
 
 	// (Boolean) Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-	// Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-	UsePeerDNS *bool `json:"usePeerDns,omitempty" tf:"use_peer_dns,omitempty"`
+	// Whether to add DNS servers provided by the OVPN server to IP/DNS configuration. RouterOS accepts "exclusively" (use only the peer's servers), "yes" or "no"; it rejects true and false.
+	UsePeerDNS *string `json:"usePeerDns,omitempty" tf:"use_peer_dns,omitempty"`
 
 	// (String) User name used for authentication.
 	// User name used for authentication.
@@ -168,8 +168,8 @@ type OvpnClientObservation struct {
 	TLSVersion *string `json:"tlsVersion,omitempty" tf:"tls_version,omitempty"`
 
 	// (Boolean) Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-	// Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-	UsePeerDNS *bool `json:"usePeerDns,omitempty" tf:"use_peer_dns,omitempty"`
+	// Whether to add DNS servers provided by the OVPN server to IP/DNS configuration. RouterOS accepts "exclusively" (use only the peer's servers), "yes" or "no"; it rejects true and false.
+	UsePeerDNS *string `json:"usePeerDns,omitempty" tf:"use_peer_dns,omitempty"`
 
 	// (String) User name used for authentication.
 	// User name used for authentication.
@@ -266,9 +266,9 @@ type OvpnClientParameters struct {
 	TLSVersion *string `json:"tlsVersion,omitempty" tf:"tls_version,omitempty"`
 
 	// (Boolean) Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-	// Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
+	// Whether to add DNS servers provided by the OVPN server to IP/DNS configuration. RouterOS accepts "exclusively" (use only the peer's servers), "yes" or "no"; it rejects true and false.
 	// +kubebuilder:validation:Optional
-	UsePeerDNS *bool `json:"usePeerDns,omitempty" tf:"use_peer_dns,omitempty"`
+	UsePeerDNS *string `json:"usePeerDns,omitempty" tf:"use_peer_dns,omitempty"`
 
 	// (String) User name used for authentication.
 	// User name used for authentication.

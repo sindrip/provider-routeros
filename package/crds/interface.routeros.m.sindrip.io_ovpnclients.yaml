@@ -176,8 +176,8 @@ spec:
                   usePeerDns:
                     description: |-
                       (Boolean) Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-                      Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-                    type: boolean
+                      Whether to add DNS servers provided by the OVPN server to IP/DNS configuration. RouterOS accepts "exclusively" (use only the peer's servers), "yes" or "no"; it rejects true and false.
+                    type: string
                   user:
                     description: |-
                       (String) User name used for authentication.
@@ -297,8 +297,8 @@ spec:
                   usePeerDns:
                     description: |-
                       (Boolean) Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-                      Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-                    type: boolean
+                      Whether to add DNS servers provided by the OVPN server to IP/DNS configuration. RouterOS accepts "exclusively" (use only the peer's servers), "yes" or "no"; it rejects true and false.
+                    type: string
                   user:
                     description: |-
                       (String) User name used for authentication.
@@ -476,8 +476,8 @@ spec:
                   usePeerDns:
                     description: |-
                       (Boolean) Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-                      Whether to add DNS servers provided by the OVPN server to IP/DNS configuration.
-                    type: boolean
+                      Whether to add DNS servers provided by the OVPN server to IP/DNS configuration. RouterOS accepts "exclusively" (use only the peer's servers), "yes" or "no"; it rejects true and false.
+                    type: string
                   user:
                     description: |-
                       (String) User name used for authentication.

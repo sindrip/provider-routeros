@@ -241,6 +241,21 @@ before upgrading:
   spec, and was overwritten with `yes` on every reconcile. The field also
   loses its schema default, so a spec that omits `advertiseDns` no longer
   writes one; if you were relying on the implicit `yes`, set it explicitly.
+- **v0.23.0** — the same correction, swept rather than stumbled on:
+  `hack/typedump` asks a live router what every console property accepts and
+  `hack/schemaaudit/mistyped.py` diffs that against the upstream schema, which
+  turns "this boolean is not a boolean" from a hunch into a query. Six more
+  fields change type from boolean to string, and a manifest left holding a
+  boolean will not validate. Rewrite `true` as `"yes"` and `false` as `"no"`
+  in `spec.forProvider` for `usePeerDns` on OVPN clients (`exclusively|yes|no`),
+  `pfs` on SSTP clients and servers (`required|yes|no`), and `useRadius` on
+  IPv6 DHCP servers (`accounting|yes|no`). `digestAlgorithm` on certificates
+  needs no manifest change — it is observed and never written, and only stops
+  reporting `false` against a router holding `sha256`. `loopProtectStatus` on
+  MACVLANs needs the opposite of a rewrite: RouterOS answers `unknown
+  parameter loop-protect-status` to any write of it, so delete it from
+  `spec.forProvider` rather than translating it and read it from
+  `status.atProvider` instead.
 
 The releases absent from that list need nothing: v0.1.0 predates the identity
 work, v0.13.0 fixed a create path that could never have succeeded, so no

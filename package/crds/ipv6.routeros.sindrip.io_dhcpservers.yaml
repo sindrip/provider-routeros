@@ -165,8 +165,8 @@ spec:
                   useRadius:
                     description: |-
                       (Boolean) Whether to use RADIUS server.
-                      Whether to use RADIUS server.
-                    type: boolean
+                      Whether to use RADIUS server. RouterOS accepts "accounting" (RADIUS for accounting only), "yes" or "no"; it rejects true and false.
+                    type: string
                   useReconfigure:
                     description: |-
                       (Boolean) Allow the server to send Reconfigure messages to clients.
@@ -279,8 +279,8 @@ spec:
                   useRadius:
                     description: |-
                       (Boolean) Whether to use RADIUS server.
-                      Whether to use RADIUS server.
-                    type: boolean
+                      Whether to use RADIUS server. RouterOS accepts "accounting" (RADIUS for accounting only), "yes" or "no"; it rejects true and false.
+                    type: string
                   useReconfigure:
                     description: |-
                       (Boolean) Allow the server to send Reconfigure messages to clients.
@@ -496,8 +496,8 @@ spec:
                   useRadius:
                     description: |-
                       (Boolean) Whether to use RADIUS server.
-                      Whether to use RADIUS server.
-                    type: boolean
+                      Whether to use RADIUS server. RouterOS accepts "accounting" (RADIUS for accounting only), "yes" or "no"; it rejects true and false.
+                    type: string
                   useReconfigure:
                     description: |-
                       (Boolean) Allow the server to send Reconfigure messages to clients.

@@ -113,7 +113,8 @@ type CertificateObservation struct {
 	DaysValid *int64 `json:"daysValid,omitempty" tf:"days_valid,omitempty"`
 
 	// (Boolean)
-	DigestAlgorithm *bool `json:"digestAlgorithm,omitempty" tf:"digest_algorithm,omitempty"`
+	// RouterOS accepts "md5", "sha1", "sha256", "sha384" or "sha512"; it rejects true, false, yes and no.
+	DigestAlgorithm *string `json:"digestAlgorithm,omitempty" tf:"digest_algorithm,omitempty"`
 
 	// (Boolean)
 	Dsa *bool `json:"dsa,omitempty" tf:"dsa,omitempty"`

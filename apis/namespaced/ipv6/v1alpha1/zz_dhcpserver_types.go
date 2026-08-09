@@ -87,8 +87,8 @@ type DHCPServerInitParameters struct {
 	RouteDistance *int64 `json:"routeDistance,omitempty" tf:"route_distance,omitempty"`
 
 	// (Boolean) Whether to use RADIUS server.
-	// Whether to use RADIUS server.
-	UseRadius *bool `json:"useRadius,omitempty" tf:"use_radius,omitempty"`
+	// Whether to use RADIUS server. RouterOS accepts "accounting" (RADIUS for accounting only), "yes" or "no"; it rejects true and false.
+	UseRadius *string `json:"useRadius,omitempty" tf:"use_radius,omitempty"`
 
 	// (Boolean) Allow the server to send Reconfigure messages to clients.
 	// Allow the server to send Reconfigure messages to clients.
@@ -183,8 +183,8 @@ type DHCPServerObservation struct {
 	RouteDistance *int64 `json:"routeDistance,omitempty" tf:"route_distance,omitempty"`
 
 	// (Boolean) Whether to use RADIUS server.
-	// Whether to use RADIUS server.
-	UseRadius *bool `json:"useRadius,omitempty" tf:"use_radius,omitempty"`
+	// Whether to use RADIUS server. RouterOS accepts "accounting" (RADIUS for accounting only), "yes" or "no"; it rejects true and false.
+	UseRadius *string `json:"useRadius,omitempty" tf:"use_radius,omitempty"`
 
 	// (Boolean) Allow the server to send Reconfigure messages to clients.
 	// Allow the server to send Reconfigure messages to clients.
@@ -282,9 +282,9 @@ type DHCPServerParameters struct {
 	RouteDistance *int64 `json:"routeDistance,omitempty" tf:"route_distance,omitempty"`
 
 	// (Boolean) Whether to use RADIUS server.
-	// Whether to use RADIUS server.
+	// Whether to use RADIUS server. RouterOS accepts "accounting" (RADIUS for accounting only), "yes" or "no"; it rejects true and false.
 	// +kubebuilder:validation:Optional
-	UseRadius *bool `json:"useRadius,omitempty" tf:"use_radius,omitempty"`
+	UseRadius *string `json:"useRadius,omitempty" tf:"use_radius,omitempty"`
 
 	// (Boolean) Allow the server to send Reconfigure messages to clients.
 	// Allow the server to send Reconfigure messages to clients.

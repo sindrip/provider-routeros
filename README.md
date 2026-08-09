@@ -256,6 +256,26 @@ before upgrading:
   parameter loop-protect-status` to any write of it, so delete it from
   `spec.forProvider` rather than translating it and read it from
   `status.atProvider` instead.
+  A type correction also leaves a landmine in what was already observed, and
+  this one is worth reading even if none of the six fields appear in your
+  manifests. A managed resource of an affected kind that any earlier release
+  reconciled still holds a boolean in `status.atProvider`, and changing the
+  CRD does not migrate it — server-side apply then refuses the object with
+  `.status.atProvider.digestAlgorithm: expected string, got Value:false`.
+  Crossplane itself does not mind: the resource stays `Synced` and `Ready`
+  throughout, so the only symptom is the apply failing, which reads as a fault
+  in whatever is doing the applying rather than in the upgrade. It self-selects
+  for the people who were already managing those kinds. Clear the stale field
+  and let the provider repopulate it:
+
+  ```sh
+  kubectl patch <kind> <name> -n <ns> --subresource=status --type=json \
+    -p '[{"op":"remove","path":"/status/atProvider/<field>"}]'
+  ```
+
+  Check `spec.initProvider` for the same stale boolean while you are there.
+  This applies equally to `advertiseDns` from v0.22.0 and to every later
+  release that corrects a field's type.
 
 The releases absent from that list need nothing: v0.1.0 predates the identity
 work, v0.13.0 fixed a create path that could never have succeeded, so no

@@ -13,6 +13,10 @@ mismatch bucket reports where the manual and upstream disagree; those are
 claims, not verdicts — settle them against a live CHR with typeprobe.py
 (pinned results: config/type-verdicts.json).
 
+For type disagreements specifically, prefer mistyped.py: it asks the router
+what each argument accepts (config/arg-types.json, from hack/typedump)
+instead of reading it off a manual page, so its findings need no settling.
+
 Caveats learned the hard way:
   - Dotted args (aaa.called-format) are nested groups upstream models as one
     map field; not missing fields.

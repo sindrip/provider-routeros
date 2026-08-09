@@ -9,3 +9,6 @@ cover.out
 # ignore IDE folders
 .vscode/
 .idea/
+
+# Python bytecode from hack/schemaaudit
+__pycache__/

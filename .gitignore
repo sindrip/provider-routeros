@@ -12,3 +12,10 @@ cover.out
 
 # Python bytecode from hack/schemaaudit
 __pycache__/
+
+# Compiled probe binaries; each hack/ tool is its own module and is run with
+# `go run`, so a binary next to main.go is a build artifact, not a deliverable.
+/hack/inspectdump/inspectdump
+/hack/typedump/typedump
+/hack/uniqprobe/uniqprobe
+/hack/schemaaudit/upstreamdump/upstreamdump

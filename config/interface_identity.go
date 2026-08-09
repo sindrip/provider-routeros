@@ -37,6 +37,9 @@ var interfaceIdentityResources = []string{
 const (
 	interfaceField = "interface"
 	defaultField   = "default"
+
+	// routerTrue is how RouterOS spells a set boolean in a REST payload.
+	routerTrue = "true"
 )
 
 func withInterfaceIdentity(p *schema.Provider) *schema.Provider {
@@ -72,7 +75,7 @@ func interfaceIdentityCreate(path string, create schema.CreateContextFunc, updat
 			if dg := create(ctx, d, m); dg.HasError() {
 				return dg
 			}
-		case (*item)[defaultField] == "true":
+		case (*item)[defaultField] == routerTrue:
 			d.SetId(item.GetID(routeros.Id))
 			if dg := update(ctx, d, m); dg.HasError() {
 				return dg
@@ -151,7 +154,7 @@ func interfaceIdentityDelete(path string, del schema.DeleteContextFunc) schema.D
 			d.SetId("")
 			return nil
 		}
-		if (*item)[defaultField] == "true" {
+		if (*item)[defaultField] == routerTrue {
 			iface := d.Id()
 			d.SetId("")
 			return diag.Diagnostics{{

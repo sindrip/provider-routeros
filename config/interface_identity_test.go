@@ -30,7 +30,7 @@ const (
 func ndHarness(t *testing.T) (*fakeRouter, *schema.Resource, routeros.Client) {
 	t.Helper()
 	router := &fakeRouter{path: "/rest/ipv6/nd", nextID: 1, items: map[string]map[string]string{
-		"*1": {attrID: "*1", interfaceField: ifaceAll, defaultField: "true"},
+		"*1": {attrID: "*1", interfaceField: ifaceAll, defaultField: routerTrue},
 	}}
 	srv := httptest.NewServer(router.handler())
 	t.Cleanup(srv.Close)

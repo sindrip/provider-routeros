@@ -29,7 +29,7 @@ func TestInterfaceIdentityLiveCHRNeighborDiscovery(t *testing.T) {
 
 	// Confirm the premise: the router really does ship the undeletable row, so
 	// the test would fail loudly if the fixture ever changed.
-	rows, err := itemsByField(client, ndPath, defaultField, "true")
+	rows, err := itemsByField(client, ndPath, defaultField, routerTrue)
 	if err != nil {
 		t.Fatalf("list default rows: %v", err)
 	}
@@ -75,7 +75,7 @@ func TestInterfaceIdentityLiveCHRNeighborDiscovery(t *testing.T) {
 	if len(dg) != 1 || dg[0].Severity != diag.Warning {
 		t.Errorf("diagnostics = %v, want a single warning that the row was left in place", dg)
 	}
-	survived, err := itemsByField(client, ndPath, defaultField, "true")
+	survived, err := itemsByField(client, ndPath, defaultField, routerTrue)
 	if err != nil {
 		t.Fatalf("list after delete: %v", err)
 	}

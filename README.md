@@ -18,16 +18,19 @@ repository.
 ## Resource identity
 
 The `crossplane.io/external-name` annotation holds the resource identity.
-Three classes exist:
+Four classes exist:
 
-- **Name identity** (65 resources, see `config/name_identity.go`): resources
+- **Name identity** (66 resources, see `config/name_identity.go`): resources
   whose RouterOS name is enforced unique — verified per resource by
   `hack/uniqprobe`, verdicts pinned in `config/name-uniqueness.json` — are
   identified by name. The external-name is the RouterOS name, and the current
   internal id is resolved on every operation, so out-of-band delete/recreate
   heals on the next reconcile. For DHCP clients the router supports a settable,
   enforced-unique `name` that the upstream Terraform schema does not model; the
-  provider injects the field (`spec.forProvider.name`, required).
+  provider injects the field (`spec.forProvider.name`, required). Certificates
+  are here too, despite hand-written upstream CRUD: it passes the id straight
+  through as a RouterOS `number`/`numbers` argument, which resolves a name just
+  as well as a `*XX`.
 - **Comment identity** (firewall filter, mangle, raw and NAT rules — IPv4 and
   IPv6 — bridge filter rules, bridge ports, bridge VLAN entries, interface
   list members, DHCP server leases, DNS records, BGP connections,
@@ -39,6 +42,12 @@ Three classes exist:
   (RouterOS does not enforce this; the provider does, and fails loudly on
   ambiguity instead of guessing), and renaming it moves the external-name
   along.
+- **Interface identity** (IPv6 neighbour discovery, see
+  `config/interface_identity.go`): menus the router keeps at one item per
+  interface are identified by that interface, which RouterOS enforces unique
+  itself. `/ipv6/nd` also ships one row it owns — `default=true`, covering
+  `interface=all` — that can be neither added nor removed, so create adopts it
+  in place and delete releases it and leaves it standing. See `docs/adr/0003`.
 - **Factory-name identity** (ethernet interfaces, see
   `config/factory_identity.go`): physical ports are identified by the
   immutable `default-name` (`spec.forProvider.factoryName`, e.g. `ether8`),
@@ -184,6 +193,17 @@ be migrated before upgrading:
   rewrite the external-name annotation from the `*XX` id to the comment.
   The BGP VPN comment field is injected — RouterOS has it, the upstream
   schema does not.
+- **v0.21.0** — certificates: rewrite the external-name annotation from the
+  `*XX` id to the certificate's name (probe-verified UNIQUE). In the same
+  release, deleting a CA-issued certificate removes it. Upstream only revoked
+  it, leaving the row in place holding its unique name, which blocked every
+  recreate; revocation still happens first, then the row is removed. Any
+  certificate stranded that way by an earlier release is still on the router
+  with `revoked=true` and must be deleted by hand before the name can be
+  reused.
+  IPv6 neighbour discovery joins interface identity: the `interface=all` row
+  the router ships is adopted rather than added, so it no longer has to be
+  left unmanaged. Set the external-name to the interface.
 
 ## Following upstream
 

@@ -121,7 +121,7 @@ func TestPhantomDefaultsLiveCHRBgpConnection(t *testing.T) {
 	comment := "ci live conn [ibgp] & x"
 	res := providerForRuntime().ResourcesMap["routeros_routing_bgp_connection"]
 	d := natDataBlocks(t, res,
-		map[string]string{attrName: "ci-live-conn", "as": "65000", "instance": "ci-live-bgp", "listen": "true", commentField: comment},
+		map[string]string{attrName: "ci-live-conn", "as": "65000", "instance": "ci-live-bgp", "listen": routerTrue, commentField: comment},
 		map[string]map[string]string{"local": {"role": "ibgp"}})
 	if dg := res.CreateContext(ctx, d, client); dg.HasError() {
 		t.Fatalf("create: %v", dg)

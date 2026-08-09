@@ -37,6 +37,20 @@ type fakeRouter struct {
 	items  map[string]map[string]string // .id -> item
 	nextID int
 	calls  []string // "METHOD id", in order
+	// actions serves the console verbs some menus are driven by instead of
+	// plain CRUD (POST /certificate/issued-revoke and the like), keyed by verb.
+	actions map[string]func(*fakeRouter, map[string]string)
+}
+
+// byNumbers resolves a RouterOS numbers/number argument, which names an item
+// by either its .id or its name.
+func (f *fakeRouter) byNumbers(v string) map[string]string {
+	for _, it := range f.items {
+		if it[attrID] == v || it[attrName] == v {
+			return it
+		}
+	}
+	return nil
 }
 
 func (f *fakeRouter) handler() http.Handler {
@@ -83,6 +97,16 @@ func (f *fakeRouter) handler() http.Handler {
 		case r.Method == http.MethodDelete:
 			delete(f.items, id)
 			w.WriteHeader(http.StatusNoContent)
+		case r.Method == http.MethodPost:
+			action, ok := f.actions[id]
+			if !ok {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			var body map[string]string
+			json.NewDecoder(r.Body).Decode(&body)
+			action(f, body)
+			json.NewEncoder(w).Encode([]map[string]string{})
 		default:
 			w.WriteHeader(http.StatusBadRequest)
 		}

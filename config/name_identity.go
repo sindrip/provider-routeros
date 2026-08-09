@@ -11,8 +11,11 @@ import (
 // resources here whose verdict is UNIQUE (never DUPLICATE, and UNTESTED only
 // after probing on hardware that supports them) and whose upstream CRUD uses
 // the generic Default*/Resource* helpers, which honor the ___id___ meta;
-// resources with hand-written CRUD (routing_table, system_certificate) may
-// ignore it.
+// resources with hand-written CRUD may ignore it. routing_table still does.
+// system_certificate does not: its hand-written create and delete pass d.Id()
+// straight through as a RouterOS number/numbers argument, and the router
+// resolves a name there exactly as it resolves a *N (verified against
+// 7.23.2), so the override reaches every one of its paths.
 //
 // Context: RouterOS reassigns the internal .id when an item is deleted and
 // recreated outside the controller, which permanently broke reconciliation
@@ -84,6 +87,7 @@ var nameIdentityResources = []string{
 	"routeros_queue_type",
 	"routeros_scheduler",
 	"routeros_snmp_community",
+	"routeros_system_certificate",
 	"routeros_system_scheduler",
 	"routeros_system_script",
 	"routeros_system_user",

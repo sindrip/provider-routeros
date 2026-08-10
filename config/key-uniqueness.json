@@ -1,0 +1,2120 @@
+{
+  "routeros_version": "7.23.2 (stable)",
+  "architecture": "arm64",
+  "board_name": "CHR QEMU QEMU Virtual Machine",
+  "generated_by": "hack/keyprobe",
+  "note": "Whether RouterOS enforces uniqueness on a field, established by creating a row and then attempting a second row that differs in everything except that field. UNIQUE = the second create was rejected and the message names the field. DUPLICATE = it succeeded, so the field does not identify a row and addressing by it can match two. AMBIGUOUS = it was rejected for some other reason, which is not evidence either way. UNPROBED = no row could be created at all, with the router's last refusal as the detail. Absence of a verdict is not absence of a constraint; it means this program could not establish one. Reproducibility: two consecutive runs against the same CHR agreed on 404 of 407 verdicts; the difference was /interface/6to4, which takes a row only sometimes on this guest.",
+  "verdicts": [
+    {
+      "path": "/certificate",
+      "verdict": "UNPROBED",
+      "detail": "failure: At least one field specifying certificate name must be set!"
+    },
+    {
+      "path": "/certificate/crl",
+      "verdict": "UNPROBED",
+      "detail": "failure: Only HTTP supported!"
+    },
+    {
+      "path": "/certificate/scep-server",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of ca-cert"
+    },
+    {
+      "path": "/certificate/scep-server/ra",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of template"
+    },
+    {
+      "path": "/disk",
+      "verdict": "UNPROBED",
+      "detail": "failure: bad file-path"
+    },
+    {
+      "path": "/file",
+      "verdict": "UNPROBED",
+      "detail": "failure: file already exists"
+    },
+    {
+      "path": "/interface/6to4",
+      "verdict": "UNPROBED",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/bonding",
+      "verdict": "UNPROBED",
+      "detail": "failure: need at least one slave interface"
+    },
+    {
+      "path": "/interface/bridge",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/bridge",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/bridge/calea",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument dst-address"
+    },
+    {
+      "path": "/interface/bridge/filter",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument dst-address"
+    },
+    {
+      "path": "/interface/bridge/host",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of bridge"
+    },
+    {
+      "path": "/interface/bridge/mdb",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/interface/bridge/msti",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of bridge"
+    },
+    {
+      "path": "/interface/bridge/nat",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument dst-address"
+    },
+    {
+      "path": "/interface/bridge/port",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of bridge"
+    },
+    {
+      "path": "/interface/bridge/port/mst-override",
+      "verdict": "UNPROBED",
+      "detail": "failure: no such port"
+    },
+    {
+      "path": "/interface/bridge/vlan",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of bridge"
+    },
+    {
+      "path": "/interface/dot1x/client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/dot1x/client",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/dot1x/server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/dot1x/server",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/dot1x/server/active",
+      "verdict": "UNPROBED",
+      "detail": "error - contact MikroTik support and send a supout file (3)"
+    },
+    {
+      "path": "/interface/eoip",
+      "field": "comment",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have such tunnel"
+    },
+    {
+      "path": "/interface/eoip",
+      "field": "mac-address",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have such tunnel"
+    },
+    {
+      "path": "/interface/eoip",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/eoipv6",
+      "field": "comment",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have such tunnel"
+    },
+    {
+      "path": "/interface/eoipv6",
+      "field": "mac-address",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have such tunnel"
+    },
+    {
+      "path": "/interface/eoipv6",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/gre",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/gre",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/gre6",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/gre6",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/ipip",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ipip",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/ipipv6",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ipipv6",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/l2tp-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/l2tp-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/l2tp-client",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/l2tp-ether",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/l2tp-ether",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/l2tp-ether",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/l2tp-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/l2tp-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/list",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/list",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface list with such name"
+    },
+    {
+      "path": "/interface/list/member",
+      "verdict": "UNPROBED",
+      "detail": "failure: cannot add to builtin list"
+    },
+    {
+      "path": "/interface/lte/apn",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/lte/apn",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: name can't repeat"
+    },
+    {
+      "path": "/interface/macsec",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/macsec",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/macsec",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/macsec/profile",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: name already exists"
+    },
+    {
+      "path": "/interface/macvlan",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/macvlan",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/macvlan",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/macvlan",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/mesh",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/mesh",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/mesh/port",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of mesh"
+    },
+    {
+      "path": "/interface/ovpn-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ovpn-client",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ovpn-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/ovpn-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ovpn-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/ovpn-server/server",
+      "field": "comment",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have a server with the same protocol-port-vrf combination"
+    },
+    {
+      "path": "/interface/ovpn-server/server",
+      "field": "mac-address",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have a server with the same protocol-port-vrf combination"
+    },
+    {
+      "path": "/interface/ovpn-server/server",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: already have a server with the same protocol-port-vrf combination"
+    },
+    {
+      "path": "/interface/ppp-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ppp-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/ppp-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/ppp-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/pppoe-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pppoe-client",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pppoe-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/pppoe-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pppoe-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/pppoe-server",
+      "field": "service",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pppoe-server/server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pppoe-server/server",
+      "field": "interface",
+      "verdict": "UNIQUE",
+      "detail": "failure: service the same name on the same interface already exists"
+    },
+    {
+      "path": "/interface/pptp-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pptp-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/pptp-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/pptp-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/sstp-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/sstp-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/sstp-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/sstp-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/vlan",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/vlan",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/vlan",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/vlan",
+      "field": "vlan-id",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/vpls",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/interface/vrrp",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/vrrp",
+      "field": "interface",
+      "verdict": "UNIQUE",
+      "detail": "failure: vrrp with such interface and vrid already exists"
+    },
+    {
+      "path": "/interface/vrrp",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/vxlan",
+      "verdict": "UNPROBED",
+      "detail": "failure: Both Interface and Group must be specified"
+    },
+    {
+      "path": "/interface/vxlan/vteps",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of interface"
+    },
+    {
+      "path": "/interface/wifi",
+      "verdict": "UNPROBED",
+      "detail": "failure: must specify exactly one of radio-mac, master-interface or mld-name"
+    },
+    {
+      "path": "/interface/wifi/aaa",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/aaa",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: must use unique name"
+    },
+    {
+      "path": "/interface/wifi/access-list",
+      "verdict": "UNPROBED",
+      "detail": "value of vlan-id contains invalid trailing characters"
+    },
+    {
+      "path": "/interface/wifi/channel",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/channel",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: must use unique name"
+    },
+    {
+      "path": "/interface/wifi/configuration",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/configuration",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: must use unique name"
+    },
+    {
+      "path": "/interface/wifi/datapath",
+      "verdict": "UNPROBED",
+      "detail": "value of vlan-id contains invalid trailing characters"
+    },
+    {
+      "path": "/interface/wifi/interworking",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/interworking",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: must use unique name"
+    },
+    {
+      "path": "/interface/wifi/network",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/network/radio",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/provisioning",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/security",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/security",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: must use unique name"
+    },
+    {
+      "path": "/interface/wifi/security/multi-passphrase",
+      "verdict": "UNPROBED",
+      "detail": "value of vlan-id contains invalid trailing characters"
+    },
+    {
+      "path": "/interface/wifi/steering",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wifi/steering",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: must use unique name"
+    },
+    {
+      "path": "/interface/wireguard",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/interface/wireguard",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have interface with name keyprobe1"
+    },
+    {
+      "path": "/interface/wireguard/peers",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of interface"
+    },
+    {
+      "path": "/ip/address",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/address",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/address",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/arp",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/arp",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/arp",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/arp",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-client",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-client",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: client with such name already exists"
+    },
+    {
+      "path": "/ip/dhcp-client/option",
+      "field": "code",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-client/option",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-client/option",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: option with such name already exists"
+    },
+    {
+      "path": "/ip/dhcp-relay",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-relay",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: server with such name already exists"
+    },
+    {
+      "path": "/ip/dhcp-server/alert",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/alert",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/lease",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/lease",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/lease",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/matcher",
+      "field": "code",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/matcher",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/matcher",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/network",
+      "verdict": "UNPROBED",
+      "detail": "failure: invalid network"
+    },
+    {
+      "path": "/ip/dhcp-server/option",
+      "field": "code",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/option",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dhcp-server/option",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: option with such name already exists"
+    },
+    {
+      "path": "/ip/dhcp-server/option/sets",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of option"
+    },
+    {
+      "path": "/ip/dns/adlist",
+      "verdict": "UNPROBED",
+      "detail": "failure: error adding adlist source"
+    },
+    {
+      "path": "/ip/dns/forwarders",
+      "verdict": "UNPROBED",
+      "detail": "failure: no DoH or DNS servers"
+    },
+    {
+      "path": "/ip/dns/static",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dns/static",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/dns/static",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/address-list",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/address-list",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/calea",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/calea",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/calea",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/filter",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/filter",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/filter",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/layer7-protocol",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/layer7-protocol",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/ip/firewall/mangle",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/mangle",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/mangle",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/nat",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/nat",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/nat",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/raw",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/raw",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/firewall/raw",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: hotspot with such name already exists"
+    },
+    {
+      "path": "/ip/hotspot/ip-binding",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/ip-binding",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/ip-binding",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/profile",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: server profile with such name already exists"
+    },
+    {
+      "path": "/ip/hotspot/user",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/user",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/user",
+      "field": "mac-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/user",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/user/profile",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: user profile with such name already exists"
+    },
+    {
+      "path": "/ip/hotspot/walled-garden",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/walled-garden",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/walled-garden/ip",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/walled-garden/ip",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/hotspot/walled-garden/ip",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/ipsec/active-peers",
+      "verdict": "UNPROBED",
+      "detail": "error - contact MikroTik support and send a supout file (3)"
+    },
+    {
+      "path": "/ip/ipsec/identity",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of peer"
+    },
+    {
+      "path": "/ip/ipsec/key/psk",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of peer"
+    },
+    {
+      "path": "/ip/ipsec/mode-config",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/ipsec/mode-config",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: duplicate item name"
+    },
+    {
+      "path": "/ip/ipsec/peer",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/ipsec/peer",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/ipsec/peer",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: Name can't repeat"
+    },
+    {
+      "path": "/ip/ipsec/policy",
+      "verdict": "UNPROBED",
+      "detail": "failure: Peer not set!"
+    },
+    {
+      "path": "/ip/ipsec/policy/group",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/ipsec/policy/group",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: duplicate item name"
+    },
+    {
+      "path": "/ip/ipsec/profile",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: name can't repeat!"
+    },
+    {
+      "path": "/ip/ipsec/proposal",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/ipsec/proposal",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: duplicate item name"
+    },
+    {
+      "path": "/ip/kid-control",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have user with this name"
+    },
+    {
+      "path": "/ip/kid-control/device",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of user"
+    },
+    {
+      "path": "/ip/media",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/nat-pmp/interfaces",
+      "field": "interface",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have this interface"
+    },
+    {
+      "path": "/ip/packing",
+      "field": "interface",
+      "verdict": "UNIQUE",
+      "detail": "failure: packing for this interface already exists"
+    },
+    {
+      "path": "/ip/pool",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/pool",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: pool with such name exists"
+    },
+    {
+      "path": "/ip/proxy/access",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/access",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/access",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/cache",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/cache",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/cache",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/cache-contents",
+      "verdict": "UNPROBED",
+      "detail": "error - contact MikroTik support and send a supout file (3)"
+    },
+    {
+      "path": "/ip/proxy/direct",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/direct",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/proxy/direct",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/reverse-proxy",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/route",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/ip/smb/shares",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/smb/shares",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/ip/smb/users",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/smb/users",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/ip/socks/access",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/socks/access",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/socks/access",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/socks/users",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: User [keyprobe1] already exists"
+    },
+    {
+      "path": "/ip/socksify",
+      "field": "comment",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: port number must be unique"
+    },
+    {
+      "path": "/ip/socksify",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: name must be unique"
+    },
+    {
+      "path": "/ip/tftp",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/traffic-flow/target",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/traffic-flow/target",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/upnp/interfaces",
+      "field": "interface",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have this interface"
+    },
+    {
+      "path": "/ip/vrf",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ip/vrf",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: vrf already exists: keyprobe1"
+    },
+    {
+      "path": "/ipv6/address",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument address"
+    },
+    {
+      "path": "/ipv6/dhcp-client",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-client",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-client/option",
+      "field": "code",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-client/option",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-client/option",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: option with such name already exists"
+    },
+    {
+      "path": "/ipv6/dhcp-relay",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument server:\r\n    invalid value for argument address6\r\n    invalid value for argument address6"
+    },
+    {
+      "path": "/ipv6/dhcp-relay/option",
+      "field": "code",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-relay/option",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-relay/option",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: option with such name already exists"
+    },
+    {
+      "path": "/ipv6/dhcp-server",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-server",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-server",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: server with such name already exists"
+    },
+    {
+      "path": "/ipv6/dhcp-server/binding",
+      "verdict": "UNPROBED",
+      "detail": "failure: Invalid DUID!"
+    },
+    {
+      "path": "/ipv6/dhcp-server/option",
+      "field": "code",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-server/option",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/dhcp-server/option",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: option with such name already exists"
+    },
+    {
+      "path": "/ipv6/dhcp-server/option/sets",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of option"
+    },
+    {
+      "path": "/ipv6/firewall/address-list",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/address-list",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/filter",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/filter",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/filter",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/mangle",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/mangle",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/mangle",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/nat",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/nat",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/nat",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/raw",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/raw",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/firewall/raw",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/nd",
+      "verdict": "UNPROBED",
+      "detail": "failure: configuration for this interface already exists"
+    },
+    {
+      "path": "/ipv6/nd/prefix",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/nd/prefix",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/nd/prefix",
+      "field": "prefix",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ipv6/nd/proxy",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument address"
+    },
+    {
+      "path": "/ipv6/neighbor",
+      "verdict": "UNPROBED",
+      "detail": "invalid value for argument address"
+    },
+    {
+      "path": "/ipv6/pool",
+      "verdict": "UNPROBED",
+      "detail": "failure: prefix length can not be smaller than prefix"
+    },
+    {
+      "path": "/ipv6/route",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/mpls/interface",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/interface",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/ldp",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/ldp/accept-filter",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/mpls/ldp/advertise-filter",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/mpls/ldp/interface",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/ldp/interface",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/ldp/local-mapping",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/mpls/ldp/neighbor",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/ldp/remote-mapping",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/mpls/mangle",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/traffic-eng/interface",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/traffic-eng/interface",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/traffic-eng/path",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/traffic-eng/path",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/mpls/traffic-eng/tunnel",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/port/remote-access",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ppp/l2tp-secret",
+      "field": "address",
+      "verdict": "AMBIGUOUS",
+      "detail": "item already exists (7)"
+    },
+    {
+      "path": "/ppp/l2tp-secret",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ppp/profile",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ppp/profile",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: profile with the same name already exists"
+    },
+    {
+      "path": "/ppp/secret",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ppp/secret",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/ppp/secret",
+      "field": "service",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/queue/simple",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/queue/simple",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/queue/simple",
+      "field": "target",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/queue/tree",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/queue/tree",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/queue/type",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: name already used"
+    },
+    {
+      "path": "/radius",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/routing/bfd/configuration",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/connection",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of instance"
+    },
+    {
+      "path": "/routing/bgp/evpn",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of instance"
+    },
+    {
+      "path": "/routing/bgp/instance",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/instance",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/template",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/template",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/vpls",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/vpls",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/bgp/vpn",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of instance"
+    },
+    {
+      "path": "/routing/fantasy",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/fantasy",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/fantasy",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/filter/community-ext-list",
+      "verdict": "UNPROBED",
+      "detail": "failure: invalid matcher"
+    },
+    {
+      "path": "/routing/filter/community-large-list",
+      "verdict": "UNPROBED",
+      "detail": "failure: invalid matcher"
+    },
+    {
+      "path": "/routing/filter/community-list",
+      "verdict": "UNPROBED",
+      "detail": "failure: invalid matcher"
+    },
+    {
+      "path": "/routing/filter/num-list",
+      "verdict": "UNPROBED",
+      "detail": "failure: num range not specified"
+    },
+    {
+      "path": "/routing/filter/rule",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/filter/select-rule",
+      "verdict": "UNPROBED",
+      "detail": "failure: unknown do action type"
+    },
+    {
+      "path": "/routing/gmp",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/id",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/id",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/igmp-proxy/interface",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/igmp-proxy/interface",
+      "field": "interface",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such interface"
+    },
+    {
+      "path": "/routing/igmp-proxy/mfc",
+      "verdict": "NO-CANDIDATE",
+      "detail": "a row was created but it carries none of the candidate fields"
+    },
+    {
+      "path": "/routing/isis/instance",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/isis/instance",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/isis/interface-template",
+      "verdict": "UNPROBED",
+      "detail": "failure: instance must be configured"
+    },
+    {
+      "path": "/routing/ospf/area",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of instance"
+    },
+    {
+      "path": "/routing/ospf/area/range",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/routing/ospf/instance",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/ospf/instance",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/ospf/interface",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/ospf/interface",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/ospf/interface",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/ospf/interface-template",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of area"
+    },
+    {
+      "path": "/routing/ospf/static-neighbor",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of area"
+    },
+    {
+      "path": "/routing/pimsm/bsr/candidate",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/pimsm/bsr/rp-candidate",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/pimsm/instance",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/pimsm/interface-template",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of instance"
+    },
+    {
+      "path": "/routing/pimsm/static-rp",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/routing/rip/instance",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/rip/interface-template",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of instance"
+    },
+    {
+      "path": "/routing/rip/keys",
+      "verdict": "NO-CANDIDATE",
+      "detail": "a row was created but it carries none of the candidate fields"
+    },
+    {
+      "path": "/routing/rip/static-neighbor",
+      "field": "address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/rpki",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/routing/rule",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/rule",
+      "field": "dst-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/rule",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/rule",
+      "field": "src-address",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/table",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/routing/table",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/snmp/community",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/snmp/community",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: community with the same name already exists!"
+    },
+    {
+      "path": "/special-login",
+      "verdict": "NO-CANDIDATE",
+      "detail": "a row was created but it carries none of the candidate fields"
+    },
+    {
+      "path": "/system/console",
+      "verdict": "NO-CANDIDATE",
+      "detail": "a row was created but it carries none of the candidate fields"
+    },
+    {
+      "path": "/system/leds",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of led"
+    },
+    {
+      "path": "/system/logging",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/system/logging",
+      "field": "prefix",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/system/logging/action",
+      "verdict": "UNPROBED",
+      "detail": "failure: disk action with such file name already exists"
+    },
+    {
+      "path": "/system/ntp/client/servers",
+      "field": "address",
+      "verdict": "UNIQUE",
+      "detail": "failure: duplicate address"
+    },
+    {
+      "path": "/system/ntp/client/servers",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/system/ntp/key",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/system/package/local-update/update-package-source",
+      "field": "address",
+      "verdict": "UNIQUE",
+      "detail": "failure: address already added"
+    },
+    {
+      "path": "/system/scheduler",
+      "verdict": "SKIPPED",
+      "detail": "writing here can cut the probe's own access"
+    },
+    {
+      "path": "/system/script",
+      "verdict": "SKIPPED",
+      "detail": "writing here can cut the probe's own access"
+    },
+    {
+      "path": "/system/ups",
+      "verdict": "UNPROBED",
+      "detail": "missing or invalid resource identifier (the router wants or, which the IR does not list)"
+    },
+    {
+      "path": "/task",
+      "verdict": "UNPROBED",
+      "detail": "missing values (5) (the router wants values, which the IR does not list)"
+    },
+    {
+      "path": "/tool/graphing/interface",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/graphing/interface",
+      "field": "interface",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: Graphing rule already exists"
+    },
+    {
+      "path": "/tool/graphing/queue",
+      "field": "comment",
+      "verdict": "AMBIGUOUS",
+      "detail": "failure: Graphing rule already exists"
+    },
+    {
+      "path": "/tool/graphing/resource",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/netwatch",
+      "verdict": "UNPROBED",
+      "detail": "invalid or unexpected argument base"
+    },
+    {
+      "path": "/tool/romon/port",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/romon/port",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/packet-template",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/packet-template",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/packet-template",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/tool/traffic-generator/packet-template",
+      "field": "vlan-id",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/port",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/port",
+      "field": "name",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/raw-packet-template",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-generator/raw-packet-template",
+      "field": "name",
+      "verdict": "UNIQUE",
+      "detail": "failure: already have such name"
+    },
+    {
+      "path": "/tool/traffic-generator/stream",
+      "verdict": "UNPROBED",
+      "detail": "input does not match any value of tx-template"
+    },
+    {
+      "path": "/tool/traffic-monitor",
+      "field": "comment",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-monitor",
+      "field": "interface",
+      "verdict": "DUPLICATE"
+    },
+    {
+      "path": "/tool/traffic-monitor",
+      "field": "name",
+      "verdict": "AMBIGUOUS",
+      "detail": "item already exists (7)"
+    },
+    {
+      "path": "/user",
+      "verdict": "SKIPPED",
+      "detail": "writing here can cut the probe's own access"
+    },
+    {
+      "path": "/user/active",
+      "verdict": "UNPROBED",
+      "detail": "error - contact MikroTik support and send a supout file (3)"
+    },
+    {
+      "path": "/user/group",
+      "verdict": "SKIPPED",
+      "detail": "writing here can cut the probe's own access"
+    },
+    {
+      "path": "/user/ssh-keys",
+      "verdict": "UNPROBED",
+      "detail": "failure: unable to load key file (wrong format or bad passphrase)!"
+    }
+  ]
+}

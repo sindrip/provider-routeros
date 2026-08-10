@@ -134,12 +134,14 @@ func TestIdentityIsNeverInvented(t *testing.T) {
 			if id.Key == "" {
 				t.Errorf("%s: UNIQUE but no key", m.Path)
 			}
-			// uniqprobe tests the name field and nothing else, so a
-			// verdict is evidence about name alone.
-			if id.Key != "name" {
-				t.Errorf("%s: key %q, but the verdict only speaks for name", m.Path, id.Key)
+			// The key must be a field some probe actually ruled on. It used
+			// to be required to be "name", because uniqprobe tested nothing
+			// else; keyprobe tests thirteen candidates, and a natural key
+			// like /ip/packing's interface is as real as a name.
+			if id.Key != "name" && id.Tested[id.Key] != Unique {
+				t.Errorf("%s: key %q rests on no verdict for that field", m.Path, id.Key)
 			}
-		case Duplicate, Untested, Unprobed:
+		case Duplicate, Untested, Unprobed, Ambiguous:
 			if id.Verdict == Unprobed {
 				unprobed++
 			}
@@ -153,11 +155,17 @@ func TestIdentityIsNeverInvented(t *testing.T) {
 			t.Errorf("%s: key %q is not among candidates %v", m.Path, id.Key, id.Candidates)
 		}
 	}
-	if unique != 66 {
-		t.Errorf("%d menus with a proven unique name, want 66", unique)
+	// Pinned so a refresh that loses evidence is a failure rather than a
+	// quiet regression. It was 66 when only name was tested on the resources
+	// upstream happened to model; keyprobe drives from the IR's own menu list
+	// and tests thirteen candidate fields.
+	if unique != 88 {
+		t.Errorf("%d menus with a proven key, want 88", unique)
 	}
-	// The honest headline: most row-bearing menus have never been probed,
-	// and that has to stay visible rather than defaulting to "unique".
+	// Still the honest headline: most row-bearing menus have no key anyone has
+	// established, and that has to stay visible rather than defaulting to
+	// "unique". The number that improved is how many are *settled* — see
+	// TestNoKeyIsAFindingNotAGap.
 	t.Logf("%d of %d menus never probed for uniqueness", unprobed, len(ir.Menus))
 }
 
@@ -266,6 +274,95 @@ func TestVocabulariesAreNotFieldNames(t *testing.T) {
 			}
 		}
 	}
+}
+
+// TestCommentIsNeverADeviceEnforcedKey states the finding this provider has the
+// most riding on.
+//
+// ADR 0002 addresses firewall rules by comment, and config/comment_identity.go
+// resolves rows that way. keyprobe tested comment on 120 menus and the router
+// accepted a duplicate on every one — it enforces nothing. That does not make
+// comment-addressing wrong, but it does mean the uniqueness is the provider's
+// to guarantee, and that a resolve-by-comment can legitimately match two rows
+// on a device someone else has touched.
+//
+// If this test ever fails, a RouterOS version has started enforcing comments
+// and the reconciler can lean on the device instead.
+func TestCommentIsNeverADeviceEnforcedKey(t *testing.T) {
+	ir := load(t)
+	var duplicate, unique int
+	for _, m := range ir.Menus {
+		switch m.Identity.Tested["comment"] {
+		case Untested, Unprobed, Ambiguous, "":
+			// No verdict about comment on this menu, so nothing to assert.
+		case Unique:
+			unique++
+			t.Errorf("%s: the router now enforces comment uniqueness; comment-addressed "+
+				"identity can stop being a convention here", m.Path)
+		case Duplicate:
+			duplicate++
+		}
+		if m.Identity.Key == "comment" {
+			t.Errorf("%s: comment was promoted to a key, which no verdict supports", m.Path)
+		}
+	}
+	if duplicate == 0 {
+		t.Fatal("no menu has a comment verdict at all, so this gate is testing nothing")
+	}
+	t.Logf("comment accepted duplicates on %d menus, enforced on %d", duplicate, unique)
+}
+
+// TestAKeyIsOnlyEverProven is the invariant that keeps identity honest: a key
+// exists only where a probe watched the router refuse a second row and say
+// which field it was refusing over.
+func TestAKeyIsOnlyEverProven(t *testing.T) {
+	ir := load(t)
+	var keyed int
+	for _, m := range ir.Menus {
+		if m.Identity.Key == "" {
+			// The converse must hold too: a proven-unique field that did not
+			// become the key would be evidence thrown away.
+			for field, v := range m.Identity.Tested {
+				if v == Unique {
+					t.Errorf("%s: %s is proven unique but no key was set", m.Path, field)
+				}
+			}
+			continue
+		}
+		keyed++
+		if !m.Identity.Unique(m.Identity.Key) && m.Identity.Verdict != Unique {
+			t.Errorf("%s: key %q rests on no unique verdict (%s)", m.Path, m.Identity.Key, m.Identity.Verdict)
+		}
+		if m.Identity.ProvenDuplicate(m.Identity.Key) {
+			t.Errorf("%s: key %q was proven NOT unique", m.Path, m.Identity.Key)
+		}
+	}
+	if keyed == 0 {
+		t.Fatal("no menu has a key, so this gate is testing nothing")
+	}
+}
+
+// TestNoKeyIsAFindingNotAGap separates the two states a caller must not
+// conflate: a menu whose candidates were all probed and none held, versus one
+// nobody ever asked about. Row-as-resource is unsafe in both, but only the
+// first is settled.
+func TestNoKeyIsAFindingNotAGap(t *testing.T) {
+	ir := load(t)
+	var proven, unknown int
+	for _, m := range ir.Menus {
+		if !m.Rows() || m.Identity.Key != "" {
+			continue
+		}
+		if m.Identity.Verdict == Duplicate {
+			proven++
+		} else {
+			unknown++
+		}
+	}
+	if proven == 0 {
+		t.Error("no menu is recorded as having no key, which cannot be right across 324 of them")
+	}
+	t.Logf("%d menus have no key and we know it; %d have no key and nobody has checked", proven, unknown)
 }
 
 func TestUnknownsStaySayable(t *testing.T) {

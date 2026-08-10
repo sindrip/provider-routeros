@@ -160,6 +160,17 @@ const (
 	// Unprobed means no probe was ever attempted here. It is a distinct
 	// claim from Untested, and neither is evidence of uniqueness.
 	Unprobed Verdict = "UNPROBED"
+	// Ambiguous means the second create was rejected, but the router's message
+	// did not name the field being held constant, so the rejection may have
+	// been about something else entirely.
+	//
+	// It is deliberately not folded into Unique. Reading a bare "already have
+	// such tunnel" as proof of a constraint on comment was wrong on five menus
+	// — /interface/eoip refuses a second row because the endpoints collide, and
+	// ovpn-server because a protocol-port-vrf triple does. A probe cannot vary
+	// a field that has only one legal value, so some rejections are genuinely
+	// undecidable and saying so is the only honest option.
+	Ambiguous Verdict = "AMBIGUOUS"
 )
 
 // Identity is how a row in this menu can be addressed durably.
@@ -173,7 +184,26 @@ type Identity struct {
 	// Key is the candidate backed by a Unique verdict, or empty.
 	Key     string  `json:"key,omitempty"`
 	Verdict Verdict `json:"verdict"`
+	// Tested is the verdict per field that was actually probed, keyed by field
+	// name.
+	//
+	// A per-field record rather than one answer, because the negative results
+	// are the load-bearing ones. Knowing that /ip/firewall/filter does not
+	// enforce comment uniqueness is what tells a reconciler that addressing a
+	// rule by comment is a convention it must enforce itself — and this
+	// provider already addresses rules that way. One aggregate verdict per menu
+	// cannot say that: it collapses "this field is a key" and "this field is
+	// provably not one" into the same silence.
+	Tested map[string]Verdict `json:"tested,omitempty"`
 }
+
+// Unique reports whether the router was shown to enforce uniqueness on field.
+func (i Identity) Unique(field string) bool { return i.Tested[field] == Unique }
+
+// ProvenDuplicate reports that the router accepted two rows sharing field, so
+// addressing a row by it can match more than one. This is a positive finding,
+// not a missing one, and callers should treat it differently from silence.
+func (i Identity) ProvenDuplicate(field string) bool { return i.Tested[field] == Duplicate }
 
 // Access is whether a field can be written.
 type Access string

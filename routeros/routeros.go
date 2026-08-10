@@ -10,7 +10,7 @@ import "time"
 
 // IpAddress is /ip/address.
 //
-// list, writable. No field is a proven unique key here (UNPROBED), so a caller
+// list, writable. No field is a proven unique key here (DUPLICATE), so a caller
 // addressing rows needs one of its own.
 const IpAddressPath = "/ip/address"
 
@@ -598,7 +598,7 @@ const (
 
 // IpFirewallFilter is /ip/firewall/filter.
 //
-// ordered-list, writable. No field is a proven unique key here (UNPROBED), so a caller
+// ordered-list, writable. No field is a proven unique key here (DUPLICATE), so a caller
 // addressing rows needs one of its own.
 const IpFirewallFilterPath = "/ip/firewall/filter"
 

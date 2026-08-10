@@ -89,6 +89,22 @@ type uniqueness struct {
 	Verdicts        []verdict `json:"verdicts"`
 }
 
+// keyVerdict is one field's uniqueness result from hack/keyprobe, which unlike
+// name-uniqueness.json is per field rather than per menu and is driven by the
+// IR's own menu list rather than by upstream's resource map.
+type keyVerdict struct {
+	Path    string `json:"path"`
+	Field   string `json:"field"`
+	Verdict string `json:"verdict"`
+}
+
+type keyUniqueness struct {
+	RouterOSVersion string       `json:"routeros_version"`
+	Architecture    string       `json:"architecture"`
+	GeneratedBy     string       `json:"generated_by"`
+	Verdicts        []keyVerdict `json:"verdicts"`
+}
+
 func main() {
 	flag.Parse()
 	if err := run(); err != nil {
@@ -116,6 +132,12 @@ func run() error {
 	if err := readJSON(filepath.Join(*configDir, "observed-types.json"), &obs); err != nil {
 		fmt.Fprintf(os.Stderr, "no observed types (%v); rowless read-only fields stay untyped\n", err)
 	}
+	// Optional for the same reason: without it every menu's per-field identity
+	// is simply unrecorded, which is what the IR said before it existed.
+	var keys keyUniqueness
+	if err := readJSON(filepath.Join(*configDir, "key-uniqueness.json"), &keys); err != nil {
+		fmt.Fprintf(os.Stderr, "no key uniqueness (%v); per-field identity stays unprobed\n", err)
+	}
 
 	ir := &schema.IR{
 		RouterOSVersion: tree.RouterOSVersion,
@@ -125,8 +147,9 @@ func run() error {
 			{Artifact: "arg-types.json", Producer: types.GeneratedBy, Version: types.RouterOSVersion, Platform: types.Architecture},
 			{Artifact: "name-uniqueness.json", Producer: uniq.GeneratedBy, Version: uniq.RouterOSVersion},
 			{Artifact: "observed-types.json", Producer: obs.GeneratedBy, Version: obs.RouterOSVersion, Platform: obs.Architecture},
+			{Artifact: "key-uniqueness.json", Producer: keys.GeneratedBy, Version: keys.RouterOSVersion, Platform: keys.Architecture},
 		},
-		Menus: assemble(&tree, &types, &uniq, &obs),
+		Menus: assemble(&tree, &types, &uniq, &obs, &keys),
 	}
 
 	raw, err := json.MarshalIndent(ir, "", "  ")
@@ -153,10 +176,11 @@ func writable(ir *schema.IR) int {
 	return n
 }
 
-func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness, obs *observedTypes) []schema.Menu {
+func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness, obs *observedTypes, keys *keyUniqueness) []schema.Menu {
 	fields := fieldsByMenu(types, obs)
 	verdicts := verdictsByMenu(uniq)
 	rowless := rowlessByMenu(types)
+	tested := testedByMenu(keys)
 
 	var menus []schema.Menu
 	var walk func(nodes []*treeNode, path []string)
@@ -191,7 +215,7 @@ func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness, obs *observe
 				Path:          "/" + menuPath,
 				Class:         class,
 				Commands:      cmds,
-				Identity:      identify(f, verdicts[menuPath]),
+				Identity:      identify(f, verdicts[menuPath], tested[menuPath]),
 				Fields:        f,
 				Typed:         typed,
 				Writable:      slices.Contains(cmds, "add") || slices.Contains(cmds, "set"),
@@ -272,8 +296,67 @@ func rowlessByMenu(types *argTypes) map[string]rowEvidence {
 // the bridge already relies on for menus that have no name.
 var identityCandidates = []string{"name", "comment"}
 
-func identify(fields []schema.Field, v string) schema.Identity {
-	id := schema.Identity{Verdict: schema.Unprobed}
+// testedByMenu groups keyprobe's per-field verdicts by menu. Only the outcomes
+// that say something about a field are kept: a menu-level UNPROBED or SKIPPED
+// carries no field and is not a verdict about one.
+// provenKey returns the field the router was shown to enforce, preferring the
+// conventional handles and then the lowest-sorted natural key so the IR stays
+// deterministic. Empty means no field was proven.
+func provenKey(tested map[string]schema.Verdict) string {
+	for _, want := range identityCandidates {
+		if tested[want] == schema.Unique {
+			return want
+		}
+	}
+	others := make([]string, 0, len(tested))
+	for field, v := range tested {
+		if v == schema.Unique && !slices.Contains(identityCandidates, field) {
+			others = append(others, field)
+		}
+	}
+	if len(others) == 0 {
+		return ""
+	}
+	slices.Sort(others)
+	return others[0]
+}
+
+// allCandidatesDuplicate reports that every conventional candidate was probed
+// and the router accepted a duplicate on each.
+func allCandidatesDuplicate(tested map[string]schema.Verdict) bool {
+	var probed, dup int
+	for _, want := range identityCandidates {
+		v, ok := tested[want]
+		if !ok {
+			continue
+		}
+		probed++
+		if v == schema.Duplicate {
+			dup++
+		}
+	}
+	return probed > 0 && probed == dup
+}
+
+func testedByMenu(keys *keyUniqueness) map[string]map[string]schema.Verdict {
+	out := map[string]map[string]schema.Verdict{}
+	for _, v := range keys.Verdicts {
+		if v.Field == "" {
+			continue
+		}
+		// keyprobe reads the IR, so its paths carry the leading slash the IR
+		// presents; the tree walk here builds them without one.
+		key := strings.TrimPrefix(v.Path, "/")
+		if out[key] == nil {
+			out[key] = map[string]schema.Verdict{}
+		}
+		out[key][v.Field] = schema.Verdict(v.Verdict)
+	}
+	return out
+}
+
+func identify(fields []schema.Field, v string, tested map[string]schema.Verdict) schema.Identity {
+	id := schema.Identity{Verdict: schema.Unprobed, Tested: tested}
 	for _, want := range identityCandidates {
 		if slices.ContainsFunc(fields, func(f schema.Field) bool { return f.Name == want }) {
 			id.Candidates = append(id.Candidates, want)
@@ -281,6 +364,31 @@ func identify(fields []schema.Field, v string) schema.Identity {
 	}
 	if v != "" {
 		id.Verdict = schema.Verdict(v)
+	}
+	// A per-field verdict is better evidence than the aggregate: it names the
+	// field the router actually enforced, instead of assuming the first
+	// candidate. Where keyprobe found one, it wins and it also settles the
+	// menu-level verdict.
+	//
+	// The search is not limited to identityCandidates. Restricting it to
+	// name/comment discarded a proven key on seven menus — /ip/packing and
+	// /ip/upnp/interfaces hold one row per interface and the router enforces
+	// it, which is exactly the kind of natural key a name-shaped search cannot
+	// see. Preference order still puts the conventional handles first; beyond
+	// them the choice is sorted so the IR stays deterministic.
+	if key := provenKey(tested); key != "" {
+		id.Key, id.Verdict = key, schema.Unique
+		if !slices.Contains(id.Candidates, key) {
+			id.Candidates = append(id.Candidates, key)
+		}
+		return id
+	}
+	if allCandidatesDuplicate(tested) {
+		// Every candidate probed and none held: the menu has no device-enforced
+		// key. That is a finding rather than a gap — addressing rows here needs
+		// something the reconciler guarantees itself.
+		id.Verdict = schema.Duplicate
+		return id
 	}
 	// Only a proven-unique verdict promotes a candidate to the key. An
 	// untested or unprobed menu has no key, which is the honest answer and

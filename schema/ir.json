@@ -21,6 +21,12 @@
       "artifact": "observed-types.json",
       "producer": "hack/valueprobe",
       "routeros_version": "7.23.2 (stable)"
+    },
+    {
+      "artifact": "key-uniqueness.json",
+      "producer": "hack/keyprobe",
+      "routeros_version": "7.23.2 (stable)",
+      "platform": "arm64"
     }
   ],
   "menus": [
@@ -3549,7 +3555,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -8456,7 +8466,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -8580,7 +8594,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -8882,7 +8900,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "AMBIGUOUS",
+          "mac-address": "AMBIGUOUS",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -9141,7 +9164,13 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "AMBIGUOUS",
+          "mac-address": "AMBIGUOUS",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -11037,7 +11066,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -11210,7 +11243,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -11376,7 +11413,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -11559,7 +11600,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -11725,7 +11771,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -12010,7 +12061,13 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "mac-address": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -12289,7 +12346,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -12631,7 +12693,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -13024,7 +13090,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -13353,7 +13423,13 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -13783,7 +13859,11 @@
         "candidates": [
           "name"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -13864,7 +13944,13 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "mac-address": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -14046,7 +14132,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -14552,7 +14643,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "mac-address": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -14841,7 +14937,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -14973,7 +15073,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "comment": "AMBIGUOUS",
+          "mac-address": "AMBIGUOUS",
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -15264,7 +15369,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -15548,7 +15658,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -15722,7 +15837,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -15954,7 +16074,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE",
+          "service": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -16110,9 +16235,15 @@
       ],
       "identity": {
         "candidates": [
-          "comment"
+          "comment",
+          "interface"
         ],
-        "verdict": "UNPROBED"
+        "key": "interface",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -16315,7 +16446,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -16512,7 +16648,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -16735,7 +16876,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -17032,7 +17177,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -17316,7 +17466,13 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE",
+          "vlan-id": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -17789,7 +17945,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "UNIQUE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -20285,7 +20446,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -20991,7 +21156,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -21179,7 +21348,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -22808,7 +22981,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -23221,7 +23398,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -23788,7 +23968,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -24282,7 +24465,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -25233,7 +25419,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -25725,7 +25915,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -25916,7 +26110,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -26274,7 +26472,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -26423,7 +26626,13 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "mac-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -26781,7 +26990,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -27118,7 +27332,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "code": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -27215,7 +27434,11 @@
         "candidates": [
           "name"
         ],
-        "verdict": "DUPLICATE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "interface": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -27354,7 +27577,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -27691,7 +27919,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -27858,7 +28090,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "mac-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -28234,8 +28471,12 @@
           "name",
           "comment"
         ],
-        "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "code": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -28515,7 +28756,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "code": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -29240,7 +29486,12 @@
           "name",
           "comment"
         ],
-        "verdict": "DUPLICATE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -29452,7 +29703,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -29559,7 +29814,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -31037,7 +31297,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -31957,7 +32222,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -32016,7 +32285,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -33057,7 +33331,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -33966,7 +34245,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -34809,7 +35093,11 @@
           "name"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "interface": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -35432,7 +35720,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "mac-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -35553,7 +35846,10 @@
           "name"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -35882,8 +36178,13 @@
           "name",
           "comment"
         ],
-        "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "mac-address": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -36109,7 +36410,10 @@
           "name"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -36386,7 +36690,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -36562,7 +36870,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -37626,7 +37939,11 @@
           "name"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "address": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -37780,7 +38097,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -38266,7 +38588,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -38327,7 +38653,10 @@
           "name"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -38518,7 +38847,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -38933,7 +39266,11 @@
         "candidates": [
           "name"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -39351,7 +39688,10 @@
         "set"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -39511,7 +39851,14 @@
         "unset"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "candidates": [
+          "interface"
+        ],
+        "key": "interface",
+        "verdict": "UNIQUE",
+        "tested": {
+          "interface": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -40082,7 +40429,14 @@
         "set"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "candidates": [
+          "interface"
+        ],
+        "key": "interface",
+        "verdict": "UNIQUE",
+        "tested": {
+          "interface": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -40173,7 +40527,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -40508,7 +40866,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -40690,7 +41053,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -41061,7 +41429,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -41425,7 +41798,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -42531,7 +42907,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -42665,7 +43046,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -42856,7 +43242,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -43054,7 +43445,10 @@
         "candidates": [
           "name"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -43132,7 +43526,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "AMBIGUOUS",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -43359,7 +43758,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -44075,7 +44477,11 @@
         "set"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -44226,7 +44632,14 @@
         "unset"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "candidates": [
+          "interface"
+        ],
+        "key": "interface",
+        "verdict": "UNIQUE",
+        "tested": {
+          "interface": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -44314,7 +44727,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -44649,7 +45066,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -44997,7 +45418,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "code": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -45208,7 +45634,13 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "code": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -45360,7 +45792,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -45879,7 +46316,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "code": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -46007,7 +46449,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -46546,7 +46992,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -47390,7 +47841,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -48365,7 +48821,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -49196,7 +49657,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -50156,7 +50622,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "prefix": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -51610,7 +52081,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -51716,7 +52191,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -52059,7 +52537,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -52338,7 +52820,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -52715,7 +53200,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -53061,7 +53549,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -53273,7 +53765,11 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -53902,7 +54398,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -54267,7 +54766,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "AMBIGUOUS",
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -54326,7 +54829,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -54723,8 +55230,12 @@
           "name",
           "comment"
         ],
-        "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE",
+          "service": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -55015,7 +55526,12 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE",
+          "target": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -55495,7 +56011,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -55751,7 +56271,10 @@
           "name"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -56582,7 +57105,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -57863,7 +58389,11 @@
           "name",
           "comment"
         ],
-        "verdict": "DUPLICATE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -58761,7 +59291,11 @@
           "name",
           "comment"
         ],
-        "verdict": "DUPLICATE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -59272,7 +59806,11 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -59639,7 +60177,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -60228,7 +60771,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -60520,7 +61066,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -60607,7 +61156,11 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -60778,9 +61331,15 @@
       ],
       "identity": {
         "candidates": [
-          "comment"
+          "comment",
+          "interface"
         ],
-        "verdict": "UNPROBED"
+        "key": "interface",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -61101,7 +61660,11 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -62664,7 +63227,11 @@
           "name",
           "comment"
         ],
-        "verdict": "DUPLICATE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -62866,7 +63433,12 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "address": "DUPLICATE",
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -63893,7 +64465,10 @@
         "unset"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -64010,7 +64585,10 @@
         "set"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -64203,7 +64781,10 @@
         "candidates": [
           "name"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -64930,7 +65511,10 @@
         "candidates": [
           "name"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -65459,7 +66043,10 @@
         "set"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -66674,7 +67261,13 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "dst-address": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "src-address": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -68265,8 +68858,11 @@
           "name",
           "comment"
         ],
-        "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -68546,7 +69142,11 @@
           "comment"
         ],
         "key": "name",
-        "verdict": "UNIQUE"
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -70482,7 +71082,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "prefix": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -71175,9 +71779,15 @@
       ],
       "identity": {
         "candidates": [
-          "comment"
+          "comment",
+          "address"
         ],
-        "verdict": "UNPROBED"
+        "key": "address",
+        "verdict": "UNIQUE",
+        "tested": {
+          "address": "UNIQUE",
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -71291,7 +71901,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -71730,7 +72343,14 @@
         "set"
       ],
       "identity": {
-        "verdict": "UNPROBED"
+        "candidates": [
+          "address"
+        ],
+        "key": "address",
+        "verdict": "UNIQUE",
+        "tested": {
+          "address": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -73672,7 +74292,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -73758,7 +74382,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "comment": "AMBIGUOUS"
+        }
       },
       "fields": [
         {
@@ -73851,7 +74478,10 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -74648,7 +75278,11 @@
         "candidates": [
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -76925,7 +77559,14 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "UNIQUE",
+          "vlan-id": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -77950,7 +78591,11 @@
         "candidates": [
           "name"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "DUPLICATE",
+        "tested": {
+          "interface": "DUPLICATE",
+          "name": "DUPLICATE"
+        }
       },
       "fields": [
         {
@@ -78052,7 +78697,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "key": "name",
+        "verdict": "UNIQUE",
+        "tested": {
+          "comment": "DUPLICATE",
+          "name": "UNIQUE"
+        }
       },
       "fields": [
         {
@@ -79021,7 +79671,12 @@
           "name",
           "comment"
         ],
-        "verdict": "UNPROBED"
+        "verdict": "UNPROBED",
+        "tested": {
+          "comment": "DUPLICATE",
+          "interface": "DUPLICATE",
+          "name": "AMBIGUOUS"
+        }
       },
       "fields": [
         {

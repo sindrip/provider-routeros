@@ -136,3 +136,30 @@ func TestWhereRaw(t *testing.T) {
 		t.Errorf(".query = %v", got)
 	}
 }
+
+// TestFloatOKSeparatesZeroFromAbsent is the distinction /system/health needs:
+// the router answers an unplugged sensor with "no-input", not with a number,
+// and publishing that as 0 °C invents a reading.
+func TestFloatOKSeparatesZeroFromAbsent(t *testing.T) {
+	r := Record{"cold": "0", "warm": "49.2", "unplugged": "no-input", "blank": ""}
+	for _, tc := range []struct {
+		key  string
+		want float64
+		ok   bool
+	}{
+		{"cold", 0, true},
+		{"warm", 49.2, true},
+		{"unplugged", 0, false},
+		{"blank", 0, false},
+		{"missing", 0, false},
+	} {
+		got, ok := r.FloatOK(tc.key)
+		if got != tc.want || ok != tc.ok {
+			t.Errorf("FloatOK(%q) = %v, %v; want %v, %v", tc.key, got, ok, tc.want, tc.ok)
+		}
+	}
+	// Float keeps its lenient shape for callers that have no way to report it.
+	if r.Float("unplugged") != 0 {
+		t.Error("Float should still fall back to zero")
+	}
+}

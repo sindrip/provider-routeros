@@ -71,9 +71,30 @@ func (r Record) Uint(key string) uint64 {
 // Float parses a decimal value such as a sensor's "49.2"; an absent or
 // unparseable value is 0.
 func (r Record) Float(key string) float64 {
-	f, err := scalar.Float(r[key])
-	if err != nil {
-		return 0
-	}
+	f, _ := r.FloatOK(key)
 	return f
+}
+
+// FloatOK is Float with the distinction between a reading of zero and no
+// reading at all.
+//
+// Zero is a real measurement, so a caller that publishes it cannot use the
+// zero value to mean "absent". /system/health is the case that needs this: the
+// router states value's vocabulary as ok/fail/idle/no-input/not-present, so an
+// unplugged sensor reads "no-input" — and reporting that as 0 °C is a
+// fabricated reading, indistinguishable downstream from a genuinely cold room.
+// An empty value is not a reading either. scalar.Float reads "" as 0 without
+// complaint, which is the right shape there — those parsers have nowhere to
+// report and a caller has already decided it wants a number. This is the layer
+// that can say so, so it does.
+func (r Record) FloatOK(key string) (float64, bool) {
+	v, present := r[key]
+	if !present || v == "" {
+		return 0, false
+	}
+	f, err := scalar.Float(v)
+	if err != nil {
+		return 0, false
+	}
+	return f, true
 }

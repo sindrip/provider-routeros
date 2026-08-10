@@ -63,6 +63,13 @@ Rule ordering in ordered menus (firewall chains, queues) is out of scope for
 this provider; see `docs/adr/0001` for the design that addresses it and the
 reasoning.
 
+Every identity above is a per-row one, which needs a field the device keeps
+unique. `docs/adr/0004` decides that the successor to this bridge reconciles a
+whole menu instead, on the evidence that only 88 of 259 writable row-bearing
+menus have such a field — the rest are provably without one, or unprobed. It
+does not change anything here: the bridge cannot express a menu resource, so
+0001 through 0003 stay in force for its lifetime.
+
 ## Verified against the router, not the docs
 
 RouterOS behavior is pinned from probing disposable CHR instances, not from

@@ -228,6 +228,8 @@ func (a *argType) input() string {
 
 type dump struct {
 	RouterOSVersion string     `json:"routeros_version"`
+	Architecture    string     `json:"architecture"`
+	BoardName       string     `json:"board_name"`
 	GeneratedBy     string     `json:"generated_by"`
 	Note            string     `json:"note"`
 	Args            []*argType `json:"args"`
@@ -417,9 +419,36 @@ var (
 	rangeRe = regexp.MustCompile(`(\S+)\.\.(\S+)`)
 )
 
+// termList reports whether completion answered with the next comparison term
+// instead of with a vocabulary.
+//
+// `print where <field>=` has no values to offer for a read-only property, so
+// rather than going silent the console lists every term it would accept next:
+// the menu's own properties, plus its bookkeeping. That reply is shaped exactly
+// like a vocabulary, and lands in the dump as one — bgp session's ebgp came out
+// as a 74-value "enum" whose members are the field names of its own menu.
+//
+// The bookkeeping is the signature. No vocabulary contains .dead and .nextid,
+// and requiring all three makes a false positive not worth guarding against.
+func termList(values []string) bool {
+	var n int
+	for _, v := range values {
+		switch v {
+		case ".dead", ".nextid", "about":
+			n++
+		}
+	}
+	return n == 3
+}
+
 // probe fills in one property's type. Completion is asked first; syntax only
 // when a freeform value is accepted, which is where completion goes silent.
-func probe(a *argType) {
+//
+// props are the menu's own property names, used to strip a term list back to
+// whatever the console offered beyond it. That residue is a real vocabulary and
+// is the only part worth keeping: hold-time's "infinity", interface/vrf's
+// "main", trust-store's list of consumers.
+func probe(a *argType, props map[string]bool) {
 	input := a.input()
 	if input == "" {
 		// A read-only property of a rowless menu: neither completion nor
@@ -435,6 +464,15 @@ func probe(a *argType) {
 		return
 	}
 	values, freeform := shown(rows)
+	if termList(values) {
+		var residue []string
+		for _, v := range values {
+			if !notProperties[v] && !props[v] {
+				residue = append(residue, v)
+			}
+		}
+		values = residue
+	}
 	a.Values = values
 
 	switch {
@@ -540,16 +578,20 @@ func trim(b []byte) string {
 	return s
 }
 
-func version() string {
+// identity is what the dump is stamped with: which RouterOS, on what. The
+// menu tree differs by platform on the same version — /system/routerboard is
+// on arm64 CHR and not x86_64 — so a version alone does not identify the
+// device a corpus describes.
+func identity() (version, arch, board string) {
 	code, data, err := rest("GET", "/system/resource", nil)
 	if err != nil || code >= 300 {
-		return ""
+		return "", "", ""
 	}
 	var m map[string]any
 	if json.Unmarshal(data, &m) != nil {
-		return ""
+		return "", "", ""
 	}
-	return str(m["version"])
+	return str(m["version"]), str(m["architecture-name"]), str(m["board-name"])
 }
 
 func main() {
@@ -614,7 +656,16 @@ func main() {
 	fmt.Fprintf(os.Stderr, "%d properties to probe (%d writable, %d read-only across %d menus)\n",
 		len(args), len(args)-ro, ro, len(menus))
 
-	each("probed", args, probe)
+	// A menu's own property names, so a term list can be told from a
+	// vocabulary by subtraction rather than by a fixed list.
+	propsByPath := map[string]map[string]bool{}
+	for _, a := range args {
+		if propsByPath[a.Path] == nil {
+			propsByPath[a.Path] = map[string]bool{}
+		}
+		propsByPath[a.Path][a.Arg] = true
+	}
+	each("probed", args, func(a *argType) { probe(a, propsByPath[a.Path]) })
 
 	kinds := map[string]int{}
 	for _, a := range args {
@@ -623,10 +674,13 @@ func main() {
 	fmt.Fprintf(os.Stderr, "done: enum=%d open-enum=%d scalar=%d unknown=%d\n",
 		kinds["enum"], kinds["open-enum"], kinds["scalar"], kinds["unknown"])
 
+	v, arch, board := identity()
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(dump{
-		RouterOSVersion: version(),
+		RouterOSVersion: v,
+		Architecture:    arch,
+		BoardName:       board,
 		GeneratedBy:     "hack/typedump",
 		Note:            note,
 		Args:            args,

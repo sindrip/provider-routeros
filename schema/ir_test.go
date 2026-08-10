@@ -222,6 +222,52 @@ func TestBooleansComeFromTheVocabulary(t *testing.T) {
 
 // TestUnknownsStaySayable checks that the gaps are representable rather than
 // papered over. An emitter has to be able to see them to refuse.
+// TestVocabulariesAreNotFieldNames guards the second way the console's replies
+// impersonate data.
+//
+// `print where <field>=` cannot complete a value for a read-only property, so
+// rather than going quiet the console lists what it would accept next: the
+// menu's own property names, plus its bookkeeping. That reply is shaped exactly
+// like a vocabulary and was recorded as one — /routing/bgp/session's ebgp came
+// out as a 74-member "enum" of its own sibling field names, and every one of
+// them would have been emitted as a Go constant.
+//
+// The signature is the bookkeeping: .dead and .nextid are not values of
+// anything. The residue after subtraction is the real vocabulary, and it is
+// small and specific — hold-time's infinity, vrf's main.
+func TestVocabulariesAreNotFieldNames(t *testing.T) {
+	ir := load(t)
+	for _, m := range ir.Menus {
+		names := make(map[string]bool, len(m.Fields))
+		for _, f := range m.Fields {
+			names[f.Name] = true
+		}
+		for _, f := range m.Fields {
+			var siblings int
+			for _, v := range f.Values {
+				switch {
+				case v == ".dead" || v == ".nextid" || v == "about":
+					t.Errorf("%s %s: %q is console bookkeeping, not a value", m.Path, f.Name, v)
+				case names[v] && v != f.Name:
+					siblings++
+				}
+			}
+			// The measure is how much of the menu the values cover, not what
+			// fraction of the values are field names. Overlap alone is a poor
+			// signal, because RouterOS models the members of some vocabularies
+			// as flag columns as well: /mpls/forwarding-table accepts
+			// ldp|traffic-eng|vpls|vpn for type and also exposes each as its
+			// own boolean, so every value there is a sibling name and the
+			// field is still perfectly well typed. A term list is different in
+			// kind — it enumerates the menu rather than overlapping it.
+			if siblings*2 > len(m.Fields) {
+				t.Errorf("%s %s: values name %d of the menu's %d fields, so this is a term list "+
+					"rather than a vocabulary", m.Path, f.Name, siblings, len(m.Fields))
+			}
+		}
+	}
+}
+
 func TestUnknownsStaySayable(t *testing.T) {
 	ir := load(t)
 	var untyped, unknownKind int
@@ -347,6 +393,35 @@ func TestSourcesAreRecorded(t *testing.T) {
 		if ir.Sources[i].Producer == "" {
 			t.Errorf("%s has no producer recorded", artifact)
 		}
+	}
+}
+
+// TestSourcesAgreeOnPlatform is the gate that would have caught the
+// /system/routerboard confusion at build time rather than at read time.
+//
+// The menu tree is not the same on every platform running one RouterOS
+// version: /system/routerboard is on an arm64 CHR and absent on x86_64, which
+// carries check-disk and ups instead. Assembling a tree probed on one platform
+// with types probed on another yields an IR describing no real device, and
+// nothing about it looks wrong — both artifacts stamp the same version.
+//
+// Empty is tolerated: the pinned artifacts predate the field. Disagreement is
+// not.
+func TestSourcesAgreeOnPlatform(t *testing.T) {
+	ir := load(t)
+	var seen, from string
+	for _, s := range ir.Sources {
+		if s.Platform == "" {
+			continue
+		}
+		if seen != "" && s.Platform != seen {
+			t.Errorf("%s was probed on %s but %s on %s: the menu set differs by platform, "+
+				"so this IR describes no single device", from, seen, s.Artifact, s.Platform)
+		}
+		seen, from = s.Platform, s.Artifact
+	}
+	if seen == "" {
+		t.Log("no artifact records a platform; refreshing any of them will start pinning it")
 	}
 }
 

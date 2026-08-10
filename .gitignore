@@ -21,3 +21,6 @@ __pycache__/
 /hack/valueprobe/valueprobe
 /hack/telemetry/telemetry
 /hack/schemaaudit/upstreamdump/upstreamdump
+
+# ocb's generated distribution tree, including a ~30MB binary.
+/collector/_dist/

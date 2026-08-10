@@ -1,0 +1,132 @@
+type: routeros
+
+status:
+  class: receiver
+  stability:
+    development: [metrics]
+  codeowners:
+    active: [sindrip]
+
+# Device identity is Resource, never a metric label. On Prometheus export
+# these become target_info rather than labels on every series.
+resource_attributes:
+  routeros.device.model:
+    description: Board model, from /system/routerboard.
+    type: string
+    enabled: true
+  routeros.device.serial:
+    description: Chassis serial, from /system/routerboard.
+    type: string
+    enabled: true
+  routeros.os.version:
+    description: RouterOS version, from /system/resource.
+    type: string
+    enabled: true
+  # Not decoration: the Prometheus exporter drops EVERY resource attribute
+  # unless both of these are present (resourceSignature returns "" and the
+  # resource is skipped), so device identity vanishes without them.
+  service.instance.id:
+    description: Device instance — the chassis serial.
+    type: string
+    enabled: true
+  service.name:
+    description: Logical service name for the device.
+    type: string
+    enabled: true
+
+# Keys are the Go-side names; name_override is what actually gets emitted,
+# which is how dotted semconv attribute keys survive.
+attributes:
+  interface_name:
+    name_override: network.interface.name
+    description: Interface name.
+    type: string
+  io_direction:
+    name_override: network.io.direction
+    description: Traffic direction.
+    type: string
+    enum: [receive, transmit]
+  peer_as:
+    name_override: network.peer.as
+    description: Remote autonomous system number.
+    type: string
+  peer_name:
+    name_override: network.peer.name
+    description: BGP session name.
+    type: string
+  rule:
+    name_override: firewall.rule
+    description: Rule comment — the same string as the Crossplane external-name.
+    type: string
+  sensor_id:
+    name_override: hw.id
+    description: Health sensor name, e.g. cpu-temperature.
+    type: string
+
+metrics:
+  # The metric this whole design exists for: a route leak shows up here as a
+  # prefix count that does not match the cluster's declared allocation.
+  routeros.bgp.session.prefix.count:
+    enabled: true
+    stability: development
+    description: Prefixes received from the peer.
+    unit: "{prefix}"
+    gauge:
+      value_type: int
+    attributes: [peer_name, peer_as]
+
+  routeros.bgp.session.up:
+    enabled: true
+    stability: development
+    description: Whether the BGP session is established.
+    unit: "{status}"
+    gauge:
+      value_type: int
+    attributes: [peer_name, peer_as]
+
+  routeros.firewall.rule.io:
+    enabled: true
+    stability: development
+    description: Bytes matched by a firewall filter rule, keyed by comment.
+    unit: By
+    sum:
+      value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [rule]
+
+  # /system/health is a generic sensor table; dispatch on its type column.
+  routeros.hw.temperature:
+    enabled: true
+    stability: development
+    description: Temperature sensor reading.
+    unit: Cel
+    gauge:
+      value_type: double
+    attributes: [sensor_id]
+
+  # rx-byte/tx-byte only. fp-* is deliberately absent: undocumented by
+  # MikroTik and observed advancing on a link that had been down for a day.
+  routeros.interface.io:
+    enabled: true
+    stability: development
+    description: Interface traffic in bytes.
+    unit: By
+    sum:
+      value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [interface_name, io_direction]
+
+  routeros.interface.up:
+    enabled: true
+    stability: development
+    description: Whether the interface is running.
+    unit: "{status}"
+    gauge:
+      value_type: int
+    attributes: [interface_name]
+
+tests:
+  skip_lifecycle: true
+  skip_shutdown: true

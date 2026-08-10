@@ -165,15 +165,28 @@ func TestIdentityIsNeverInvented(t *testing.T) {
 // generator emit a bool instead of a string.
 func TestBooleansComeFromTheVocabulary(t *testing.T) {
 	ir := load(t)
-	var bools, enums int
+	var bools, enums, observedBools int
 	for _, m := range ir.Menus {
 		for _, f := range m.Fields {
-			if f.Bool {
+			switch {
+			case f.Bool && f.Evidence == Probed:
 				bools++
+				// A declared boolean is a closed vocabulary of exactly no/yes.
 				if f.Kind != KindEnum || len(f.Values) != 2 {
 					t.Errorf("%s %s: marked bool but kind=%s values=%v", m.Path, f.Name, f.Kind, f.Values)
 				}
-			} else if f.Kind == KindEnum {
+			case f.Bool:
+				// An observed boolean has no vocabulary: the router never
+				// stated one, it just returned true or false. Fabricating
+				// no/yes here would invent evidence.
+				observedBools++
+				if f.Evidence != Observed {
+					t.Errorf("%s %s: bool with neither a vocabulary nor an observation", m.Path, f.Name)
+				}
+				if f.Sample != "true" && f.Sample != "false" {
+					t.Errorf("%s %s: observed bool from sample %q", m.Path, f.Name, f.Sample)
+				}
+			case f.Kind == KindEnum:
 				enums++
 			}
 		}
@@ -181,7 +194,7 @@ func TestBooleansComeFromTheVocabulary(t *testing.T) {
 	if bools == 0 {
 		t.Fatal("no booleans derived; the vocabulary rule stopped working")
 	}
-	t.Logf("%d boolean fields, %d other enums", bools, enums)
+	t.Logf("%d booleans from a vocabulary, %d from an observed value, %d other enums", bools, observedBools, enums)
 
 	// The pair that shows why the vocabulary is the right signal: one
 	// answers no/yes and is a bool, the other adds a third value and is not.
@@ -226,6 +239,70 @@ func TestUnknownsStaySayable(t *testing.T) {
 		t.Fatal("no gaps recorded at all, which would mean they were filled in rather than kept")
 	}
 	t.Logf("%d menus with no types, %d fields the router would not type", untyped, unknownKind)
+}
+
+// TestObservedTypesFillTheConsoleGap covers the third kind of evidence. The
+// console cannot describe a read-only property of a menu that holds no rows,
+// so those fields are typed from a value the router returned instead — weaker,
+// and labelled as such rather than passed off as a declaration.
+func TestObservedTypesFillTheConsoleGap(t *testing.T) {
+	ir := load(t)
+	var observed, probed int
+	for _, m := range ir.Menus {
+		for _, f := range m.Fields {
+			switch f.Evidence {
+			case Observed:
+				observed++
+				if f.Sample == "" {
+					t.Errorf("%s %s: observed but carries no sample to disagree with", m.Path, f.Name)
+				}
+				if m.Rows() {
+					t.Errorf("%s %s: observed typing is for rowless menus; this one has rows", m.Path, f.Name)
+				}
+				if f.Access != ReadOnly {
+					t.Errorf("%s %s: observed typing is for read-only fields, got %s", m.Path, f.Name, f.Access)
+				}
+			case Probed:
+				probed++
+				if f.Kind == KindUnknown {
+					t.Errorf("%s %s: probed but of unknown kind", m.Path, f.Name)
+				}
+			case Inferred:
+				t.Errorf("%s %s: a field type is never inferred, only probed or observed", m.Path, f.Name)
+			}
+		}
+	}
+	if observed == 0 {
+		t.Fatal("no observed types; the gap is open again")
+	}
+	t.Logf("%d fields typed by observation, %d by the console", observed, probed)
+
+	// The menu the gap was found on, and the one telemetry cares about most.
+	res, ok := ir.Menu("/system/resource")
+	if !ok {
+		t.Fatal("/system/resource missing")
+	}
+	want := map[string]string{
+		"uptime":       "time interval",
+		"cpu-load":     "integer number",
+		"version":      "string value",
+		"build-time":   "date time",
+		"total-memory": "integer number",
+	}
+	for _, f := range res.Fields {
+		if w, ok := want[f.Name]; ok {
+			if f.Type != w {
+				t.Errorf("/system/resource %s: type %q, want %q (sample %q)", f.Name, f.Type, w, f.Sample)
+			}
+			if f.Evidence != Observed {
+				t.Errorf("/system/resource %s: evidence %q, want observed", f.Name, f.Evidence)
+			}
+			delete(want, f.Name)
+		}
+	}
+	for name := range want {
+		t.Errorf("/system/resource has no %s field", name)
+	}
 }
 
 // TestPinnedIRIsDeterministic keeps the artifact diffable: menus sorted by

@@ -1,0 +1,823 @@
+{
+  "routeros_version": "7.23.2 (stable)",
+  "generated_by": "hack/valueprobe",
+  "note": "Types inferred from the values a live router returned, for fields the console would not describe: a read-only property of a rowless menu has no cursor position for /console/inspect to answer about. This is weaker evidence than hack/typedump's and is marked observed rather than probed in the IR. Each verdict carries its sample. A field the router did not return, or returned empty, yields no verdict at all.",
+  "verdicts": [
+    {
+      "path": "interface/bridge/settings",
+      "arg": "bridge-fast-forward-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "interface/bridge/settings",
+      "arg": "bridge-fast-forward-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "interface/bridge/settings",
+      "arg": "bridge-fast-path-active",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "interface/bridge/settings",
+      "arg": "bridge-fast-path-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "interface/bridge/settings",
+      "arg": "bridge-fast-path-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/cloud",
+      "arg": "back-to-home-vpn",
+      "type": "string value",
+      "sample": "revoked-and-disabled"
+    },
+    {
+      "path": "ip/dns",
+      "arg": "cache-used",
+      "type": "integer number",
+      "sample": "47"
+    },
+    {
+      "path": "ip/dns",
+      "arg": "dynamic-servers",
+      "type": "IP address",
+      "sample": "10.0.2.3"
+    },
+    {
+      "path": "ip/firewall/connection/tracking",
+      "arg": "active-ipv4",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "ip/firewall/connection/tracking",
+      "arg": "active-ipv6",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "ip/firewall/connection/tracking",
+      "arg": "max-entries",
+      "type": "integer number",
+      "sample": "849920"
+    },
+    {
+      "path": "ip/firewall/connection/tracking",
+      "arg": "total-entries",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/firewall/connection/tracking",
+      "arg": "total-ip4-entries",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/firewall/connection/tracking",
+      "arg": "total-ip6-entries",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/key/qkd",
+      "arg": "cache-state",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/key/qkd",
+      "arg": "total-keys-received",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-buffer-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-header-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-no-policies",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-no-states",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-policy-blocked",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-policy-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-state-expired",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-state-invalid",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-state-mismatches",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-state-mode-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-state-protocol-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-state-sequence-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "in-template-mismatches",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-bundle-check-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-bundle-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-no-states",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-policy-blocked",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-policy-dead",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-policy-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-state-expired",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-state-mode-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-state-protocol-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/ipsec/statistics",
+      "arg": "out-state-sequence-errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/inserts",
+      "arg": "denied",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/inserts",
+      "arg": "errors",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/inserts",
+      "arg": "no-memory",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/inserts",
+      "arg": "successes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/inserts",
+      "arg": "too-large",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/lookups",
+      "arg": "denied",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/lookups",
+      "arg": "expired",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/lookups",
+      "arg": "no-expiration-info",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/lookups",
+      "arg": "non-cacheable",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/lookups",
+      "arg": "not-found",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/lookups",
+      "arg": "successes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "config-max-fresh",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "expired",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "heuristic",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "other",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "request-max-age",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "response-max-age",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/proxy/refreshes",
+      "arg": "url-requests",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/settings",
+      "arg": "ipv4-fast-path-active",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "ip/settings",
+      "arg": "ipv4-fast-path-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/settings",
+      "arg": "ipv4-fast-path-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/settings",
+      "arg": "ipv4-fasttrack-active",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "ip/settings",
+      "arg": "ipv4-fasttrack-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/settings",
+      "arg": "ipv4-fasttrack-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ip/smb",
+      "arg": "status",
+      "type": "string value",
+      "sample": "disabled"
+    },
+    {
+      "path": "ipv6/settings",
+      "arg": "ipv6-fast-path-active",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "ipv6/settings",
+      "arg": "ipv6-fast-path-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ipv6/settings",
+      "arg": "ipv6-fast-path-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ipv6/settings",
+      "arg": "ipv6-fasttrack-active",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "ipv6/settings",
+      "arg": "ipv6-fasttrack-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "ipv6/settings",
+      "arg": "ipv6-fasttrack-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "mpls/settings",
+      "arg": "mpls-fast-path-bytes",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "mpls/settings",
+      "arg": "mpls-fast-path-packets",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "safe-mode",
+      "arg": "current",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "safe-mode",
+      "arg": "enabled",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "snmp",
+      "arg": "engine-id",
+      "type": "string value",
+      "sample": "80003a8c04"
+    },
+    {
+      "path": "system/clock",
+      "arg": "dst-active",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/clock",
+      "arg": "gmt-offset",
+      "type": "string value",
+      "sample": "+00:00"
+    },
+    {
+      "path": "system/default-configuration",
+      "arg": "caps-mode-script",
+      "type": "string value",
+      "sample": "#| CAP configuration\n#|\n#|   * Wireless interfaces are set to be managed by CAPsMAN.\n#|   * All ethernet interfaces and CAPsMAN managed interfaces are bridged.\n#|   * DHCP client is set on bridge interface.\n#|   * If printed on the sticker, \"admin\" user is protected by password.\n\n:global action;\n:local brName  \"bridgeLocal\";\n:local logPref \"defconf:\";\n:local wirelessMenu \"wireless\"\n:local usingWifiPack false;\n:local needAdminPass 1;\n\n:if ([:len [/system package find name~\"wifi\" !disabled]] != 0) do={\n  :set usingWifiPack true;\n  :set wirelessMenu \"wifi\";\n}\n\n:if ($action = \"apply\") do={\n\n  # wait for ethernet interfaces\n  :local count 0;\n  :while ([/interface ethernet find] = \"\") do={\n    :if ($count = 30) do={\n      :log warning \"DefConf: Unable to find ethernet interfaces\";\n      /quit;\n    }\n    :delay 1s; :set count ($count + 1);\n  }\n\n  :local macSet 0;\n  :local tmpMac \"\";\n\n  :foreach k in=[/interface ethernet find] do={\n    # first ethernet is found; add bridge and set mac address of the ethernet port\n    :if ($macSet = 0) do={\n      :set tmpMac [/interface ethernet get $k mac-address];\n      /interface bridge add name=$brName auto-mac=no admin-mac=$tmpMac comment=\"defconf\";\n      :set macSet 1;\n    }\n    # add bridge ports\n    /interface bridge port add bridge=$brName interface=$k comment=\"defconf\"\n  }\n\n  # try to add dhcp client on bridge interface (may fail if already exist)\n  :do {\n    /ip dhcp-client add interface=$brName disabled=no comment=\"defconf\"\n  } on-error={ :log warning \"$logPref unable to add dhcp client\";}\n\n  # try to configure caps (may fail if for example specified interfaces are missing)\n  :local findWireless [:parse \":local count 0;\n  :while ([/interface $wirelessMenu find] = \\\"\\\") do={\n      :if (\\$count = 30) do={\n        :log warning \\\"DefConf: Unable to find wireless interfaces\\\"; /quit\n      };\n      :delay 1s;\n      :set count (\\$count + 1)\n    }\"]\n  [$findWireless]\n\n  :if ($usingWifiPack) do={\n    :local addDatapath [:parse \"/interface $wirelessMenu datapath\n    add comment=\\\"defconf\\\" name=capdp disabled=no bridge=$brName\"]\n    [$addDatapath]\n  }\n\n  # delay just to make sure that all wireless interfaces are loaded\n  :delay 5s;\n\n  :do {\n    :local setCap \"\"\n    if ($usingWifiPack) do={\n      :set setCap [:parse \":foreach i in=[/interface $wirelessMenu find] do={\n        /interface $wirelessMenu set \\$i configuration.manager=capsman datapath=capdp\n      }\n      /interface $wirelessMenu cap\n      set enabled=yes discovery-interfaces=$brName slaves-datapath=capdp\"]\n    } else={\n\n      :set setCap [:parse \"\n      :local interfacesList \\\"\\\";\n      :local bFirst 1;\n      :foreach i in=[/interface $wirelessMenu find] do={\n        if (\\$bFirst = 1) do={\n          :set interfacesList [/interface $wirelessMenu get \\$i name];\n          :set bFirst 0;\n        } else={\n          :set interfacesList \\\"\\$interfacesList,\\$[/interface wireless get \\$i name]\\\";\n        }\n      }\n      /interface $wirelessMenu cap set enabled=yes interfaces=\\$interfacesList \\\\\n        discovery-interfaces=$brName bridge=$brName\"]\n    }\n    [$setCap]\n  } on-error={ :log warning \"$logPref unable to configure caps\";}\n\n  # do not set admin pass for RBD25 boards that do not have it printed\n  :if ([:pick [/system routerboard get model] 0 5] = \"RBD25\") do={\n    if ((($defconfPassword = \"\" || $defconfPassword = nil) \u0026\u0026 \\\n        !($defconfWpsPassword = \"\" || $defconfWpsPassword = nil)) || \\\n        (!($defconfPassword = \"\" || $defconfPassword = nil) \u0026\u0026 \\\n        ($defconfWpsPassword = \"\" || $defconfWpsPassword = nil))) do={\n      :set needAdminPass 0;\n    }\n  }\n\n  # set admin password\n  :if ($needAdminPass = 1) do={\n    :if (!($keepUsers = \"yes\")) do={\n      :if (!($defconfPassword = \"\" || $defconfPassword = nil)) do={\n        /user set admin password=$defconfPassword\n        :delay 0.5\n        /user expire-password admin\n      }\n    }\n  }\n}\n\n:if ($action = \"revert\") do={\n\n  :if (!($keepUsers = \"yes\")) do={\n        /user set admin password=\"\"\n        :delay 0.5\n        /user expire-password admin\n  }\n\n  :do {\n    :local removeCap \"\"\n    if ($usingWifiPack) do={\n      :set removeCap [:parse \":foreach i in=[/interface $wirelessMenu find] do={\n        /interface $wirelessMenu set \\$i !configuration.manager !datapath }\n      /interface $wirelessMenu cap\n      set enabled=no !slaves-datapath !discovery-interfaces\"]\n    } else={\n      :set removeCap [:parse \"/interface $wirelessMenu cap\n      set enabled=no interfaces=\\\"\\\" discovery-interfaces=\\\"\\\" bridge=none\"]\n    }\n    [$removeCap]\n  } on-error={ :log warning \"$logPref unable to unset caps\";}\n\n  :if ($usingWifiPack) do={\n    :local removeDatapath [:parse \"/interface $wirelessMenu datapath remove [find comment=\\\"defconf\\\"]\"]\n    [$removeDatapath]\n  }\n\n  :local o [/ip dhcp-client find comment=\"defconf\"]\n  :if ([:len $o] != 0) do={ /ip dhcp-client remove $o }\n\n  /interface bridge port remove [find comment=\"defconf\"]\n  /interface bridge remove [find comment=\"defconf\"]\n\n}\n"
+    },
+    {
+      "path": "system/default-configuration",
+      "arg": "script",
+      "type": "string value",
+      "sample": "#| IP address 192.168.88.1/24 is on ether1\n#| ether1 is enabled\n\n:global action\n\n# these commands are executed after installation or configuration reset\n:if ($action = \"apply\") do={\n    :delay 5s\n    /ip address add address=192.168.88.1/24 interface=ether1 comment=\"default configuration\"\n}\n\n# these commands are executed if user requests to remove default configuration\n:if ($action = \"revert\") do={\n    /ip address {\n        :local o [find address=\"192.168.88.1/24\" interface=\"ether1\" comment=\"default configuration\"]\n\t:if ([:len $o] != 0) do={ remove $o }\n    }\n}\n"
+    },
+    {
+      "path": "system/default-configuration/caps-mode-script",
+      "arg": "caps-mode-script",
+      "type": "string value",
+      "sample": "#| CAP configuration\n#|\n#|   * Wireless interfaces are set to be managed by CAPsMAN.\n#|   * All ethernet interfaces and CAPsMAN managed interfaces are bridged.\n#|   * DHCP client is set on bridge interface.\n#|   * If printed on the sticker, \"admin\" user is protected by password.\n\n:global action;\n:local brName  \"bridgeLocal\";\n:local logPref \"defconf:\";\n:local wirelessMenu \"wireless\"\n:local usingWifiPack false;\n:local needAdminPass 1;\n\n:if ([:len [/system package find name~\"wifi\" !disabled]] != 0) do={\n  :set usingWifiPack true;\n  :set wirelessMenu \"wifi\";\n}\n\n:if ($action = \"apply\") do={\n\n  # wait for ethernet interfaces\n  :local count 0;\n  :while ([/interface ethernet find] = \"\") do={\n    :if ($count = 30) do={\n      :log warning \"DefConf: Unable to find ethernet interfaces\";\n      /quit;\n    }\n    :delay 1s; :set count ($count + 1);\n  }\n\n  :local macSet 0;\n  :local tmpMac \"\";\n\n  :foreach k in=[/interface ethernet find] do={\n    # first ethernet is found; add bridge and set mac address of the ethernet port\n    :if ($macSet = 0) do={\n      :set tmpMac [/interface ethernet get $k mac-address];\n      /interface bridge add name=$brName auto-mac=no admin-mac=$tmpMac comment=\"defconf\";\n      :set macSet 1;\n    }\n    # add bridge ports\n    /interface bridge port add bridge=$brName interface=$k comment=\"defconf\"\n  }\n\n  # try to add dhcp client on bridge interface (may fail if already exist)\n  :do {\n    /ip dhcp-client add interface=$brName disabled=no comment=\"defconf\"\n  } on-error={ :log warning \"$logPref unable to add dhcp client\";}\n\n  # try to configure caps (may fail if for example specified interfaces are missing)\n  :local findWireless [:parse \":local count 0;\n  :while ([/interface $wirelessMenu find] = \\\"\\\") do={\n      :if (\\$count = 30) do={\n        :log warning \\\"DefConf: Unable to find wireless interfaces\\\"; /quit\n      };\n      :delay 1s;\n      :set count (\\$count + 1)\n    }\"]\n  [$findWireless]\n\n  :if ($usingWifiPack) do={\n    :local addDatapath [:parse \"/interface $wirelessMenu datapath\n    add comment=\\\"defconf\\\" name=capdp disabled=no bridge=$brName\"]\n    [$addDatapath]\n  }\n\n  # delay just to make sure that all wireless interfaces are loaded\n  :delay 5s;\n\n  :do {\n    :local setCap \"\"\n    if ($usingWifiPack) do={\n      :set setCap [:parse \":foreach i in=[/interface $wirelessMenu find] do={\n        /interface $wirelessMenu set \\$i configuration.manager=capsman datapath=capdp\n      }\n      /interface $wirelessMenu cap\n      set enabled=yes discovery-interfaces=$brName slaves-datapath=capdp\"]\n    } else={\n\n      :set setCap [:parse \"\n      :local interfacesList \\\"\\\";\n      :local bFirst 1;\n      :foreach i in=[/interface $wirelessMenu find] do={\n        if (\\$bFirst = 1) do={\n          :set interfacesList [/interface $wirelessMenu get \\$i name];\n          :set bFirst 0;\n        } else={\n          :set interfacesList \\\"\\$interfacesList,\\$[/interface wireless get \\$i name]\\\";\n        }\n      }\n      /interface $wirelessMenu cap set enabled=yes interfaces=\\$interfacesList \\\\\n        discovery-interfaces=$brName bridge=$brName\"]\n    }\n    [$setCap]\n  } on-error={ :log warning \"$logPref unable to configure caps\";}\n\n  # do not set admin pass for RBD25 boards that do not have it printed\n  :if ([:pick [/system routerboard get model] 0 5] = \"RBD25\") do={\n    if ((($defconfPassword = \"\" || $defconfPassword = nil) \u0026\u0026 \\\n        !($defconfWpsPassword = \"\" || $defconfWpsPassword = nil)) || \\\n        (!($defconfPassword = \"\" || $defconfPassword = nil) \u0026\u0026 \\\n        ($defconfWpsPassword = \"\" || $defconfWpsPassword = nil))) do={\n      :set needAdminPass 0;\n    }\n  }\n\n  # set admin password\n  :if ($needAdminPass = 1) do={\n    :if (!($keepUsers = \"yes\")) do={\n      :if (!($defconfPassword = \"\" || $defconfPassword = nil)) do={\n        /user set admin password=$defconfPassword\n        :delay 0.5\n        /user expire-password admin\n      }\n    }\n  }\n}\n\n:if ($action = \"revert\") do={\n\n  :if (!($keepUsers = \"yes\")) do={\n        /user set admin password=\"\"\n        :delay 0.5\n        /user expire-password admin\n  }\n\n  :do {\n    :local removeCap \"\"\n    if ($usingWifiPack) do={\n      :set removeCap [:parse \":foreach i in=[/interface $wirelessMenu find] do={\n        /interface $wirelessMenu set \\$i !configuration.manager !datapath }\n      /interface $wirelessMenu cap\n      set enabled=no !slaves-datapath !discovery-interfaces\"]\n    } else={\n      :set removeCap [:parse \"/interface $wirelessMenu cap\n      set enabled=no interfaces=\\\"\\\" discovery-interfaces=\\\"\\\" bridge=none\"]\n    }\n    [$removeCap]\n  } on-error={ :log warning \"$logPref unable to unset caps\";}\n\n  :if ($usingWifiPack) do={\n    :local removeDatapath [:parse \"/interface $wirelessMenu datapath remove [find comment=\\\"defconf\\\"]\"]\n    [$removeDatapath]\n  }\n\n  :local o [/ip dhcp-client find comment=\"defconf\"]\n  :if ([:len $o] != 0) do={ /ip dhcp-client remove $o }\n\n  /interface bridge port remove [find comment=\"defconf\"]\n  /interface bridge remove [find comment=\"defconf\"]\n\n}\n"
+    },
+    {
+      "path": "system/default-configuration/script",
+      "arg": "script",
+      "type": "string value",
+      "sample": "#| IP address 192.168.88.1/24 is on ether1\n#| ether1 is enabled\n\n:global action\n\n# these commands are executed after installation or configuration reset\n:if ($action = \"apply\") do={\n    :delay 5s\n    /ip address add address=192.168.88.1/24 interface=ether1 comment=\"default configuration\"\n}\n\n# these commands are executed if user requests to remove default configuration\n:if ($action = \"revert\") do={\n    /ip address {\n        :local o [find address=\"192.168.88.1/24\" interface=\"ether1\" comment=\"default configuration\"]\n\t:if ([:len $o] != 0) do={ remove $o }\n    }\n}\n"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "allowed-versions",
+      "type": "string value",
+      "sample": "7.13+,6.49.8+"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "attempt-count",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "bandwidth-test",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "container",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "email",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "fetch",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "flagged",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "flagging-enabled",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "hotspot",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "install-any-version",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "ipsec",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "l2tp",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "mode",
+      "type": "string value",
+      "sample": "advanced"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "partitions",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "pptp",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "proxy",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "romon",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "routerboard",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "scheduler",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "smb",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "sniffer",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "socks",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "traffic-gen",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "system/device-mode",
+      "arg": "zerotier",
+      "type": "boolean",
+      "sample": "true"
+    },
+    {
+      "path": "system/license",
+      "arg": "level",
+      "type": "string value",
+      "sample": "free"
+    },
+    {
+      "path": "system/license",
+      "arg": "system-id",
+      "type": "string value",
+      "sample": "H5zso6/3wRF"
+    },
+    {
+      "path": "system/ntp/client",
+      "arg": "freq-drift",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "system/ntp/client",
+      "arg": "status",
+      "type": "string value",
+      "sample": "stopped"
+    },
+    {
+      "path": "system/package/update",
+      "arg": "installed-version",
+      "type": "string value",
+      "sample": "7.23.2"
+    },
+    {
+      "path": "system/package/update",
+      "arg": "latest-version",
+      "type": "string value",
+      "sample": "7.23.3"
+    },
+    {
+      "path": "system/package/update",
+      "arg": "status",
+      "type": "string value",
+      "sample": "New version is available"
+    },
+    {
+      "path": "system/regulatory",
+      "arg": "fcc",
+      "type": "string value",
+      "sample": "This device complies with part 15 of the FCC Rules.\nOperation is subject to the following two conditions:\n(1) This device may not cause harmful interference, and\n(2) this device must accept any interference received,\nincluding interference that may cause undesired operation"
+    },
+    {
+      "path": "system/resource",
+      "arg": "architecture-name",
+      "type": "string value",
+      "sample": "arm64"
+    },
+    {
+      "path": "system/resource",
+      "arg": "board-name",
+      "type": "string value",
+      "sample": "CHR QEMU QEMU Virtual Machine"
+    },
+    {
+      "path": "system/resource",
+      "arg": "build-time",
+      "type": "date time",
+      "sample": "2026-07-03 09:08:08"
+    },
+    {
+      "path": "system/resource",
+      "arg": "cpu",
+      "type": "string value",
+      "sample": "ARM64"
+    },
+    {
+      "path": "system/resource",
+      "arg": "cpu-count",
+      "type": "integer number",
+      "sample": "2"
+    },
+    {
+      "path": "system/resource",
+      "arg": "cpu-load",
+      "type": "integer number",
+      "sample": "0"
+    },
+    {
+      "path": "system/resource",
+      "arg": "free-hdd-space",
+      "type": "integer number",
+      "sample": "71675904"
+    },
+    {
+      "path": "system/resource",
+      "arg": "free-memory",
+      "type": "integer number",
+      "sample": "794824704"
+    },
+    {
+      "path": "system/resource",
+      "arg": "platform",
+      "type": "string value",
+      "sample": "MikroTik"
+    },
+    {
+      "path": "system/resource",
+      "arg": "total-hdd-space",
+      "type": "integer number",
+      "sample": "86183936"
+    },
+    {
+      "path": "system/resource",
+      "arg": "total-memory",
+      "type": "integer number",
+      "sample": "1073741824"
+    },
+    {
+      "path": "system/resource",
+      "arg": "uptime",
+      "type": "time interval",
+      "sample": "4h12m24s"
+    },
+    {
+      "path": "system/resource",
+      "arg": "version",
+      "type": "string value",
+      "sample": "7.23.2 (stable)"
+    },
+    {
+      "path": "system/resource",
+      "arg": "write-sect-since-reboot",
+      "type": "integer number",
+      "sample": "10896"
+    },
+    {
+      "path": "system/resource",
+      "arg": "write-sect-total",
+      "type": "integer number",
+      "sample": "10896"
+    },
+    {
+      "path": "system/rtrace",
+      "arg": "state",
+      "type": "string value",
+      "sample": "stopped"
+    },
+    {
+      "path": "tool/sms",
+      "arg": "status",
+      "type": "string value",
+      "sample": "off"
+    },
+    {
+      "path": "tool/sniffer",
+      "arg": "running",
+      "type": "boolean",
+      "sample": "false"
+    },
+    {
+      "path": "tool/traffic-generator",
+      "arg": "latency-distribution-measure-interval",
+      "type": "string value",
+      "sample": "0-1.02us"
+    },
+    {
+      "path": "tool/traffic-generator",
+      "arg": "latency-distribution-samples",
+      "type": "integer number",
+      "sample": "64"
+    },
+    {
+      "path": "tool/traffic-generator",
+      "arg": "running",
+      "type": "boolean",
+      "sample": "false"
+    }
+  ]
+}

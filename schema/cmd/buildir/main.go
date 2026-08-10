@@ -61,6 +61,19 @@ type argTypes struct {
 	Args            []argType `json:"args"`
 }
 
+type observed struct {
+	Path   string `json:"path"`
+	Arg    string `json:"arg"`
+	Type   string `json:"type"`
+	Sample string `json:"sample"`
+}
+
+type observedTypes struct {
+	RouterOSVersion string     `json:"routeros_version"`
+	GeneratedBy     string     `json:"generated_by"`
+	Verdicts        []observed `json:"verdicts"`
+}
+
 type verdict struct {
 	Resource string `json:"resource"`
 	Path     string `json:"path"`
@@ -94,6 +107,12 @@ func run() error {
 	if err := readJSON(filepath.Join(*configDir, "name-uniqueness.json"), &uniq); err != nil {
 		return err
 	}
+	// Optional: the observed types close a gap the console cannot, but the
+	// IR is still assemblable without them.
+	var obs observedTypes
+	if err := readJSON(filepath.Join(*configDir, "observed-types.json"), &obs); err != nil {
+		fmt.Fprintf(os.Stderr, "no observed types (%v); rowless read-only fields stay untyped\n", err)
+	}
 
 	ir := &schema.IR{
 		RouterOSVersion: tree.RouterOSVersion,
@@ -102,8 +121,9 @@ func run() error {
 			{Artifact: "console-tree.json", Producer: tree.GeneratedBy, Version: tree.RouterOSVersion},
 			{Artifact: "arg-types.json", Producer: types.GeneratedBy, Version: types.RouterOSVersion},
 			{Artifact: "name-uniqueness.json", Producer: uniq.GeneratedBy, Version: uniq.RouterOSVersion},
+			{Artifact: "observed-types.json", Producer: obs.GeneratedBy, Version: obs.RouterOSVersion},
 		},
-		Menus: assemble(&tree, &types, &uniq),
+		Menus: assemble(&tree, &types, &uniq, &obs),
 	}
 
 	raw, err := json.MarshalIndent(ir, "", "  ")
@@ -130,8 +150,8 @@ func writable(ir *schema.IR) int {
 	return n
 }
 
-func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness) []schema.Menu {
-	fields := fieldsByMenu(types)
+func assemble(tree *consoleTree, types *argTypes, uniq *uniqueness, obs *observedTypes) []schema.Menu {
+	fields := fieldsByMenu(types, obs)
 	verdicts := verdictsByMenu(uniq)
 	rowless := rowlessByMenu(types)
 
@@ -268,7 +288,11 @@ func identify(fields []schema.Field, v string) schema.Identity {
 	return id
 }
 
-func fieldsByMenu(types *argTypes) map[string][]schema.Field {
+func fieldsByMenu(types *argTypes, obs *observedTypes) map[string][]schema.Field {
+	seen := map[string]observed{}
+	for _, o := range obs.Verdicts {
+		seen[o.Path+"\x00"+o.Arg] = o
+	}
 	out := map[string][]schema.Field{}
 	for _, a := range types.Args {
 		if a.Path == "" {
@@ -284,6 +308,21 @@ func fieldsByMenu(types *argTypes) map[string][]schema.Field {
 		}
 		if len(a.Types) > 0 {
 			f.Type = strings.Join(a.Types, "|")
+		}
+		// Any kind at all means the console described the field: a closed
+		// vocabulary is as much an answer as a grammar is.
+		if f.Kind != schema.KindUnknown {
+			f.Evidence = schema.Probed
+		}
+		// Where the console said nothing, a value the router returned may
+		// still say something. It never overrides a probed type.
+		if f.Kind == schema.KindUnknown {
+			if o, ok := seen[a.Path+"\x00"+a.Arg]; ok {
+				f.Kind, f.Type, f.Sample, f.Evidence = schema.KindScalar, o.Type, o.Sample, schema.Observed
+				if o.Type == "boolean" {
+					f.Bool = true
+				}
+			}
 		}
 		out[a.Path] = append(out[a.Path], f)
 	}

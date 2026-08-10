@@ -827,17 +827,43 @@ func (v IpFirewallFilter) Encode() map[string]string {
 // singleton, read-only.
 const SystemResourcePath = "/system/resource"
 
-// The router states no type for any of the 18 fields here, so there is
-// nothing to generate. A read-only property of a menu that holds no rows
-// has no console position to ask about: `set` will not take it and
-// `print where` has nothing to filter. Typing it needs evidence of a
-// different kind — the values themselves — which the IR does not yet carry.
+// Omitted, the router having stated no type: bad-blocks, cpu-frequency, factory-software.
 type SystemResource struct {
+	ArchitectureName     string        // architecture-name (read-only, string value)
+	BoardName            string        // board-name (read-only, string value)
+	BuildTime            string        // build-time (read-only, date time)
+	Cpu                  string        // cpu (read-only, string value)
+	CpuCount             int64         // cpu-count (read-only, integer number)
+	CpuLoad              int64         // cpu-load (read-only, integer number)
+	FreeHddSpace         int64         // free-hdd-space (read-only, integer number)
+	FreeMemory           int64         // free-memory (read-only, integer number)
+	Platform             string        // platform (read-only, string value)
+	TotalHddSpace        int64         // total-hdd-space (read-only, integer number)
+	TotalMemory          int64         // total-memory (read-only, integer number)
+	Uptime               time.Duration // uptime (read-only, time interval)
+	Version              string        // version (read-only, string value)
+	WriteSectSinceReboot int64         // write-sect-since-reboot (read-only, integer number)
+	WriteSectTotal       int64         // write-sect-total (read-only, integer number)
 }
 
 // DecodeSystemResource reads one record as the router returned it.
 func DecodeSystemResource(r map[string]string) SystemResource {
 	var v SystemResource
+	v.ArchitectureName = r["architecture-name"]
+	v.BoardName = r["board-name"]
+	v.BuildTime = r["build-time"]
+	v.Cpu = r["cpu"]
+	v.CpuCount = parseInt(r["cpu-count"])
+	v.CpuLoad = parseInt(r["cpu-load"])
+	v.FreeHddSpace = parseInt(r["free-hdd-space"])
+	v.FreeMemory = parseInt(r["free-memory"])
+	v.Platform = r["platform"]
+	v.TotalHddSpace = parseInt(r["total-hdd-space"])
+	v.TotalMemory = parseInt(r["total-memory"])
+	v.Uptime = parseDuration(r["uptime"])
+	v.Version = r["version"]
+	v.WriteSectSinceReboot = parseInt(r["write-sect-since-reboot"])
+	v.WriteSectTotal = parseInt(r["write-sect-total"])
 	return v
 }
 

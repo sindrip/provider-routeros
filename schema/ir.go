@@ -22,8 +22,11 @@
 //
 //   - Menu.Typed is false when hack/typedump never reached the menu, so its
 //     fields carry structure but no types.
-//   - Field.Kind is KindUnknown when the router offered neither a vocabulary
-//     nor a grammar for that field. It is not a guess to be filled in.
+//   - Field.Kind is KindUnknown when neither the console nor a returned value
+//     said anything about the field. It is not a guess to be filled in.
+//   - Field.Evidence is Observed where the type came from reading a value
+//     rather than from the console describing the field, which is what
+//     happens for a read-only property of a menu that holds no rows.
 //   - Identity.Verdict is Unprobed when uniqueness was never tested, which is
 //     a different claim from Untested — that one was tried and was
 //     inconclusive. Neither means "unique".
@@ -90,6 +93,11 @@ type Evidence string
 const (
 	// Probed means a live router demonstrated it.
 	Probed Evidence = "probed"
+	// Observed means it was read off a value the router returned, rather
+	// than declared. Weaker than Probed: it rests on one sample from one
+	// device in one state, so a counter reading 0 is indistinguishable from
+	// anything else reading 0.
+	Observed Evidence = "observed"
 	// Inferred means it follows from the console tree's shape alone, which
 	// is weaker and has been wrong before.
 	Inferred Evidence = "inferred"
@@ -186,6 +194,16 @@ type Field struct {
 	Type   string   `json:"type,omitempty"`
 	Values []string `json:"values,omitempty"`
 	Ranges []string `json:"ranges,omitempty"`
+	// Evidence is how the type was arrived at: Probed where the console
+	// described the field, Observed where only its value was available.
+	//
+	// A generator may reasonably treat the two differently. An observed type
+	// is a reading of one sample, so a field that happened to be 0, or empty,
+	// or absent, is typed weakly or not at all.
+	Evidence Evidence `json:"evidence,omitempty"`
+	// Sample is the value an observed type was read from, so a reader can
+	// disagree with the verdict.
+	Sample string `json:"sample,omitempty"`
 	// Bool is true when the vocabulary is exactly no/yes.
 	//
 	// Worth stating because the console and the wire disagree: completion

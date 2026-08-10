@@ -106,14 +106,49 @@ func TestDurationRoundTrip(t *testing.T) {
 	}
 }
 
-// TestSystemResourceIsEmptyOnPurpose pins the gap rather than hiding it. The
-// most useful menu for telemetry generates nothing, because every one of its
-// fields is a read-only property of a rowless menu and the console has no
-// position to ask about one.
-func TestSystemResourceIsEmptyOnPurpose(t *testing.T) {
-	var v SystemResource
-	_ = v
+// TestDecodeSystemResource is the menu that had no fields at all until the
+// types came from observation rather than from the console. The record below
+// is exactly what CHR 7.23.2 returned.
+func TestDecodeSystemResource(t *testing.T) {
+	v := DecodeSystemResource(map[string]string{
+		"architecture-name":       "arm64",
+		"board-name":              "CHR QEMU QEMU Virtual Machine",
+		"build-time":              "2026-07-03 09:08:08",
+		"cpu-count":               "2",
+		"cpu-load":                "0",
+		"free-memory":             "796278784",
+		"total-memory":            "1073741824",
+		"uptime":                  "4h10m29s",
+		"version":                 "7.23.2 (stable)",
+		"write-sect-since-reboot": "10824",
+	})
+	if v.Uptime != 4*time.Hour+10*time.Minute+29*time.Second {
+		t.Errorf("Uptime = %v", v.Uptime)
+	}
+	if v.CpuCount != 2 || v.CpuLoad != 0 {
+		t.Errorf("cpu: count=%d load=%d", v.CpuCount, v.CpuLoad)
+	}
+	if v.TotalMemory != 1073741824 || v.FreeMemory != 796278784 {
+		t.Errorf("memory: total=%d free=%d", v.TotalMemory, v.FreeMemory)
+	}
+	// A counter big enough to matter stays exact rather than becoming a float.
+	if v.WriteSectSinceReboot != 10824 {
+		t.Errorf("WriteSectSinceReboot = %d", v.WriteSectSinceReboot)
+	}
+	// The version string carries a suffix, so it is not a number however much
+	// it looks like one at the start.
+	if v.Version != "7.23.2 (stable)" {
+		t.Errorf("Version = %q", v.Version)
+	}
 	if SystemResourcePath != "/system/resource" {
 		t.Errorf("path = %q", SystemResourcePath)
+	}
+}
+
+// TestSystemResourceIsReadOnly checks the other half: the device maintains
+// this menu, so there is nothing to send back.
+func TestSystemResourceIsReadOnly(t *testing.T) {
+	if enc := (SystemResource{CpuLoad: 5}).Encode(); len(enc) != 0 {
+		t.Errorf("Encode() = %v, want nothing writable", enc)
 	}
 }

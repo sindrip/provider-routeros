@@ -873,3 +873,521 @@ func (v SystemResource) Encode() map[string]string {
 	r := map[string]string{}
 	return r
 }
+
+// InterfaceMtu is the vocabulary the router states for /interface mtu.
+type InterfaceMtu string
+
+const (
+	InterfaceMtuAuto InterfaceMtu = "auto"
+)
+
+// Interface is /interface.
+//
+// list, writable. No field is a proven unique key here (UNPROBED), so a caller
+// addressing rows needs one of its own.
+const InterfacePath = "/interface"
+
+type Interface struct {
+	// ID is the router's own row handle. It is reassigned when a row is
+	// deleted and recreated, so it addresses a row and does not identify one.
+	ID string
+
+	ActualMtu        int64        // actual-mtu (read-only, integer number)
+	Comment          string       // comment (string)
+	DefaultName      string       // default-name (read-only, string)
+	Disabled         bool         // disabled
+	Dynamic          bool         // dynamic (read-only)
+	FpRpsDrop        int64        // fp-rps-drop (read-only, integer number)
+	FpRxByte         int64        // fp-rx-byte (read-only, integer number)
+	FpRxPacket       int64        // fp-rx-packet (read-only, integer number)
+	FpTxByte         int64        // fp-tx-byte (read-only, integer number)
+	FpTxPacket       int64        // fp-tx-packet (read-only, integer number)
+	Inactive         bool         // inactive (read-only)
+	L2mtu            int64        // l2mtu (integer number)
+	LastLinkDownTime string       // last-link-down-time (read-only)
+	LastLinkUpTime   string       // last-link-up-time (read-only)
+	LinkDowns        int64        // link-downs (read-only, integer number)
+	MacAddress       string       // mac-address (read-only, MAC address)
+	MaxL2mtu         int64        // max-l2mtu (read-only, integer number)
+	Mtu              InterfaceMtu // mtu
+	Name             string       // name (string)
+	Passthrough      bool         // passthrough (read-only)
+	Running          bool         // running (read-only)
+	RxByte           int64        // rx-byte (read-only, integer number)
+	RxDrop           int64        // rx-drop (read-only, integer number)
+	RxError          int64        // rx-error (read-only, integer number)
+	RxPacket         int64        // rx-packet (read-only, integer number)
+	Slave            bool         // slave (read-only)
+	TxByte           int64        // tx-byte (read-only, integer number)
+	TxDrop           int64        // tx-drop (read-only, integer number)
+	TxError          int64        // tx-error (read-only, integer number)
+	TxPacket         int64        // tx-packet (read-only, integer number)
+	TxQueueDrop      int64        // tx-queue-drop (read-only, integer number)
+	Type             string       // type (read-only, string)
+	Vrf              string       // vrf (read-only)
+}
+
+// DecodeInterface reads one record as the router returned it.
+func DecodeInterface(r map[string]string) Interface {
+	var v Interface
+	v.ID = r[".id"]
+	v.ActualMtu = parseInt(r["actual-mtu"])
+	v.Comment = r["comment"]
+	v.DefaultName = r["default-name"]
+	v.Disabled = parseBool(r, "disabled")
+	v.Dynamic = parseBool(r, "dynamic")
+	v.FpRpsDrop = parseInt(r["fp-rps-drop"])
+	v.FpRxByte = parseInt(r["fp-rx-byte"])
+	v.FpRxPacket = parseInt(r["fp-rx-packet"])
+	v.FpTxByte = parseInt(r["fp-tx-byte"])
+	v.FpTxPacket = parseInt(r["fp-tx-packet"])
+	v.Inactive = parseBool(r, "inactive")
+	v.L2mtu = parseInt(r["l2mtu"])
+	v.LastLinkDownTime = r["last-link-down-time"]
+	v.LastLinkUpTime = r["last-link-up-time"]
+	v.LinkDowns = parseInt(r["link-downs"])
+	v.MacAddress = r["mac-address"]
+	v.MaxL2mtu = parseInt(r["max-l2mtu"])
+	v.Mtu = InterfaceMtu(r["mtu"])
+	v.Name = r["name"]
+	v.Passthrough = parseBool(r, "passthrough")
+	v.Running = parseBool(r, "running")
+	v.RxByte = parseInt(r["rx-byte"])
+	v.RxDrop = parseInt(r["rx-drop"])
+	v.RxError = parseInt(r["rx-error"])
+	v.RxPacket = parseInt(r["rx-packet"])
+	v.Slave = parseBool(r, "slave")
+	v.TxByte = parseInt(r["tx-byte"])
+	v.TxDrop = parseInt(r["tx-drop"])
+	v.TxError = parseInt(r["tx-error"])
+	v.TxPacket = parseInt(r["tx-packet"])
+	v.TxQueueDrop = parseInt(r["tx-queue-drop"])
+	v.Type = r["type"]
+	v.Vrf = r["vrf"]
+	return v
+}
+
+// Encode returns the writable fields as the router expects them.
+// Read-only fields are omitted; sending one back is how a caller
+// discovers that the router rejects unknown parameters.
+func (v Interface) Encode() map[string]string {
+	r := map[string]string{}
+	r["comment"] = v.Comment
+	r["disabled"] = formatBool(v.Disabled)
+	r["l2mtu"] = formatInt(v.L2mtu)
+	r["mtu"] = string(v.Mtu)
+	r["name"] = v.Name
+	return r
+}
+
+// RoutingBgpSessionCiscoVplsNlriLenFmt is the vocabulary the router states for /routing/bgp/session cisco-vpls-nlri-len-fmt.
+type RoutingBgpSessionCiscoVplsNlriLenFmt string
+
+const (
+	RoutingBgpSessionCiscoVplsNlriLenFmtAutoBits  RoutingBgpSessionCiscoVplsNlriLenFmt = "auto-bits"
+	RoutingBgpSessionCiscoVplsNlriLenFmtAutoBytes RoutingBgpSessionCiscoVplsNlriLenFmt = "auto-bytes"
+	RoutingBgpSessionCiscoVplsNlriLenFmtBits      RoutingBgpSessionCiscoVplsNlriLenFmt = "bits"
+	RoutingBgpSessionCiscoVplsNlriLenFmtBytes     RoutingBgpSessionCiscoVplsNlriLenFmt = "bytes"
+)
+
+// RoutingBgpSessionInputAddPath is the vocabulary the router states for /routing/bgp/session input.add-path.
+type RoutingBgpSessionInputAddPath string
+
+const (
+	RoutingBgpSessionInputAddPathIp   RoutingBgpSessionInputAddPath = "ip"
+	RoutingBgpSessionInputAddPathIpv6 RoutingBgpSessionInputAddPath = "ipv6"
+)
+
+// RoutingBgpSessionInputAffinity is the vocabulary the router states for /routing/bgp/session input.affinity.
+type RoutingBgpSessionInputAffinity string
+
+const (
+	RoutingBgpSessionInputAffinityAfi      RoutingBgpSessionInputAffinity = "afi"
+	RoutingBgpSessionInputAffinityAlone    RoutingBgpSessionInputAffinity = "alone"
+	RoutingBgpSessionInputAffinityInstance RoutingBgpSessionInputAffinity = "instance"
+	RoutingBgpSessionInputAffinityMain     RoutingBgpSessionInputAffinity = "main"
+	RoutingBgpSessionInputAffinityRemoteAs RoutingBgpSessionInputAffinity = "remote-as"
+	RoutingBgpSessionInputAffinityVrf      RoutingBgpSessionInputAffinity = "vrf"
+)
+
+// RoutingBgpSessionLocalAfi is the vocabulary the router states for /routing/bgp/session local.afi.
+type RoutingBgpSessionLocalAfi string
+
+const (
+	RoutingBgpSessionLocalAfiEvpn       RoutingBgpSessionLocalAfi = "evpn"
+	RoutingBgpSessionLocalAfiIp         RoutingBgpSessionLocalAfi = "ip"
+	RoutingBgpSessionLocalAfiIpv6       RoutingBgpSessionLocalAfi = "ipv6"
+	RoutingBgpSessionLocalAfiL2vpn      RoutingBgpSessionLocalAfi = "l2vpn"
+	RoutingBgpSessionLocalAfiL2vpnCisco RoutingBgpSessionLocalAfi = "l2vpn-cisco"
+	RoutingBgpSessionLocalAfiVpnv4      RoutingBgpSessionLocalAfi = "vpnv4"
+	RoutingBgpSessionLocalAfiVpnv6      RoutingBgpSessionLocalAfi = "vpnv6"
+)
+
+// RoutingBgpSessionLocalCapabilities is the vocabulary the router states for /routing/bgp/session local.capabilities.
+type RoutingBgpSessionLocalCapabilities string
+
+const (
+	RoutingBgpSessionLocalCapabilitiesAp   RoutingBgpSessionLocalCapabilities = "ap"
+	RoutingBgpSessionLocalCapabilitiesAs4  RoutingBgpSessionLocalCapabilities = "as4"
+	RoutingBgpSessionLocalCapabilitiesEnhe RoutingBgpSessionLocalCapabilities = "enhe"
+	RoutingBgpSessionLocalCapabilitiesGr   RoutingBgpSessionLocalCapabilities = "gr"
+	RoutingBgpSessionLocalCapabilitiesMp   RoutingBgpSessionLocalCapabilities = "mp"
+	RoutingBgpSessionLocalCapabilitiesRole RoutingBgpSessionLocalCapabilities = "role"
+	RoutingBgpSessionLocalCapabilitiesRr   RoutingBgpSessionLocalCapabilities = "rr"
+)
+
+// RoutingBgpSessionLocalEor is the vocabulary the router states for /routing/bgp/session local.eor.
+type RoutingBgpSessionLocalEor string
+
+const (
+	RoutingBgpSessionLocalEorIp         RoutingBgpSessionLocalEor = "ip"
+	RoutingBgpSessionLocalEorIpv6       RoutingBgpSessionLocalEor = "ipv6"
+	RoutingBgpSessionLocalEorL2vpn      RoutingBgpSessionLocalEor = "l2vpn"
+	RoutingBgpSessionLocalEorL2vpnCisco RoutingBgpSessionLocalEor = "l2vpn-cisco"
+	RoutingBgpSessionLocalEorVpnv4      RoutingBgpSessionLocalEor = "vpnv4"
+)
+
+// RoutingBgpSessionLocalRole is the vocabulary the router states for /routing/bgp/session local.role.
+type RoutingBgpSessionLocalRole string
+
+const (
+	RoutingBgpSessionLocalRoleEbgp         RoutingBgpSessionLocalRole = "ebgp"
+	RoutingBgpSessionLocalRoleEbgpCustomer RoutingBgpSessionLocalRole = "ebgp-customer"
+	RoutingBgpSessionLocalRoleEbgpPeer     RoutingBgpSessionLocalRole = "ebgp-peer"
+	RoutingBgpSessionLocalRoleEbgpProvider RoutingBgpSessionLocalRole = "ebgp-provider"
+	RoutingBgpSessionLocalRoleEbgpRs       RoutingBgpSessionLocalRole = "ebgp-rs"
+	RoutingBgpSessionLocalRoleEbgpRsClient RoutingBgpSessionLocalRole = "ebgp-rs-client"
+	RoutingBgpSessionLocalRoleIbgp         RoutingBgpSessionLocalRole = "ibgp"
+	RoutingBgpSessionLocalRoleIbgpRr       RoutingBgpSessionLocalRole = "ibgp-rr"
+)
+
+// RoutingBgpSessionNexthopChoice is the vocabulary the router states for /routing/bgp/session nexthop-choice.
+type RoutingBgpSessionNexthopChoice string
+
+const (
+	RoutingBgpSessionNexthopChoiceDefault   RoutingBgpSessionNexthopChoice = "default"
+	RoutingBgpSessionNexthopChoiceForceSelf RoutingBgpSessionNexthopChoice = "force-self"
+	RoutingBgpSessionNexthopChoicePropagate RoutingBgpSessionNexthopChoice = "propagate"
+)
+
+// RoutingBgpSessionOutputAddPath is the vocabulary the router states for /routing/bgp/session output.add-path.
+type RoutingBgpSessionOutputAddPath string
+
+const (
+	RoutingBgpSessionOutputAddPathIp   RoutingBgpSessionOutputAddPath = "ip"
+	RoutingBgpSessionOutputAddPathIpv6 RoutingBgpSessionOutputAddPath = "ipv6"
+)
+
+// RoutingBgpSessionOutputAffinity is the vocabulary the router states for /routing/bgp/session output.affinity.
+type RoutingBgpSessionOutputAffinity string
+
+const (
+	RoutingBgpSessionOutputAffinityAfi      RoutingBgpSessionOutputAffinity = "afi"
+	RoutingBgpSessionOutputAffinityAlone    RoutingBgpSessionOutputAffinity = "alone"
+	RoutingBgpSessionOutputAffinityInput    RoutingBgpSessionOutputAffinity = "input"
+	RoutingBgpSessionOutputAffinityInstance RoutingBgpSessionOutputAffinity = "instance"
+	RoutingBgpSessionOutputAffinityMain     RoutingBgpSessionOutputAffinity = "main"
+	RoutingBgpSessionOutputAffinityRemoteAs RoutingBgpSessionOutputAffinity = "remote-as"
+	RoutingBgpSessionOutputAffinityVrf      RoutingBgpSessionOutputAffinity = "vrf"
+)
+
+// RoutingBgpSessionOutputDefaultOriginate is the vocabulary the router states for /routing/bgp/session output.default-originate.
+type RoutingBgpSessionOutputDefaultOriginate string
+
+const (
+	RoutingBgpSessionOutputDefaultOriginateAlways      RoutingBgpSessionOutputDefaultOriginate = "always"
+	RoutingBgpSessionOutputDefaultOriginateIfInstalled RoutingBgpSessionOutputDefaultOriginate = "if-installed"
+	RoutingBgpSessionOutputDefaultOriginateNever       RoutingBgpSessionOutputDefaultOriginate = "never"
+)
+
+// RoutingBgpSessionRemoteAfi is the vocabulary the router states for /routing/bgp/session remote.afi.
+type RoutingBgpSessionRemoteAfi string
+
+const (
+	RoutingBgpSessionRemoteAfiEvpn       RoutingBgpSessionRemoteAfi = "evpn"
+	RoutingBgpSessionRemoteAfiIp         RoutingBgpSessionRemoteAfi = "ip"
+	RoutingBgpSessionRemoteAfiIpv6       RoutingBgpSessionRemoteAfi = "ipv6"
+	RoutingBgpSessionRemoteAfiL2vpn      RoutingBgpSessionRemoteAfi = "l2vpn"
+	RoutingBgpSessionRemoteAfiL2vpnCisco RoutingBgpSessionRemoteAfi = "l2vpn-cisco"
+	RoutingBgpSessionRemoteAfiVpnv4      RoutingBgpSessionRemoteAfi = "vpnv4"
+	RoutingBgpSessionRemoteAfiVpnv6      RoutingBgpSessionRemoteAfi = "vpnv6"
+)
+
+// RoutingBgpSessionRemoteCapabilities is the vocabulary the router states for /routing/bgp/session remote.capabilities.
+type RoutingBgpSessionRemoteCapabilities string
+
+const (
+	RoutingBgpSessionRemoteCapabilitiesAp   RoutingBgpSessionRemoteCapabilities = "ap"
+	RoutingBgpSessionRemoteCapabilitiesAs4  RoutingBgpSessionRemoteCapabilities = "as4"
+	RoutingBgpSessionRemoteCapabilitiesDyn  RoutingBgpSessionRemoteCapabilities = "dyn"
+	RoutingBgpSessionRemoteCapabilitiesEm   RoutingBgpSessionRemoteCapabilities = "em"
+	RoutingBgpSessionRemoteCapabilitiesEnhe RoutingBgpSessionRemoteCapabilities = "enhe"
+	RoutingBgpSessionRemoteCapabilitiesErr  RoutingBgpSessionRemoteCapabilities = "err"
+	RoutingBgpSessionRemoteCapabilitiesFqdn RoutingBgpSessionRemoteCapabilities = "fqdn"
+	RoutingBgpSessionRemoteCapabilitiesGr   RoutingBgpSessionRemoteCapabilities = "gr"
+	RoutingBgpSessionRemoteCapabilitiesLlgr RoutingBgpSessionRemoteCapabilities = "llgr"
+	RoutingBgpSessionRemoteCapabilitiesMl   RoutingBgpSessionRemoteCapabilities = "ml"
+	RoutingBgpSessionRemoteCapabilitiesMp   RoutingBgpSessionRemoteCapabilities = "mp"
+	RoutingBgpSessionRemoteCapabilitiesMs   RoutingBgpSessionRemoteCapabilities = "ms"
+	RoutingBgpSessionRemoteCapabilitiesOrf  RoutingBgpSessionRemoteCapabilities = "orf"
+	RoutingBgpSessionRemoteCapabilitiesRole RoutingBgpSessionRemoteCapabilities = "role"
+	RoutingBgpSessionRemoteCapabilitiesRr   RoutingBgpSessionRemoteCapabilities = "rr"
+	RoutingBgpSessionRemoteCapabilitiesSec  RoutingBgpSessionRemoteCapabilities = "sec"
+)
+
+// RoutingBgpSessionRemoteEor is the vocabulary the router states for /routing/bgp/session remote.eor.
+type RoutingBgpSessionRemoteEor string
+
+const (
+	RoutingBgpSessionRemoteEorEvpn       RoutingBgpSessionRemoteEor = "evpn"
+	RoutingBgpSessionRemoteEorIp         RoutingBgpSessionRemoteEor = "ip"
+	RoutingBgpSessionRemoteEorIpv6       RoutingBgpSessionRemoteEor = "ipv6"
+	RoutingBgpSessionRemoteEorL2vpn      RoutingBgpSessionRemoteEor = "l2vpn"
+	RoutingBgpSessionRemoteEorL2vpnCisco RoutingBgpSessionRemoteEor = "l2vpn-cisco"
+	RoutingBgpSessionRemoteEorVpnv4      RoutingBgpSessionRemoteEor = "vpnv4"
+	RoutingBgpSessionRemoteEorVpnv6      RoutingBgpSessionRemoteEor = "vpnv6"
+)
+
+// RoutingBgpSessionRemoteGrAfi is the vocabulary the router states for /routing/bgp/session remote.gr-afi.
+type RoutingBgpSessionRemoteGrAfi string
+
+const (
+	RoutingBgpSessionRemoteGrAfiIp         RoutingBgpSessionRemoteGrAfi = "ip"
+	RoutingBgpSessionRemoteGrAfiIpv6       RoutingBgpSessionRemoteGrAfi = "ipv6"
+	RoutingBgpSessionRemoteGrAfiL2vpn      RoutingBgpSessionRemoteGrAfi = "l2vpn"
+	RoutingBgpSessionRemoteGrAfiL2vpnCisco RoutingBgpSessionRemoteGrAfi = "l2vpn-cisco"
+	RoutingBgpSessionRemoteGrAfiVpnv4      RoutingBgpSessionRemoteGrAfi = "vpnv4"
+	RoutingBgpSessionRemoteGrAfiVpnv6      RoutingBgpSessionRemoteGrAfi = "vpnv6"
+)
+
+// RoutingBgpSessionRemoteGrAfiFwp is the vocabulary the router states for /routing/bgp/session remote.gr-afi-fwp.
+type RoutingBgpSessionRemoteGrAfiFwp string
+
+const (
+	RoutingBgpSessionRemoteGrAfiFwpIp         RoutingBgpSessionRemoteGrAfiFwp = "ip"
+	RoutingBgpSessionRemoteGrAfiFwpIpv6       RoutingBgpSessionRemoteGrAfiFwp = "ipv6"
+	RoutingBgpSessionRemoteGrAfiFwpL2vpn      RoutingBgpSessionRemoteGrAfiFwp = "l2vpn"
+	RoutingBgpSessionRemoteGrAfiFwpL2vpnCisco RoutingBgpSessionRemoteGrAfiFwp = "l2vpn-cisco"
+	RoutingBgpSessionRemoteGrAfiFwpVpnv4      RoutingBgpSessionRemoteGrAfiFwp = "vpnv4"
+	RoutingBgpSessionRemoteGrAfiFwpVpnv6      RoutingBgpSessionRemoteGrAfiFwp = "vpnv6"
+)
+
+// RoutingBgpSessionRemoteRole is the vocabulary the router states for /routing/bgp/session remote.role.
+type RoutingBgpSessionRemoteRole string
+
+const (
+	RoutingBgpSessionRemoteRoleCustomer          RoutingBgpSessionRemoteRole = "customer"
+	RoutingBgpSessionRemoteRolePeer              RoutingBgpSessionRemoteRole = "peer"
+	RoutingBgpSessionRemoteRoleProvider          RoutingBgpSessionRemoteRole = "provider"
+	RoutingBgpSessionRemoteRoleRouteServer       RoutingBgpSessionRemoteRole = "route-server"
+	RoutingBgpSessionRemoteRoleRouteServerClient RoutingBgpSessionRemoteRole = "route-server-client"
+)
+
+// RoutingBgpSession is /routing/bgp/session.
+//
+// list, read-only. No field is a proven unique key here (UNPROBED), so a caller
+// addressing rows needs one of its own.
+const RoutingBgpSessionPath = "/routing/bgp/session"
+
+type RoutingBgpSession struct {
+	// ID is the router's own row handle. It is reassigned when a row is
+	// deleted and recreated, so it addresses a row and does not identify one.
+	ID string
+
+	CiscoVplsNlriLenFmt              RoutingBgpSessionCiscoVplsNlriLenFmt    // cisco-vpls-nlri-len-fmt (read-only)
+	Ebgp                             string                                  // ebgp (read-only)
+	Established                      bool                                    // established (read-only)
+	HoldTime                         string                                  // hold-time (read-only, time interval)
+	Ibgp                             string                                  // ibgp (read-only)
+	InputAddPath                     RoutingBgpSessionInputAddPath           // input.add-path (read-only)
+	InputAffinity                    RoutingBgpSessionInputAffinity          // input.affinity (read-only)
+	InputAllowAs                     int64                                   // input.allow-as (read-only, integer number)
+	InputAsOverride                  bool                                    // input.as-override (read-only)
+	InputFilter                      string                                  // input.filter (read-only, string)
+	InputIgnoreAsPathLen             bool                                    // input.ignore-as-path-len (read-only)
+	InputLastNotification            string                                  // input.last-notification (read-only, string)
+	InputLimitProcessRoutes          int64                                   // input.limit-process-routes (read-only, integer number)
+	InputProcid                      int64                                   // input.procid (read-only, integer number)
+	Instance                         string                                  // instance (read-only)
+	KeepaliveTime                    time.Duration                           // keepalive-time (read-only, time interval)
+	KeepaliveTimer                   string                                  // keepalive-timer (read-only)
+	LastStarted                      string                                  // last-started (read-only)
+	LastStopped                      string                                  // last-stopped (read-only)
+	LimitExceeded                    string                                  // limit-exceeded (read-only)
+	LocalAddress                     string                                  // local.address (read-only)
+	LocalAfi                         RoutingBgpSessionLocalAfi               // local.afi (read-only)
+	LocalAs                          string                                  // local.as (read-only)
+	LocalBytes                       int64                                   // local.bytes (read-only, integer number)
+	LocalCapabilities                RoutingBgpSessionLocalCapabilities      // local.capabilities (read-only)
+	LocalClusterId                   string                                  // local.cluster-id (read-only, IP address)
+	LocalEor                         RoutingBgpSessionLocalEor               // local.eor (read-only)
+	LocalId                          string                                  // local.id (read-only, IP address)
+	LocalMessages                    int64                                   // local.messages (read-only, integer number)
+	LocalPort                        int64                                   // local.port (read-only, integer number)
+	LocalRole                        RoutingBgpSessionLocalRole              // local.role (read-only)
+	Multihop                         bool                                    // multihop (read-only)
+	Name                             string                                  // name (read-only, string)
+	NexthopChoice                    RoutingBgpSessionNexthopChoice          // nexthop-choice (read-only)
+	OutputAddPath                    RoutingBgpSessionOutputAddPath          // output.add-path (read-only)
+	OutputAffinity                   RoutingBgpSessionOutputAffinity         // output.affinity (read-only)
+	OutputDefaultOriginate           RoutingBgpSessionOutputDefaultOriginate // output.default-originate (read-only)
+	OutputDefaultPrepend             int64                                   // output.default-prepend (read-only, integer number)
+	OutputFilterChain                string                                  // output.filter-chain (read-only, string)
+	OutputFilterSelect               string                                  // output.filter-select (read-only, string)
+	OutputKeepSentAttributes         bool                                    // output.keep-sent-attributes (read-only)
+	OutputLastNotification           string                                  // output.last-notification (read-only, string)
+	OutputNetwork                    string                                  // output.network (read-only, string)
+	OutputNoClientToClientReflection bool                                    // output.no-client-to-client-reflection (read-only)
+	OutputNoEarlyCut                 bool                                    // output.no-early-cut (read-only)
+	OutputProcid                     int64                                   // output.procid (read-only, integer number)
+	OutputRemovePrivateAs            bool                                    // output.remove-private-as (read-only)
+	PrefixCount                      int64                                   // prefix-count (read-only, integer number)
+	RemoteAddress                    string                                  // remote.address (read-only)
+	RemoteAfi                        RoutingBgpSessionRemoteAfi              // remote.afi (read-only)
+	RemoteAs                         string                                  // remote.as (read-only)
+	RemoteBytes                      int64                                   // remote.bytes (read-only, integer number)
+	RemoteCapabilities               RoutingBgpSessionRemoteCapabilities     // remote.capabilities (read-only)
+	RemoteEor                        RoutingBgpSessionRemoteEor              // remote.eor (read-only)
+	RemoteGrAfi                      RoutingBgpSessionRemoteGrAfi            // remote.gr-afi (read-only)
+	RemoteGrAfiFwp                   RoutingBgpSessionRemoteGrAfiFwp         // remote.gr-afi-fwp (read-only)
+	RemoteGrRestart                  bool                                    // remote.gr-restart (read-only)
+	RemoteGrTime                     int64                                   // remote.gr-time (read-only, integer number)
+	RemoteHoldTime                   string                                  // remote.hold-time (read-only, time interval)
+	RemoteId                         string                                  // remote.id (read-only, IP address)
+	RemoteMessages                   int64                                   // remote.messages (read-only, integer number)
+	RemotePort                       int64                                   // remote.port (read-only, integer number)
+	RemoteRefusedCapOpt              bool                                    // remote.refused-cap-opt (read-only)
+	RemoteRole                       RoutingBgpSessionRemoteRole             // remote.role (read-only)
+	RestartTimer                     string                                  // restart-timer (read-only)
+	RoutingTable                     string                                  // routing-table (read-only)
+	SaveTo                           string                                  // save-to (read-only, string)
+	Stopped                          string                                  // stopped (read-only)
+	Uptime                           string                                  // uptime (read-only)
+	UseBfd                           bool                                    // use-bfd (read-only)
+	Vrf                              string                                  // vrf (read-only)
+}
+
+// DecodeRoutingBgpSession reads one record as the router returned it.
+func DecodeRoutingBgpSession(r map[string]string) RoutingBgpSession {
+	var v RoutingBgpSession
+	v.ID = r[".id"]
+	v.CiscoVplsNlriLenFmt = RoutingBgpSessionCiscoVplsNlriLenFmt(r["cisco-vpls-nlri-len-fmt"])
+	v.Ebgp = r["ebgp"]
+	v.Established = parseBool(r, "established")
+	v.HoldTime = r["hold-time"]
+	v.Ibgp = r["ibgp"]
+	v.InputAddPath = RoutingBgpSessionInputAddPath(r["input.add-path"])
+	v.InputAffinity = RoutingBgpSessionInputAffinity(r["input.affinity"])
+	v.InputAllowAs = parseInt(r["input.allow-as"])
+	v.InputAsOverride = parseBool(r, "input.as-override")
+	v.InputFilter = r["input.filter"]
+	v.InputIgnoreAsPathLen = parseBool(r, "input.ignore-as-path-len")
+	v.InputLastNotification = r["input.last-notification"]
+	v.InputLimitProcessRoutes = parseInt(r["input.limit-process-routes"])
+	v.InputProcid = parseInt(r["input.procid"])
+	v.Instance = r["instance"]
+	v.KeepaliveTime = parseDuration(r["keepalive-time"])
+	v.KeepaliveTimer = r["keepalive-timer"]
+	v.LastStarted = r["last-started"]
+	v.LastStopped = r["last-stopped"]
+	v.LimitExceeded = r["limit-exceeded"]
+	v.LocalAddress = r["local.address"]
+	v.LocalAfi = RoutingBgpSessionLocalAfi(r["local.afi"])
+	v.LocalAs = r["local.as"]
+	v.LocalBytes = parseInt(r["local.bytes"])
+	v.LocalCapabilities = RoutingBgpSessionLocalCapabilities(r["local.capabilities"])
+	v.LocalClusterId = r["local.cluster-id"]
+	v.LocalEor = RoutingBgpSessionLocalEor(r["local.eor"])
+	v.LocalId = r["local.id"]
+	v.LocalMessages = parseInt(r["local.messages"])
+	v.LocalPort = parseInt(r["local.port"])
+	v.LocalRole = RoutingBgpSessionLocalRole(r["local.role"])
+	v.Multihop = parseBool(r, "multihop")
+	v.Name = r["name"]
+	v.NexthopChoice = RoutingBgpSessionNexthopChoice(r["nexthop-choice"])
+	v.OutputAddPath = RoutingBgpSessionOutputAddPath(r["output.add-path"])
+	v.OutputAffinity = RoutingBgpSessionOutputAffinity(r["output.affinity"])
+	v.OutputDefaultOriginate = RoutingBgpSessionOutputDefaultOriginate(r["output.default-originate"])
+	v.OutputDefaultPrepend = parseInt(r["output.default-prepend"])
+	v.OutputFilterChain = r["output.filter-chain"]
+	v.OutputFilterSelect = r["output.filter-select"]
+	v.OutputKeepSentAttributes = parseBool(r, "output.keep-sent-attributes")
+	v.OutputLastNotification = r["output.last-notification"]
+	v.OutputNetwork = r["output.network"]
+	v.OutputNoClientToClientReflection = parseBool(r, "output.no-client-to-client-reflection")
+	v.OutputNoEarlyCut = parseBool(r, "output.no-early-cut")
+	v.OutputProcid = parseInt(r["output.procid"])
+	v.OutputRemovePrivateAs = parseBool(r, "output.remove-private-as")
+	v.PrefixCount = parseInt(r["prefix-count"])
+	v.RemoteAddress = r["remote.address"]
+	v.RemoteAfi = RoutingBgpSessionRemoteAfi(r["remote.afi"])
+	v.RemoteAs = r["remote.as"]
+	v.RemoteBytes = parseInt(r["remote.bytes"])
+	v.RemoteCapabilities = RoutingBgpSessionRemoteCapabilities(r["remote.capabilities"])
+	v.RemoteEor = RoutingBgpSessionRemoteEor(r["remote.eor"])
+	v.RemoteGrAfi = RoutingBgpSessionRemoteGrAfi(r["remote.gr-afi"])
+	v.RemoteGrAfiFwp = RoutingBgpSessionRemoteGrAfiFwp(r["remote.gr-afi-fwp"])
+	v.RemoteGrRestart = parseBool(r, "remote.gr-restart")
+	v.RemoteGrTime = parseInt(r["remote.gr-time"])
+	v.RemoteHoldTime = r["remote.hold-time"]
+	v.RemoteId = r["remote.id"]
+	v.RemoteMessages = parseInt(r["remote.messages"])
+	v.RemotePort = parseInt(r["remote.port"])
+	v.RemoteRefusedCapOpt = parseBool(r, "remote.refused-cap-opt")
+	v.RemoteRole = RoutingBgpSessionRemoteRole(r["remote.role"])
+	v.RestartTimer = r["restart-timer"]
+	v.RoutingTable = r["routing-table"]
+	v.SaveTo = r["save-to"]
+	v.Stopped = r["stopped"]
+	v.Uptime = r["uptime"]
+	v.UseBfd = parseBool(r, "use-bfd")
+	v.Vrf = r["vrf"]
+	return v
+}
+
+// Encode returns the writable fields as the router expects them.
+// RoutingBgpSession has none: the device maintains this menu.
+func (v RoutingBgpSession) Encode() map[string]string {
+	r := map[string]string{}
+	return r
+}
+
+// SystemHealth is /system/health.
+//
+// list, writable. No field is a proven unique key here (UNPROBED), so a caller
+// addressing rows needs one of its own.
+const SystemHealthPath = "/system/health"
+
+// Omitted, the router having stated no type: state-after-reboot.
+type SystemHealth struct {
+	// ID is the router's own row handle. It is reassigned when a row is
+	// deleted and recreated, so it addresses a row and does not identify one.
+	ID string
+
+	Name  string // name (read-only, string)
+	Type  string // type (read-only)
+	Value string // value (read-only, integer number)
+}
+
+// DecodeSystemHealth reads one record as the router returned it.
+func DecodeSystemHealth(r map[string]string) SystemHealth {
+	var v SystemHealth
+	v.ID = r[".id"]
+	v.Name = r["name"]
+	v.Type = r["type"]
+	v.Value = r["value"]
+	return v
+}
+
+// Encode returns the writable fields as the router expects them.
+// SystemHealth has none: the device maintains this menu.
+func (v SystemHealth) Encode() map[string]string {
+	r := map[string]string{}
+	return r
+}
+
+// Requested but absent from the IR, which was probed on 7.23.2 (stable):
+//   /system/routerboard
+// A menu the probed device does not have cannot be typed from it.
+// Generating one anyway would mean sourcing it from somewhere with no
+// authority over what this router accepts.

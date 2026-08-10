@@ -25,13 +25,22 @@ import (
 	"github.com/sindrip/provider-routeros/schema"
 )
 
-// spike is the subset to emit. Each earns its place by exercising something
-// the others do not.
+// spike is the subset to emit.
+//
+// The first four were chosen to exercise every case that matters: a keyed
+// list, an unkeyed one, an ordered chain, and a read-only singleton. The rest
+// are the menus the OTel collector scrapes, which nobody chose for the
+// generator's convenience — they are here to find out what breaks.
 var spike = []string{
 	"/ip/address",         // list, writable, no proven key: identity is a hole
 	"/interface/bridge",   // list, writable, name proven unique, hex-valued field
 	"/ip/firewall/filter", // ordered chain, dense with booleans and enums
 	"/system/resource",    // singleton, read-only, durations and counters
+
+	"/interface",           // the collector's counters; a menu with no add
+	"/routing/bgp/session", // read-only rows, dotted keys, a present-but-empty bool
+	"/system/health",       // sensor rows on iron, a settings singleton on CHR
+	"/system/routerboard",  // absent entirely on CHR
 }
 
 func main() {
@@ -56,12 +65,28 @@ func run() error {
 	b.WriteString("package routeros\n\n")
 	b.WriteString("import \"time\"\n\n")
 
+	var absent []string
 	for _, path := range spike {
 		m, ok := ir.Menu(path)
 		if !ok {
-			return fmt.Errorf("%s is not in the IR", path)
+			// The IR knows the menus the probed device had, and no others.
+			// /system/routerboard does not exist on CHR — a virtual router has
+			// no board — so there is nothing here to type. Saying so in the
+			// generated file is the whole point; inventing the menu from a
+			// manual page is what this pipeline exists to avoid.
+			absent = append(absent, path)
+			continue
 		}
 		emitMenu(&b, m)
+	}
+	if len(absent) > 0 {
+		fmt.Fprintf(&b, "// Requested but absent from the IR, which was probed on %s:\n", ir.RouterOSVersion)
+		for _, path := range absent {
+			fmt.Fprintf(&b, "//   %s\n", path)
+		}
+		b.WriteString("// A menu the probed device does not have cannot be typed from it.\n")
+		b.WriteString("// Generating one anyway would mean sourcing it from somewhere with no\n")
+		b.WriteString("// authority over what this router accepts.\n\n")
 	}
 
 	src, err := format.Source(b.Bytes())
@@ -76,7 +101,7 @@ func run() error {
 	if err := os.WriteFile(filepath.Join("routeros", "routeros.go"), src, 0o644); err != nil { //nolint:gosec // generated source
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "emitted %d menus\n", len(spike))
+	fmt.Fprintf(os.Stderr, "emitted %d of %d menus\n", len(spike)-len(absent), len(spike))
 	return nil
 }
 

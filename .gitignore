@@ -18,4 +18,6 @@ __pycache__/
 /hack/inspectdump/inspectdump
 /hack/typedump/typedump
 /hack/uniqprobe/uniqprobe
+/hack/valueprobe/valueprobe
+/hack/telemetry/telemetry
 /hack/schemaaudit/upstreamdump/upstreamdump

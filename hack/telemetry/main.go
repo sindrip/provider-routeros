@@ -25,7 +25,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/sindrip/provider-routeros/gen/routeros"
+	"github.com/sindrip/provider-routeros/routeros"
 	"github.com/sindrip/provider-routeros/rest"
 )
 

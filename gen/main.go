@@ -5,12 +5,14 @@
 // matters — a keyed list, an unkeyed one, an ordered chain, and a read-only
 // singleton — rather than the whole device.
 //
-// The output depends on nothing but the standard library. rest.Record is
-// map[string]string underneath, so a caller passes one straight in without
-// this package having to import rest, which keeps the generated code off
-// rest's release-candidate toolchain.
+// Output goes to the sibling routeros/ module, which is its own module and
+// stdlib only. That separation is what makes the generated code consumable:
+// gen imports schema to read the IR, and anyone who merely wants the types
+// has no business resolving that. rest.Record is map[string]string
+// underneath, so a caller passes one straight in and the generated code never
+// imports rest either.
 //
-//	cd gen && go run -buildvcs=false . && gofmt -w routeros
+//	cd gen && go run -buildvcs=false . && gofmt -w ../routeros
 package main
 
 import (
@@ -92,13 +94,13 @@ func run() error {
 	src, err := format.Source(b.Bytes())
 	if err != nil {
 		// Write it anyway so the syntax error is readable.
-		_ = os.WriteFile(filepath.Join("routeros", "routeros.go"), b.Bytes(), 0o644) //nolint:gosec // generated source
+		_ = os.WriteFile(filepath.Join("..", "routeros", "routeros.go"), b.Bytes(), 0o644) //nolint:gosec // generated source
 		return fmt.Errorf("formatting generated source: %w", err)
 	}
-	if err := os.MkdirAll("routeros", 0o750); err != nil {
+	if err := os.MkdirAll(filepath.Join("..", "routeros"), 0o750); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join("routeros", "routeros.go"), src, 0o644); err != nil { //nolint:gosec // generated source
+	if err := os.WriteFile(filepath.Join("..", "routeros", "routeros.go"), src, 0o644); err != nil { //nolint:gosec // generated source
 		return err
 	}
 	fmt.Fprintf(os.Stderr, "emitted %d of %d menus\n", len(spike)-len(absent), len(spike))

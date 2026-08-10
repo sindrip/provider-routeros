@@ -71,9 +71,17 @@ type node struct {
 }
 
 type dump struct {
-	RouterOSVersion string  `json:"routeros_version"`
-	GeneratedBy     string  `json:"generated_by"`
-	Tree            []*node `json:"tree"`
+	RouterOSVersion string `json:"routeros_version"`
+	// Architecture and BoardName because the menu tree is not the same on
+	// every platform running the same RouterOS. /system/routerboard exists on
+	// an arm64 CHR and not on an x86_64 one; check-disk and ups go the other
+	// way. A dump that records only the version looks authoritative about a
+	// device it never saw, and the difference is invisible until something
+	// reads a menu the tree does not have.
+	Architecture string  `json:"architecture"`
+	BoardName    string  `json:"board_name"`
+	GeneratedBy  string  `json:"generated_by"`
+	Tree         []*node `json:"tree"`
 }
 
 const maxDepth = 16
@@ -143,17 +151,18 @@ func walk(path []string, n *node, depth int) {
 	}
 }
 
-func version() string {
+// identity is what the dump is stamped with: which RouterOS, on what.
+func identity() (version, arch, board string) {
 	code, data, err := rest("GET", "/system/resource", nil)
 	if err != nil || code >= 300 {
-		return ""
+		return "", "", ""
 	}
 	var m map[string]any
 	if json.Unmarshal(data, &m) != nil {
-		return ""
+		return "", "", ""
 	}
-	v, _ := m["version"].(string)
-	return v
+	s := func(k string) string { v, _ := m[k].(string); return v }
+	return s("version"), s("architecture-name"), s("board-name")
 }
 
 func trim(b []byte) string {
@@ -175,8 +184,11 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "%6d nodes total\n", visited)
 
+	v, arch, board := identity()
 	out := dump{
-		RouterOSVersion: version(),
+		RouterOSVersion: v,
+		Architecture:    arch,
+		BoardName:       board,
 		GeneratedBy:     "hack/inspectdump",
 		Tree:            root.Children,
 	}

@@ -62,10 +62,21 @@ type IR struct {
 }
 
 // Source records one artifact the IR was assembled from.
+//
+// Platform is the architecture the artifact was probed on, and it is not
+// decoration: the menu tree differs by platform on the same RouterOS version.
+// /system/routerboard exists on an arm64 CHR and not on an x86_64 one, which
+// runs the other way for check-disk and ups. An IR that records only a version
+// therefore claims more than it knows, and the discrepancy stays invisible
+// until a caller reads a menu the tree never had.
+//
+// Empty means the artifact predates the field rather than that the platform
+// was uniform; the probes stamp it from /system/resource now.
 type Source struct {
 	Artifact string `json:"artifact"`
 	Producer string `json:"producer"`
 	Version  string `json:"routeros_version,omitempty"`
+	Platform string `json:"platform,omitempty"`
 }
 
 // Class is a menu's cardinality, and nothing else.

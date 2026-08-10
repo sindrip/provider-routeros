@@ -59,8 +59,12 @@ type verdict struct {
 }
 
 type dump struct {
-	RouterOSVersion string    `json:"routeros_version"`
-	GeneratedBy     string    `json:"generated_by"`
+	RouterOSVersion string `json:"routeros_version"`
+	// The platform, because a value read off one device is evidence about
+	// that device: the menu set differs by architecture on the same RouterOS.
+	Architecture string    `json:"architecture"`
+	BoardName    string    `json:"board_name"`
+	GeneratedBy  string    `json:"generated_by"`
 	Note            string    `json:"note"`
 	Verdicts        []verdict `json:"verdicts"`
 }
@@ -105,9 +109,10 @@ func run() error {
 	}
 	ctx := context.Background()
 
-	version := "unknown"
+	version, arch, board := "unknown", "", ""
 	if res, err := c.Get(ctx, "/system/resource"); err == nil {
 		version = res.String("version")
+		arch, board = res.String("architecture-name"), res.String("board-name")
 	}
 
 	paths := make([]string, 0, len(gaps))
@@ -146,6 +151,8 @@ func run() error {
 
 	out, err := json.MarshalIndent(dump{
 		RouterOSVersion: version,
+		Architecture:    arch,
+		BoardName:       board,
 		GeneratedBy:     "hack/valueprobe",
 		Note:            note,
 		Verdicts:        verdicts,

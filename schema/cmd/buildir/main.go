@@ -40,6 +40,7 @@ type treeNode struct {
 
 type consoleTree struct {
 	RouterOSVersion string      `json:"routeros_version"`
+	Architecture    string      `json:"architecture"`
 	GeneratedBy     string      `json:"generated_by"`
 	Tree            []*treeNode `json:"tree"`
 }
@@ -57,6 +58,7 @@ type argType struct {
 
 type argTypes struct {
 	RouterOSVersion string    `json:"routeros_version"`
+	Architecture    string    `json:"architecture"`
 	GeneratedBy     string    `json:"generated_by"`
 	Args            []argType `json:"args"`
 }
@@ -70,6 +72,7 @@ type observed struct {
 
 type observedTypes struct {
 	RouterOSVersion string     `json:"routeros_version"`
+	Architecture    string     `json:"architecture"`
 	GeneratedBy     string     `json:"generated_by"`
 	Verdicts        []observed `json:"verdicts"`
 }
@@ -118,10 +121,10 @@ func run() error {
 		RouterOSVersion: tree.RouterOSVersion,
 		GeneratedBy:     "schema/cmd/buildir",
 		Sources: []schema.Source{
-			{Artifact: "console-tree.json", Producer: tree.GeneratedBy, Version: tree.RouterOSVersion},
-			{Artifact: "arg-types.json", Producer: types.GeneratedBy, Version: types.RouterOSVersion},
+			{Artifact: "console-tree.json", Producer: tree.GeneratedBy, Version: tree.RouterOSVersion, Platform: tree.Architecture},
+			{Artifact: "arg-types.json", Producer: types.GeneratedBy, Version: types.RouterOSVersion, Platform: types.Architecture},
 			{Artifact: "name-uniqueness.json", Producer: uniq.GeneratedBy, Version: uniq.RouterOSVersion},
-			{Artifact: "observed-types.json", Producer: obs.GeneratedBy, Version: obs.RouterOSVersion},
+			{Artifact: "observed-types.json", Producer: obs.GeneratedBy, Version: obs.RouterOSVersion, Platform: obs.Architecture},
 		},
 		Menus: assemble(&tree, &types, &uniq, &obs),
 	}

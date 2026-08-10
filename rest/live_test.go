@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"slices"
 	"testing"
 )
 
@@ -255,5 +256,133 @@ func TestLiveCHRHexValuedField(t *testing.T) {
 	}
 	if got := br.Uint("priority"); got != 0x8000 {
 		t.Errorf("Uint(priority) = %d, want 32768 — a base-10 reader gets 0", got)
+	}
+}
+
+// TestLiveCHRMenuApply drives a whole menu through Apply against a real router.
+//
+// The unit tests pin the plan; this pins what they cannot — that RouterOS accepts
+// the calls the plan emits and ends up in the order the spec asked for.
+// /ip/firewall/filter is the case that matters: first-match, so order is
+// semantic, and it is the menu this provider already sequences by comment.
+//
+// Rules are created disabled. An enabled drop in the input chain would cut the
+// connection the test is running over.
+func TestLiveCHRMenuApply(t *testing.T) {
+	c := liveClient(t)
+	ctx := t.Context()
+	const path = "/ip/firewall/filter"
+
+	spec := MenuSpec{Path: path, Ordered: true, Unlisted: UnlistedPrune}
+	rule := func(comment, action string) Record {
+		return Record{"chain": "input", "action": action, "comment": comment, "disabled": "true"}
+	}
+	// Prune means this test owns the menu, so it is emptied afterwards either
+	// way; a leftover rule would change what the next run sees.
+	t.Cleanup(func() {
+		if _, err := c.Apply(context.Background(), spec, nil); err != nil {
+			t.Errorf("cleanup: %v", err)
+		}
+	})
+
+	desired := []Record{rule("live-a", "accept"), rule("live-b", "accept"), rule("live-c", "drop")}
+	p, err := c.Apply(ctx, spec, desired)
+	if err != nil {
+		t.Fatalf("first apply: %v", err)
+	}
+	if n := p.Counts()[OpCreate]; n != 3 {
+		t.Errorf("first apply made %d rows, want 3 (%v)", n, p.Counts())
+	}
+	assertOrder(t, ctx, c, path, "live-a", "live-b", "live-c")
+
+	// Converged: a second apply of the same spec must do nothing at all. This is
+	// the property that stops a reconciler writing on every pass, which is the
+	// bug class both the late-init and the policy-expansion fixes were about.
+	p, err = c.Apply(ctx, spec, desired)
+	if err != nil {
+		t.Fatalf("second apply: %v", err)
+	}
+	if !p.Empty() {
+		t.Errorf("a converged menu still planned %v", p.Counts())
+	}
+
+	// Reorder only: the rows exist, so this must be moves and nothing else.
+	reversed := []Record{rule("live-c", "drop"), rule("live-b", "accept"), rule("live-a", "accept")}
+	p, err = c.Apply(ctx, spec, reversed)
+	if err != nil {
+		t.Fatalf("reorder: %v", err)
+	}
+	if p.Counts()[OpCreate] != 0 || p.Counts()[OpDelete] != 0 {
+		t.Errorf("reorder created or deleted rows: %v", p.Counts())
+	}
+	assertOrder(t, ctx, c, path, "live-c", "live-b", "live-a")
+
+	// Drop one and add one, exercising create and prune in the same pass.
+	final := []Record{rule("live-c", "drop"), rule("live-d", "accept")}
+	if _, err = c.Apply(ctx, spec, final); err != nil {
+		t.Fatalf("third apply: %v", err)
+	}
+	assertOrder(t, ctx, c, path, "live-c", "live-d")
+}
+
+// TestLiveCHRMenuTolerateLeavesRowsAlone is the other policy, and the one whose
+// failure mode is somebody's configuration disappearing.
+func TestLiveCHRMenuTolerateLeavesRowsAlone(t *testing.T) {
+	c := liveClient(t)
+	ctx := t.Context()
+	const path = "/ip/firewall/filter"
+
+	// Stand in for a rule a person added by hand.
+	created, err := c.Create(ctx, path, Record{
+		"chain": "input", "action": "accept", "comment": "theirs", "disabled": "true"})
+	if err != nil {
+		t.Fatalf("seeding: %v", err)
+	}
+	t.Cleanup(func() { _ = c.Delete(context.Background(), path, created.ID()) })
+
+	spec := MenuSpec{Path: path, Ordered: true, Unlisted: UnlistedTolerate}
+	p, err := c.Apply(ctx, spec, []Record{{
+		"chain": "input", "action": "drop", "comment": "mine", "disabled": "true"}})
+	if err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	if n := p.Counts()[OpDelete]; n != 0 {
+		t.Fatalf("tolerate deleted %d rows", n)
+	}
+	t.Cleanup(func() {
+		rows, err := c.List(context.Background(), path)
+		if err != nil {
+			return
+		}
+		for _, r := range rows {
+			if r["comment"] == "mine" {
+				_ = c.Delete(context.Background(), path, r.ID())
+			}
+		}
+	})
+
+	rows, err := c.List(ctx, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.ContainsFunc(rows, func(r Record) bool { return r.ID() == created.ID() }) {
+		t.Error("the hand-added rule is gone, which is the whole thing tolerate exists to prevent")
+	}
+}
+
+func assertOrder(t *testing.T, ctx context.Context, c *Client, path string, want ...string) {
+	t.Helper()
+	rows, err := c.List(ctx, path)
+	if err != nil {
+		t.Fatalf("reading back: %v", err)
+	}
+	var got []string
+	for _, r := range rows {
+		if r["comment"] != "" {
+			got = append(got, r["comment"])
+		}
+	}
+	if !slices.Equal(got, want) {
+		t.Errorf("device order %v, want %v", got, want)
 	}
 }

@@ -219,10 +219,45 @@ type FirewallFilterRowStatus struct {
 	ID    string `json:"id,omitempty"`
 }
 
+// FirewallFilterPlanStatus is a compact preview of a first destructive prune.
+// ApprovalToken changes whenever either the connection or planned operations
+// change, preventing approval from being reused for a different router state.
+type FirewallFilterPlanStatus struct {
+	ApprovalToken string `json:"approvalToken"`
+	Creates       int32  `json:"creates,omitempty"`
+	Updates       int32  `json:"updates,omitempty"`
+	Deletes       int32  `json:"deletes,omitempty"`
+	Moves         int32  `json:"moves,omitempty"`
+	// DeleteRows previews up to twenty static rows that would be removed.
+	// +listType=atomic
+	DeleteRows []FirewallFilterDeletePreview `json:"deleteRows,omitempty"`
+	// DeleteRowsTruncated is true when Deletes is larger than DeleteRows.
+	DeleteRowsTruncated bool `json:"deleteRowsTruncated,omitempty"`
+}
+
+// FirewallFilterDeletePreview identifies a row in a destructive adoption plan
+// without copying the complete firewall rule into Kubernetes status.
+type FirewallFilterDeletePreview struct {
+	ID      string `json:"id"`
+	Chain   string `json:"chain,omitempty"`
+	Action  string `json:"action,omitempty"`
+	Comment string `json:"comment,omitempty"`
+}
+
 // FirewallFilterMenuStatus is intentionally compact: the desired values
-// already live in spec, so status reports only resolution and health.
+// already live in spec, so status reports resolution, health, and only a
+// bounded summary when destructive adoption is pending.
 type FirewallFilterMenuStatus struct {
 	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
+	// Adopted is true after the first prune for the current connection has
+	// either been approved or was proven non-destructive.
+	Adopted bool `json:"adopted,omitempty"`
+	// AdoptedConnection is the non-secret fingerprint of the ProviderConfig and
+	// Secret revision that was adopted.
+	AdoptedConnection string `json:"adoptedConnection,omitempty"`
+	// PendingPlan is present while the controller is waiting for approval of a
+	// first prune that would delete existing static rows.
+	PendingPlan *FirewallFilterPlanStatus `json:"pendingPlan,omitempty"`
 
 	// +listType=atomic
 	Rows []FirewallFilterRowStatus `json:"rows,omitempty"`
@@ -237,6 +272,7 @@ type FirewallFilterMenuStatus struct {
 // +kubebuilder:resource:scope=Cluster,categories={crossplane,provider,routeros}
 // +kubebuilder:printcolumn:name="READY",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
 // +kubebuilder:printcolumn:name="POLICY",type=string,JSONPath=`.spec.unlisted`
+// +kubebuilder:printcolumn:name="ADOPTED",type=boolean,JSONPath=`.status.adopted`
 // +kubebuilder:printcolumn:name="AGE",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // FirewallFilterMenu owns the ordered /ip/firewall/filter menu on one RouterOS

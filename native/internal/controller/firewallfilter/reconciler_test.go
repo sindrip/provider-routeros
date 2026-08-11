@@ -27,11 +27,22 @@ import (
 )
 
 type fakeMenu struct {
-	plan    rest.Plan
-	err     error
-	spec    rest.MenuSpec
-	desired []rest.Record
-	calls   int
+	plan              rest.Plan
+	checkedPlan       *rest.Plan
+	err               error
+	planErr           error
+	spec              rest.MenuSpec
+	desired           []rest.Record
+	calls             int
+	planCalls         int
+	applyCheckedCalls int
+}
+
+func (m *fakeMenu) Plan(_ context.Context, spec rest.MenuSpec, desired []rest.Record) (rest.Plan, error) {
+	m.planCalls++
+	m.spec = spec
+	m.desired = desired
+	return m.plan, m.planErr
 }
 
 func (m *fakeMenu) Apply(_ context.Context, spec rest.MenuSpec, desired []rest.Record) (rest.Plan, error) {
@@ -41,17 +52,36 @@ func (m *fakeMenu) Apply(_ context.Context, spec rest.MenuSpec, desired []rest.R
 	return m.plan, m.err
 }
 
-type fakeConnector struct {
-	menu  connection.Menu
-	err   error
-	name  string
-	calls int
+func (m *fakeMenu) ApplyChecked(_ context.Context, spec rest.MenuSpec, desired []rest.Record, approve func(rest.Plan) error) (rest.Plan, error) {
+	m.applyCheckedCalls++
+	m.spec = spec
+	m.desired = desired
+	plan := m.plan
+	if m.checkedPlan != nil {
+		plan = *m.checkedPlan
+	}
+	if err := approve(plan); err != nil {
+		return plan, err
+	}
+	if m.err != nil {
+		return plan, m.err
+	}
+	m.calls++
+	return plan, nil
 }
 
-func (c *fakeConnector) Connect(_ context.Context, _ client.Reader, name string) (connection.Menu, error) {
+type fakeConnector struct {
+	menu        connection.Menu
+	fingerprint string
+	err         error
+	name        string
+	calls       int
+}
+
+func (c *fakeConnector) Connect(_ context.Context, _ client.Reader, name string) (connection.Connection, error) {
 	c.calls++
 	c.name = name
-	return c.menu, c.err
+	return connection.Connection{Menu: c.menu, Fingerprint: c.fingerprint}, c.err
 }
 
 func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
@@ -93,6 +123,9 @@ func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
 	}
 	if remote.spec.Path != menuPath || !remote.spec.Ordered || remote.spec.Unlisted != rest.UnlistedTolerate {
 		t.Fatalf("REST menu spec = %#v", remote.spec)
+	}
+	if !reflect.DeepEqual(remote.spec.Ignore, dynamicIgnore) {
+		t.Fatalf("ignored rows = %#v, want RouterOS dynamic selectors", remote.spec.Ignore)
 	}
 	wantDesired := []rest.Record{{"chain": "forward", "action": "accept"}}
 	if !reflect.DeepEqual(remote.desired, wantDesired) {
@@ -222,7 +255,7 @@ func TestReconcileSurfacesApplyFailure(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
-			Unlisted:          v1alpha1.UnlistedPrune,
+			Unlisted:          v1alpha1.UnlistedTolerate,
 			Rows:              []v1alpha1.FirewallFilterRule{{}},
 		},
 	}
@@ -244,6 +277,211 @@ func TestReconcileSurfacesApplyFailure(t *testing.T) {
 	ready := condition(got, conditionReady)
 	if ready == nil || ready.Status != metav1.ConditionFalse || ready.Reason != "ApplyError" {
 		t.Fatalf("Ready condition = %#v", ready)
+	}
+}
+
+func TestFirstPruneRequiresMatchingApproval(t *testing.T) {
+	scheme := testScheme(t)
+	object := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+			Unlisted:          v1alpha1.UnlistedPrune,
+			Rows:              []v1alpha1.FirewallFilterRule{},
+		},
+	}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
+		WithObjects(object).Build()
+	remote := &fakeMenu{plan: rest.Plan{Steps: []rest.Step{{
+		Op: rest.OpDelete, ID: "*1", Row: rest.Record{rest.IDField: "*1", "comment": "existing"},
+	}}}}
+	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "connection-v1"}}
+	request := ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}
+
+	result, err := reconciler.Reconcile(context.Background(), request)
+	if err != nil {
+		t.Fatalf("preview Reconcile() error = %v", err)
+	}
+	if result.RequeueAfter == 0 || remote.planCalls != 1 || remote.calls != 0 || remote.applyCheckedCalls != 0 {
+		t.Fatalf("preview result=%#v plan=%d apply=%d checked=%d", result, remote.planCalls, remote.calls, remote.applyCheckedCalls)
+	}
+	got := &v1alpha1.FirewallFilterMenu{}
+	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Status.PendingPlan == nil || got.Status.PendingPlan.Deletes != 1 || len(got.Status.PendingPlan.ApprovalToken) != 64 {
+		t.Fatalf("pending plan = %#v", got.Status.PendingPlan)
+	}
+	if len(got.Status.PendingPlan.DeleteRows) != 1 || got.Status.PendingPlan.DeleteRows[0].Comment != "existing" {
+		t.Fatalf("delete preview = %#v", got.Status.PendingPlan.DeleteRows)
+	}
+	ready := condition(got, conditionReady)
+	if ready == nil || ready.Reason != "AdoptionPending" || ready.Status != metav1.ConditionFalse {
+		t.Fatalf("Ready condition = %#v", ready)
+	}
+
+	before := got.DeepCopy()
+	got.Annotations = map[string]string{PruneApprovalAnnotation: got.Status.PendingPlan.ApprovalToken}
+	if err := kube.Patch(context.Background(), got, client.MergeFrom(before)); err != nil {
+		t.Fatalf("approve pending plan: %v", err)
+	}
+	if _, err := reconciler.Reconcile(context.Background(), request); err != nil {
+		t.Fatalf("approved Reconcile() error = %v", err)
+	}
+	if remote.planCalls != 2 || remote.applyCheckedCalls != 1 || remote.calls != 1 {
+		t.Fatalf("approved plan=%d checked=%d apply=%d", remote.planCalls, remote.applyCheckedCalls, remote.calls)
+	}
+	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+		t.Fatal(err)
+	}
+	if !got.Status.Adopted || got.Status.AdoptedConnection != "connection-v1" || got.Status.PendingPlan != nil {
+		t.Fatalf("adoption status = %#v", got.Status)
+	}
+}
+
+func TestChangedPlanInvalidatesPruneApproval(t *testing.T) {
+	scheme := testScheme(t)
+	object := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+			Unlisted:          v1alpha1.UnlistedPrune,
+			Rows:              []v1alpha1.FirewallFilterRule{},
+		},
+	}
+	initial := rest.Plan{Steps: []rest.Step{{Op: rest.OpDelete, ID: "*1", Row: rest.Record{rest.IDField: "*1"}}}}
+	changed := rest.Plan{Steps: []rest.Step{{Op: rest.OpDelete, ID: "*2", Row: rest.Record{rest.IDField: "*2"}}}}
+	remote := &fakeMenu{plan: initial, checkedPlan: &changed}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
+		WithObjects(object).Build()
+	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "connection-v1"}}
+	request := ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}
+
+	if _, err := reconciler.Reconcile(context.Background(), request); err != nil {
+		t.Fatal(err)
+	}
+	got := &v1alpha1.FirewallFilterMenu{}
+	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+		t.Fatal(err)
+	}
+	oldToken := got.Status.PendingPlan.ApprovalToken
+	before := got.DeepCopy()
+	got.Annotations = map[string]string{PruneApprovalAnnotation: oldToken}
+	if err := kube.Patch(context.Background(), got, client.MergeFrom(before)); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := reconciler.Reconcile(context.Background(), request); err != nil {
+		t.Fatalf("changed-plan Reconcile() error = %v", err)
+	}
+	if remote.calls != 0 {
+		t.Fatalf("changed approved plan performed %d mutation(s)", remote.calls)
+	}
+	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Status.PendingPlan == nil || got.Status.PendingPlan.ApprovalToken == oldToken {
+		t.Fatalf("stale token was not replaced: %#v", got.Status.PendingPlan)
+	}
+}
+
+func TestNonDestructiveFirstPruneAdoptsAutomatically(t *testing.T) {
+	scheme := testScheme(t)
+	object := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+			Unlisted:          v1alpha1.UnlistedPrune,
+			Rows:              []v1alpha1.FirewallFilterRule{},
+		},
+	}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
+		WithObjects(object).Build()
+	remote := &fakeMenu{plan: rest.Plan{Matched: map[int]string{}}}
+	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "connection-v1"}}
+
+	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}); err != nil {
+		t.Fatal(err)
+	}
+	if remote.planCalls != 1 || remote.calls != 1 || remote.applyCheckedCalls != 1 {
+		t.Fatalf("plan=%d apply=%d checked=%d", remote.planCalls, remote.calls, remote.applyCheckedCalls)
+	}
+	got := &v1alpha1.FirewallFilterMenu{}
+	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+		t.Fatal(err)
+	}
+	if !got.Status.Adopted || got.Status.AdoptedConnection != "connection-v1" {
+		t.Fatalf("adoption status = %#v", got.Status)
+	}
+}
+
+func TestChangedConnectionRequiresFreshAdoption(t *testing.T) {
+	scheme := testScheme(t)
+	object := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+			Unlisted:          v1alpha1.UnlistedPrune,
+			Rows:              []v1alpha1.FirewallFilterRule{},
+		},
+		Status: v1alpha1.FirewallFilterMenuStatus{Adopted: true, AdoptedConnection: "old-connection"},
+	}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
+		WithObjects(object).Build()
+	remote := &fakeMenu{plan: rest.Plan{Steps: []rest.Step{{
+		Op: rest.OpDelete, ID: "*1", Row: rest.Record{rest.IDField: "*1", "comment": "existing"},
+	}}}}
+	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "new-connection"}}
+
+	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}); err != nil {
+		t.Fatal(err)
+	}
+	if remote.calls != 0 || remote.applyCheckedCalls != 0 {
+		t.Fatal("changed connection pruned before fresh approval")
+	}
+	got := &v1alpha1.FirewallFilterMenu{}
+	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Status.Adopted || got.Status.PendingPlan == nil {
+		t.Fatalf("connection change did not reset adoption: %#v", got.Status)
+	}
+}
+
+func TestPlanTokenIgnoresCountersButNotRuleChanges(t *testing.T) {
+	base := rest.Plan{Steps: []rest.Step{{
+		Op: rest.OpDelete, ID: "*1", Row: rest.Record{
+			rest.IDField: "*1", "chain": "input", "action": "drop", "bytes": "1", "packets": "1",
+		},
+	}}}
+	countersChanged := rest.Plan{Steps: []rest.Step{{
+		Op: rest.OpDelete, ID: "*1", Row: rest.Record{
+			rest.IDField: "*1", "chain": "input", "action": "drop", "bytes": "9001", "packets": "42",
+		},
+	}}}
+	ruleChanged := rest.Plan{Steps: []rest.Step{{
+		Op: rest.OpDelete, ID: "*1", Row: rest.Record{
+			rest.IDField: "*1", "chain": "input", "action": "accept", "bytes": "9001", "packets": "42",
+		},
+	}}}
+
+	baseToken := planToken("connection", base)
+	if got := planToken("connection", countersChanged); got != baseToken {
+		t.Fatalf("counter change altered approval token: %s != %s", got, baseToken)
+	}
+	if got := planToken("connection", ruleChanged); got == baseToken {
+		t.Fatal("firewall rule change did not alter approval token")
+	}
+	if got := planToken("different-connection", base); got == baseToken {
+		t.Fatal("connection change did not alter approval token")
 	}
 }
 
@@ -271,7 +509,7 @@ func TestReconcileDeletePolicyDeletesEveryRemoteRow(t *testing.T) {
 	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}); err != nil {
 		t.Fatalf("Reconcile() error = %v", err)
 	}
-	if remote.calls != 1 || remote.spec != deleteAllSpec || remote.desired != nil {
+	if remote.calls != 1 || !reflect.DeepEqual(remote.spec, deleteAllStaticSpec) || remote.desired != nil {
 		t.Fatalf("delete Apply = calls %d, spec %#v, desired %#v", remote.calls, remote.spec, remote.desired)
 	}
 }

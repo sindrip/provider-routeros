@@ -15,8 +15,13 @@ separate from the shipping Upjet provider while the native API is exercised:
   `ProviderConfigUsage`, so Crossplane will not remove a configuration that is
   still referenced.
 - The REST planner handles matching, ambiguity, create/delete, and ordering.
-  Status contains only each desired position's RouterOS `.id` plus a `Ready`
-  condition; it does not mirror the full menu.
+  Normal status contains only each desired position's RouterOS `.id` plus a
+  `Ready` condition; it does not mirror the full menu. A pending destructive
+  adoption adds a bounded deletion preview.
+- RouterOS `dynamic=true` rows are device-owned: they are neither adopted nor
+  pruned, even when the object owns every static firewall rule.
+- A first `Prune` that would delete existing static rows stops at a compact
+  preview and requires approval of a plan hash before it writes anything.
 - The oldest object referencing a ProviderConfig is the active owner. A second
   object reports `OwnershipConflict` instead of fighting the first one.
 
@@ -62,11 +67,35 @@ The sample uses `Tolerate` and creates a **disabled** rule, so it neither prunes
 existing firewall rows nor changes packet handling. The resource defaults to
 `deletionPolicy: Orphan`; deleting it leaves that test row on the router.
 
-`unlisted: Prune` means the object owns the complete firewall-filter menu and
-deletes every unlisted row. `deletionPolicy: Delete` is admitted only together
-with `Prune`, and deleting that object empties the complete menu. Both are
-intentionally explicit and should be used only on a disposable router while
-this slice is experimental.
+`unlisted: Prune` means the object owns every static firewall-filter row and
+deletes every unlisted static row. RouterOS dynamic rows remain untouched.
+
+The first destructive prune reports `Ready=False`, reason `AdoptionPending`,
+and a `status.pendingPlan` containing operation counts, up to twenty rows that
+would be deleted, and an approval token. Review it before approving:
+
+```sh
+kubectl get firewallfiltermenu input-firewall \
+  -o jsonpath='{.status.pendingPlan}'
+
+APPROVAL_TOKEN="$(kubectl get firewallfiltermenu input-firewall \
+  -o jsonpath='{.status.pendingPlan.approvalToken}')"
+
+kubectl annotate firewallfiltermenu input-firewall \
+  firewallfiltermenus.ip.routeros.sindrip.io/approve-prune="$APPROVAL_TOKEN"
+```
+
+The token covers the selected connection and exact planned operations. If the
+router configuration or credentials change before apply, the controller
+rejects it and publishes a new preview. Live `bytes` and `packets` counters do
+not change the token. Once adopted, later spec edits reconcile automatically.
+Repointing the ProviderConfig or Secret requires adoption again.
+
+`deletionPolicy: Delete` is admitted only together with `Prune`, and deleting
+that object removes every static row; dynamic rows remain device-owned. Both
+destructive choices are intentionally explicit. `Orphan` remains the
+recommended deletion policy so an accidental Kubernetes deletion cannot empty
+the firewall.
 
 ## Develop
 

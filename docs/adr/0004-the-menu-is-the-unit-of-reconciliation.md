@@ -104,6 +104,19 @@ those menus and this trade-off is worth revisiting.
   to prune would delete a user's hand-added rules on first apply; defaulting to
   tolerate means the CR does not actually converge. Neither default is safe, so
   it is a required field.
+- **The first destructive prune needs an exact preview and approval.** Merely
+  spelling `prune` in a new object is not sufficient authority to delete an
+  existing menu: the controller reports a compact plan and a hash covering the
+  selected connection and planned operations, then requires that hash in an
+  approval annotation. The fresh plan is checked again immediately before its
+  first mutation. Once a connection has been adopted, ordinary reconciliation
+  remains automatic; repointing its ProviderConfig or credentials requires a
+  new adoption.
+- **Device-owned dynamic rows are outside static menu ownership.** A prune
+  ignores rows RouterOS reports as dynamic rather than trying to match or
+  delete runtime state. Their presence also prevents the planner from using a
+  whole-menu block move, so they are treated like tolerated anchors while
+  static rows are ordered.
 - **The 44 ordered menus get correct ordering for the first time.** 0002's
   bounded window — a rule created after its chain's drop sits dead until the
   sequencer's next reconcile — closes, because there is no separate sequencer to

@@ -25,6 +25,9 @@ spec:
     - jsonPath: .spec.unlisted
       name: POLICY
       type: string
+    - jsonPath: .status.adopted
+      name: ADOPTED
+      type: boolean
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
@@ -244,8 +247,19 @@ spec:
           status:
             description: |-
               FirewallFilterMenuStatus is intentionally compact: the desired values
-              already live in spec, so status reports only resolution and health.
+              already live in spec, so status reports resolution, health, and only a
+              bounded summary when destructive adoption is pending.
             properties:
+              adopted:
+                description: |-
+                  Adopted is true after the first prune for the current connection has
+                  either been approved or was proven non-destructive.
+                type: boolean
+              adoptedConnection:
+                description: |-
+                  AdoptedConnection is the non-secret fingerprint of the ProviderConfig and
+                  Secret revision that was adopted.
+                type: string
               conditions:
                 items:
                   description: Condition contains details for one aspect of the current
@@ -308,6 +322,53 @@ spec:
               observedGeneration:
                 format: int64
                 type: integer
+              pendingPlan:
+                description: |-
+                  PendingPlan is present while the controller is waiting for approval of a
+                  first prune that would delete existing static rows.
+                properties:
+                  approvalToken:
+                    type: string
+                  creates:
+                    format: int32
+                    type: integer
+                  deleteRows:
+                    description: DeleteRows previews up to twenty static rows that
+                      would be removed.
+                    items:
+                      description: |-
+                        FirewallFilterDeletePreview identifies a row in a destructive adoption plan
+                        without copying the complete firewall rule into Kubernetes status.
+                      properties:
+                        action:
+                          type: string
+                        chain:
+                          type: string
+                        comment:
+                          type: string
+                        id:
+                          type: string
+                      required:
+                      - id
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  deleteRowsTruncated:
+                    description: DeleteRowsTruncated is true when Deletes is larger
+                      than DeleteRows.
+                    type: boolean
+                  deletes:
+                    format: int32
+                    type: integer
+                  moves:
+                    format: int32
+                    type: integer
+                  updates:
+                    format: int32
+                    type: integer
+                required:
+                - approvalToken
+                type: object
               rows:
                 items:
                   description: |-

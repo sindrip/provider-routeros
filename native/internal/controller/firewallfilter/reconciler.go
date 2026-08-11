@@ -2,8 +2,12 @@ package firewallfilter
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
 	"time"
 
 	xpv2 "github.com/crossplane/crossplane/apis/v2/core/v2"
@@ -28,17 +32,37 @@ const (
 	defaultInterval = time.Minute
 	conditionReady  = "Ready"
 	providerIndex   = "spec.providerConfigRef.name"
+	// PruneApprovalAnnotation approves exactly the pending plan token reported
+	// in status.pendingPlan.approvalToken.
+	PruneApprovalAnnotation = "firewallfiltermenus.ip.routeros.sindrip.io/approve-prune"
 )
 
-var deleteAllSpec = rest.MenuSpec{
+var errApprovalStale = errors.New("approved plan changed before apply")
+
+var dynamicIgnore = []rest.Record{
+	{"dynamic": "true"},
+	{"dynamic": "yes"},
+}
+
+var volatileApprovalFields = map[string]bool{
+	"bytes":   true,
+	"dynamic": true,
+	"invalid": true,
+	"packets": true,
+}
+
+const maxDeletePreviews = 20
+
+var deleteAllStaticSpec = rest.MenuSpec{
 	Path:     menuPath,
 	Ordered:  true,
 	Unlisted: rest.UnlistedPrune,
+	Ignore:   dynamicIgnore,
 }
 
 // Connector resolves a ProviderConfig into a menu client.
 type Connector interface {
-	Connect(context.Context, client.Reader, string) (connection.Menu, error)
+	Connect(context.Context, client.Reader, string) (connection.Connection, error)
 }
 
 // Reconciler converges FirewallFilterMenu objects to RouterOS.
@@ -96,19 +120,19 @@ func (r *Reconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.
 	}
 	if owner != "" && owner != menu.Name {
 		message := fmt.Sprintf("FirewallFilterMenu %q already owns this ProviderConfig menu", owner)
-		if err := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "OwnershipConflict", message); err != nil {
+		if err := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "OwnershipConflict", message, nil); err != nil {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{RequeueAfter: r.interval()}, nil
 	}
 	if err := r.trackProviderConfigUsage(ctx, menu); err != nil {
-		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "UsageTrackingError", err.Error())
+		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "UsageTrackingError", err.Error(), nil)
 		return ctrl.Result{}, errors.Join(err, statusErr)
 	}
 
-	remote, err := r.connect(ctx, menu.Spec.ProviderConfigRef.Name)
+	connected, err := r.connect(ctx, menu.Spec.ProviderConfigRef.Name)
 	if err != nil {
-		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "ConnectionError", err.Error())
+		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "ConnectionError", err.Error(), nil)
 		return ctrl.Result{}, errors.Join(err, statusErr)
 	}
 
@@ -120,18 +144,27 @@ func (r *Reconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.
 		Path:     menuPath,
 		Ordered:  true,
 		Unlisted: restUnlisted(menu.Spec.Unlisted),
+		Ignore:   dynamicIgnore,
+	}
+	if spec.Unlisted == rest.UnlistedPrune && (!menu.Status.Adopted || menu.Status.AdoptedConnection != connected.Fingerprint) {
+		return r.reconcileAdoption(ctx, menu, connected, spec, desired)
 	}
 
-	plan, applyErr := remote.Apply(ctx, spec, desired)
+	plan, applyErr := connected.Menu.Apply(ctx, spec, desired)
 	if applyErr != nil {
-		statusErr := r.setStatus(ctx, menu, plan, metav1.ConditionFalse, "ApplyError", applyErr.Error())
+		statusErr := r.setStatus(ctx, menu, plan, metav1.ConditionFalse, "ApplyError", applyErr.Error(), nil)
 		return ctrl.Result{}, errors.Join(applyErr, statusErr)
 	}
 	message := fmt.Sprintf("applied %d operation(s)", len(plan.Steps))
 	if plan.Empty() {
 		message = "menu is current"
 	}
-	if err := r.setStatus(ctx, menu, plan, metav1.ConditionTrue, "Available", message); err != nil {
+	if err := r.setStatus(ctx, menu, plan, metav1.ConditionTrue, "Available", message, func(status *v1alpha1.FirewallFilterMenuStatus) {
+		status.PendingPlan = nil
+		if status.AdoptedConnection != connected.Fingerprint {
+			status.Adopted = false
+		}
+	}); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -140,6 +173,125 @@ func (r *Reconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.
 		"rows", len(desired),
 		"operations", plan.Counts())
 	return ctrl.Result{RequeueAfter: r.interval()}, nil
+}
+
+func (r *Reconciler) reconcileAdoption(ctx context.Context, menu *v1alpha1.FirewallFilterMenu, connected connection.Connection, spec rest.MenuSpec, desired []rest.Record) (ctrl.Result, error) {
+	preview, err := connected.Menu.Plan(ctx, spec, desired)
+	if err != nil {
+		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "PlanError", err.Error(), nil)
+		return ctrl.Result{}, errors.Join(err, statusErr)
+	}
+	pending := pendingPlan(connected.Fingerprint, preview)
+	if pending.Deletes > 0 && menu.Annotations[PruneApprovalAnnotation] != pending.ApprovalToken {
+		message := fmt.Sprintf("first prune would delete %d static row(s); set annotation %s=%s to approve this exact plan",
+			pending.Deletes, PruneApprovalAnnotation, pending.ApprovalToken)
+		if err := r.setStatus(ctx, menu, preview, metav1.ConditionFalse, "AdoptionPending", message,
+			func(status *v1alpha1.FirewallFilterMenuStatus) {
+				status.Adopted = false
+				status.PendingPlan = pending
+			}); err != nil {
+			return ctrl.Result{}, err
+		}
+		ctrl.LoggerFrom(ctx).Info("waiting for first-prune approval",
+			"providerConfig", menu.Spec.ProviderConfigRef.Name,
+			"deletes", pending.Deletes,
+			"approvalToken", pending.ApprovalToken)
+		return ctrl.Result{RequeueAfter: r.interval()}, nil
+	}
+
+	applied, err := connected.Menu.ApplyChecked(ctx, spec, desired, func(fresh rest.Plan) error {
+		if planToken(connected.Fingerprint, fresh) != pending.ApprovalToken {
+			return errApprovalStale
+		}
+		return nil
+	})
+	if errors.Is(err, errApprovalStale) {
+		fresh := pendingPlan(connected.Fingerprint, applied)
+		message := "the router changed after preview; review and approve the new pending plan"
+		result := ctrl.Result{RequeueAfter: r.interval()}
+		if fresh.Deletes == 0 {
+			message = "the router changed after preview; retrying the new non-destructive plan"
+			result = ctrl.Result{Requeue: true}
+		}
+		if statusErr := r.setStatus(ctx, menu, applied, metav1.ConditionFalse, "AdoptionPending", message,
+			func(status *v1alpha1.FirewallFilterMenuStatus) {
+				status.Adopted = false
+				status.PendingPlan = fresh
+			}); statusErr != nil {
+			return ctrl.Result{}, statusErr
+		}
+		return result, nil
+	}
+	if err != nil {
+		statusErr := r.setStatus(ctx, menu, applied, metav1.ConditionFalse, "ApplyError", err.Error(), nil)
+		return ctrl.Result{}, errors.Join(err, statusErr)
+	}
+
+	message := fmt.Sprintf("adopted menu and applied %d operation(s)", len(applied.Steps))
+	if applied.Empty() {
+		message = "adopted menu; no changes were required"
+	}
+	if err := r.setStatus(ctx, menu, applied, metav1.ConditionTrue, "Available", message,
+		func(status *v1alpha1.FirewallFilterMenuStatus) {
+			status.Adopted = true
+			status.AdoptedConnection = connected.Fingerprint
+			status.PendingPlan = nil
+		}); err != nil {
+		return ctrl.Result{}, err
+	}
+	return ctrl.Result{RequeueAfter: r.interval()}, nil
+}
+
+func pendingPlan(connectionFingerprint string, plan rest.Plan) *v1alpha1.FirewallFilterPlanStatus {
+	counts := plan.Counts()
+	pending := &v1alpha1.FirewallFilterPlanStatus{
+		ApprovalToken: planToken(connectionFingerprint, plan),
+		Creates:       int32(counts[rest.OpCreate]),
+		Updates:       int32(counts[rest.OpUpdate]),
+		Deletes:       int32(counts[rest.OpDelete]),
+		Moves:         int32(counts[rest.OpMove]),
+	}
+	for _, step := range plan.Steps {
+		if step.Op != rest.OpDelete || len(pending.DeleteRows) >= maxDeletePreviews {
+			continue
+		}
+		pending.DeleteRows = append(pending.DeleteRows, v1alpha1.FirewallFilterDeletePreview{
+			ID:      step.ID,
+			Chain:   step.Row["chain"],
+			Action:  step.Row["action"],
+			Comment: step.Row["comment"],
+		})
+	}
+	pending.DeleteRowsTruncated = int32(len(pending.DeleteRows)) < pending.Deletes
+	return pending
+}
+
+func planToken(connectionFingerprint string, plan rest.Plan) string {
+	h := sha256.New()
+	writePart := func(value string) {
+		_, _ = fmt.Fprintf(h, "%d:%s", len(value), value)
+	}
+	writePart(connectionFingerprint)
+	writePart(fmt.Sprintf("%d", len(plan.Steps)))
+	for _, step := range plan.Steps {
+		writePart(string(step.Op))
+		writePart(step.ID)
+		writePart(step.Before)
+		writePart(fmt.Sprintf("%d", len(step.Order)))
+		for _, id := range step.Order {
+			writePart(id)
+		}
+		keys := slices.Sorted(maps.Keys(step.Row))
+		keys = slices.DeleteFunc(keys, func(key string) bool {
+			return key == rest.IDField || volatileApprovalFields[key]
+		})
+		writePart(fmt.Sprintf("%d", len(keys)))
+		for _, key := range keys {
+			writePart(key)
+			writePart(step.Row[key])
+		}
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func restUnlisted(policy v1alpha1.UnlistedPolicy) rest.Unlisted {
@@ -174,12 +326,12 @@ func (r *Reconciler) reconcileDelete(ctx context.Context, menu *v1alpha1.Firewal
 		if menu.Spec.Unlisted != v1alpha1.UnlistedPrune {
 			return ctrl.Result{}, errors.New("refusing deletionPolicy Delete without unlisted Prune")
 		}
-		remote, err := r.connect(ctx, menu.Spec.ProviderConfigRef.Name)
+		connected, err := r.connect(ctx, menu.Spec.ProviderConfigRef.Name)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		if _, err := remote.Apply(ctx, deleteAllSpec, nil); err != nil {
-			return ctrl.Result{}, fmt.Errorf("delete RouterOS firewall filter rows: %w", err)
+		if _, err := connected.Menu.Apply(ctx, deleteAllStaticSpec, nil); err != nil {
+			return ctrl.Result{}, fmt.Errorf("delete static RouterOS firewall filter rows: %w", err)
 		}
 	}
 
@@ -195,7 +347,7 @@ func (r *Reconciler) removeFinalizer(ctx context.Context, menu *v1alpha1.Firewal
 	return ctrl.Result{}, nil
 }
 
-func (r *Reconciler) connect(ctx context.Context, name string) (connection.Menu, error) {
+func (r *Reconciler) connect(ctx context.Context, name string) (connection.Connection, error) {
 	if r.Connector == nil {
 		r.Connector = &connection.ProviderConfigConnector{}
 	}
@@ -290,7 +442,7 @@ func statusesEqualProviderUsage(left, right *clusterv1beta1.ProviderConfigUsage)
 		apiequality.Semantic.DeepEqual(left.OwnerReferences, right.OwnerReferences)
 }
 
-func (r *Reconciler) setStatus(ctx context.Context, menu *v1alpha1.FirewallFilterMenu, plan rest.Plan, state metav1.ConditionStatus, reason, message string) error {
+func (r *Reconciler) setStatus(ctx context.Context, menu *v1alpha1.FirewallFilterMenu, plan rest.Plan, state metav1.ConditionStatus, reason, message string, mutate func(*v1alpha1.FirewallFilterMenuStatus)) error {
 	before := menu.DeepCopy()
 	menu.Status.ObservedGeneration = menu.Generation
 	menu.Status.Rows = make([]v1alpha1.FirewallFilterRowStatus, len(menu.Spec.Rows))
@@ -304,6 +456,9 @@ func (r *Reconciler) setStatus(ctx context.Context, menu *v1alpha1.FirewallFilte
 		Reason:             reason,
 		Message:            message,
 	})
+	if mutate != nil {
+		mutate(&menu.Status)
+	}
 	if statusesEqual(before.Status, menu.Status) {
 		return nil
 	}
@@ -314,7 +469,8 @@ func (r *Reconciler) setStatus(ctx context.Context, menu *v1alpha1.FirewallFilte
 }
 
 func statusesEqual(a, b v1alpha1.FirewallFilterMenuStatus) bool {
-	if a.ObservedGeneration != b.ObservedGeneration || len(a.Rows) != len(b.Rows) || len(a.Conditions) != len(b.Conditions) {
+	if a.ObservedGeneration != b.ObservedGeneration || a.Adopted != b.Adopted || a.AdoptedConnection != b.AdoptedConnection ||
+		!apiequality.Semantic.DeepEqual(a.PendingPlan, b.PendingPlan) || len(a.Rows) != len(b.Rows) || len(a.Conditions) != len(b.Conditions) {
 		return false
 	}
 	for i := range a.Rows {

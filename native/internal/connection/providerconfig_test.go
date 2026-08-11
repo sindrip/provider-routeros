@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	clusterv1beta1 "github.com/sindrip/provider-routeros/apis/cluster/v1beta1"
@@ -88,18 +89,36 @@ func TestProviderConfigConnectorUsesExistingSecretShape(t *testing.T) {
 	reader := fake.NewClientBuilder().WithScheme(scheme).WithObjects(pc, secret).Build()
 
 	connector := &ProviderConfigConnector{}
-	menu, err := connector.Connect(context.Background(), reader, "router")
+	connected, err := connector.Connect(context.Background(), reader, "router")
 	if err != nil {
 		t.Fatalf("Connect() error = %v", err)
 	}
-	if menu == nil {
+	if connected.Menu == nil {
 		t.Fatal("Connect() returned a nil REST menu")
+	}
+	if len(connected.Fingerprint) != 64 {
+		t.Fatalf("connection fingerprint = %q", connected.Fingerprint)
 	}
 	again, err := connector.Connect(context.Background(), reader, "router")
 	if err != nil {
 		t.Fatalf("second Connect() error = %v", err)
 	}
-	if menu != again {
+	if connected.Menu != again.Menu || connected.Fingerprint != again.Fingerprint {
 		t.Fatal("unchanged ProviderConfig and Secret did not reuse their REST client")
+	}
+	updated := &corev1.Secret{}
+	if err := reader.Get(context.Background(), client.ObjectKey{Name: "router-creds", Namespace: "crossplane-system"}, updated); err != nil {
+		t.Fatal(err)
+	}
+	updated.Data["credentials"] = []byte(`{"hosturl":"https://other-router.example","username":"admin","password":"secret","insecure":true}`)
+	if err := reader.Update(context.Background(), updated); err != nil {
+		t.Fatal(err)
+	}
+	repointed, err := connector.Connect(context.Background(), reader, "router")
+	if err != nil {
+		t.Fatalf("Connect() after credential update error = %v", err)
+	}
+	if repointed.Fingerprint == connected.Fingerprint || repointed.Menu == connected.Menu {
+		t.Fatal("changed router credentials reused their adoption identity or REST client")
 	}
 }

@@ -168,6 +168,41 @@ func TestPrunedRowsGo(t *testing.T) {
 	}
 }
 
+func TestIgnoredRowsAreNeitherMatchedNorPruned(t *testing.T) {
+	current := rows(
+		rec("*1", "chain", "input", "action", "accept", "dynamic", "true"),
+		rec("*2", "chain", "input", "action", "drop"),
+	)
+	desired := []Record{{"chain": "input", "action": "accept"}}
+	spec := MenuSpec{
+		Path:     "/ip/firewall/filter",
+		Ordered:  true,
+		Unlisted: UnlistedPrune,
+		Ignore:   []Record{{"dynamic": "true"}},
+	}
+
+	p, err := plan(spec, desired, current)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(ops(p), []Op{OpCreate, OpDelete}) {
+		t.Fatalf("ops = %v, want create for desired static row and delete for unlisted static row", ops(p))
+	}
+	if p.Steps[1].ID != "*2" {
+		t.Fatalf("deleted %q, want static row *2", p.Steps[1].ID)
+	}
+	if _, matched := p.Matched[0]; matched {
+		t.Fatal("desired static row adopted an ignored dynamic row")
+	}
+}
+
+func TestEmptyIgnoreSelectorIsRejected(t *testing.T) {
+	_, err := plan(MenuSpec{Path: "/x", Unlisted: UnlistedPrune, Ignore: []Record{{}}}, nil, nil)
+	if !errors.Is(err, ErrEmptyIgnoreSelector) {
+		t.Fatalf("error = %v, want ErrEmptyIgnoreSelector", err)
+	}
+}
+
 // TestAmbiguityIsAnErrorNotAChoice is the consequence of keyprobe's finding that
 // RouterOS enforces comment uniqueness nowhere. Two rows can share a comment, so
 // a match can be genuinely undecidable, and picking one would manage an
@@ -328,6 +363,35 @@ func TestApplyOrdersCreatedRowBeforeReturning(t *testing.T) {
 	}
 	if !converged.Empty() {
 		t.Errorf("second Apply planned %v, want no work", converged.Counts())
+	}
+}
+
+func TestApplyCheckedDoesNotMutateRejectedPlan(t *testing.T) {
+	router := &orderingRouter{
+		t:      t,
+		nextID: 1,
+		rows:   rows(rec("*1", "comment", "existing")),
+	}
+	c := router.client(t)
+	spec := MenuSpec{Path: "/ip/firewall/filter", Ordered: true, Unlisted: UnlistedPrune}
+
+	p, err := c.ApplyChecked(t.Context(), spec, nil, func(plan Plan) error {
+		if !slices.Equal(ops(plan), []Op{OpDelete}) {
+			t.Fatalf("approval plan ops = %v, want delete", ops(plan))
+		}
+		if plan.Steps[0].Row["comment"] != "existing" {
+			t.Fatalf("delete preview row = %v", plan.Steps[0].Row)
+		}
+		return errors.New("not approved")
+	})
+	if err == nil || !strings.Contains(err.Error(), "not approved") {
+		t.Fatalf("ApplyChecked() error = %v", err)
+	}
+	if !slices.Equal(ops(p), []Op{OpDelete}) {
+		t.Fatalf("returned plan ops = %v", ops(p))
+	}
+	if len(router.rows) != 1 || router.rows[0].ID() != "*1" {
+		t.Fatalf("router mutated after rejected plan: %v", router.rows)
 	}
 }
 

@@ -47,6 +47,15 @@ type MenuSpec struct {
 	// distinguish "this row changed" from "this is a different row", so a change
 	// becomes a delete and a create.
 	Key string
+	// Ignore contains selectors for device-owned rows that must never be
+	// matched, updated, deleted, or treated as evidence that this resource owns
+	// the complete menu. A row is ignored when it contains every field of any
+	// selector. For example {"dynamic":"true"} excludes RouterOS runtime rows
+	// while still allowing Prune to own every static row.
+	//
+	// Empty selectors are rejected because they would silently ignore the
+	// entire menu.
+	Ignore []Record
 }
 
 // Op is what a step does.
@@ -64,8 +73,9 @@ type Step struct {
 	Op Op
 	// ID is the row being acted on, for update, delete and move.
 	ID string
-	// Row is the body to send, for create and update. For update it holds only
-	// the fields that differ.
+	// Row is the body to send for create and update. For update it holds only
+	// the fields that differ. For delete it is the row observed while planning,
+	// which lets a caller preview exactly what destructive work it approves.
 	Row Record
 	// Order is the rows to place, in the order they should end up, for move.
 	Order []string
@@ -125,6 +135,9 @@ func (e *AmbiguousError) Error() string {
 // ErrNoUnlistedPolicy is returned for a spec that has not chosen one.
 var ErrNoUnlistedPolicy = errors.New("rest: MenuSpec.Unlisted must be set to tolerate or prune")
 
+// ErrEmptyIgnoreSelector prevents a selector that would hide every row.
+var ErrEmptyIgnoreSelector = errors.New("rest: MenuSpec.Ignore contains an empty selector")
+
 // Plan computes what it would take to make the menu match desired.
 //
 // Nothing is written. The device is read once, and the plan is a pure function
@@ -144,6 +157,11 @@ func plan(spec MenuSpec, desired, current []Record) (Plan, error) {
 	case UnlistedTolerate, UnlistedPrune:
 	default:
 		return Plan{}, ErrNoUnlistedPolicy
+	}
+	for _, selector := range spec.Ignore {
+		if len(selector) == 0 {
+			return Plan{}, ErrEmptyIgnoreSelector
+		}
 	}
 
 	p := Plan{Matched: map[int]string{}}
@@ -191,8 +209,8 @@ func plan(spec MenuSpec, desired, current []Record) (Plan, error) {
 
 	if spec.Unlisted == UnlistedPrune {
 		for _, row := range current {
-			if id := row.ID(); id != "" && !claimed[id] {
-				p.Steps = append(p.Steps, Step{Op: OpDelete, ID: id, Why: "not in the spec, and policy is prune"})
+			if id := row.ID(); id != "" && !claimed[id] && !ignored(spec, row) {
+				p.Steps = append(p.Steps, Step{Op: OpDelete, ID: id, Row: maps.Clone(row), Why: "not in the spec, and policy is prune"})
 			}
 		}
 	}
@@ -209,7 +227,7 @@ func candidates(spec MenuSpec, want Record, current []Record, claimed map[string
 	var ids []string
 	for _, row := range current {
 		id := row.ID()
-		if id == "" || claimed[id] {
+		if id == "" || claimed[id] || ignored(spec, row) {
 			continue
 		}
 		if spec.Key != "" {
@@ -227,6 +245,22 @@ func candidates(spec MenuSpec, want Record, current []Record, claimed map[string
 		}
 	}
 	return ids
+}
+
+func ignored(spec MenuSpec, row Record) bool {
+	for _, selector := range spec.Ignore {
+		matches := true
+		for key, value := range selector {
+			if got, present := row[key]; !present || got != value {
+				matches = false
+				break
+			}
+		}
+		if matches {
+			return true
+		}
+	}
+	return false
 }
 
 // indistinguishable reports that the candidate rows differ in nothing but their
@@ -346,9 +380,29 @@ func reorder(spec MenuSpec, desired, current []Record, matched map[int]string, c
 // starting. The plan that was executed is returned so a caller can report what
 // happened.
 func (c *Client) Apply(ctx context.Context, spec MenuSpec, desired []Record) (Plan, error) {
+	return c.apply(ctx, spec, desired, nil)
+}
+
+// ApplyChecked plans once, passes that exact plan to approve, and performs no
+// mutation unless approve returns nil. This closes the read/apply gap for a
+// caller that requires human approval of destructive operations: the approved
+// plan is the one whose structural steps begin executing.
+func (c *Client) ApplyChecked(ctx context.Context, spec MenuSpec, desired []Record, approve func(Plan) error) (Plan, error) {
+	if approve == nil {
+		return Plan{}, errors.New("rest: ApplyChecked requires an approval function")
+	}
+	return c.apply(ctx, spec, desired, approve)
+}
+
+func (c *Client) apply(ctx context.Context, spec MenuSpec, desired []Record, approve func(Plan) error) (Plan, error) {
 	p, err := c.Plan(ctx, spec, desired)
 	if err != nil {
 		return Plan{}, err
+	}
+	if approve != nil {
+		if err := approve(p); err != nil {
+			return p, fmt.Errorf("%s: plan was not approved: %w", spec.Path, err)
+		}
 	}
 
 	// A move planned against the first reading cannot include rows created by

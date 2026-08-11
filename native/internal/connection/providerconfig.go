@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json/v2"
 	"errors"
 	"fmt"
@@ -40,7 +41,17 @@ type Credentials struct {
 
 // Menu is the part of the REST client used by a menu controller.
 type Menu interface {
+	Plan(context.Context, rest.MenuSpec, []rest.Record) (rest.Plan, error)
 	Apply(context.Context, rest.MenuSpec, []rest.Record) (rest.Plan, error)
+	ApplyChecked(context.Context, rest.MenuSpec, []rest.Record, func(rest.Plan) error) (rest.Plan, error)
+}
+
+// Connection binds a REST client to a fingerprint of the ProviderConfig and
+// Secret material that selected its router. Destructive adoption approval is
+// tied to this value, so repointing credentials requires a fresh preview.
+type Connection struct {
+	Menu        Menu
+	Fingerprint string
 }
 
 // ProviderConfigConnector resolves the existing cluster ProviderConfig and
@@ -57,57 +68,59 @@ type cachedClient struct {
 }
 
 // Connect returns a client for the named ProviderConfig.
-func (c *ProviderConfigConnector) Connect(ctx context.Context, reader client.Reader, name string) (Menu, error) {
+func (c *ProviderConfigConnector) Connect(ctx context.Context, reader client.Reader, name string) (Connection, error) {
 	if name == "" {
-		return nil, errors.New("providerConfigRef.name is empty")
+		return Connection{}, errors.New("providerConfigRef.name is empty")
 	}
 
 	pc := &clusterv1beta1.ProviderConfig{}
 	if err := reader.Get(ctx, types.NamespacedName{Name: name}, pc); err != nil {
-		return nil, fmt.Errorf("get ProviderConfig %q: %w", name, err)
+		return Connection{}, fmt.Errorf("get ProviderConfig %q: %w", name, err)
 	}
 	if pc.Spec.Credentials.Source != xpv2.CredentialsSourceSecret {
-		return nil, fmt.Errorf("ProviderConfig %q uses credentials source %q; native REST currently supports Secret", name, pc.Spec.Credentials.Source)
+		return Connection{}, fmt.Errorf("ProviderConfig %q uses credentials source %q; native REST currently supports Secret", name, pc.Spec.Credentials.Source)
 	}
 	selector := pc.Spec.Credentials.SecretRef
 	if selector == nil {
-		return nil, fmt.Errorf("ProviderConfig %q has no credentials.secretRef", name)
+		return Connection{}, fmt.Errorf("ProviderConfig %q has no credentials.secretRef", name)
 	}
 
 	secret := &corev1.Secret{}
 	key := types.NamespacedName{Name: selector.Name, Namespace: selector.Namespace}
 	if err := reader.Get(ctx, key, secret); err != nil {
-		return nil, fmt.Errorf("get ProviderConfig %q credentials Secret %s: %w", name, key.String(), err)
+		return Connection{}, fmt.Errorf("get ProviderConfig %q credentials Secret %s: %w", name, key.String(), err)
 	}
 	raw, ok := secret.Data[selector.Key]
 	if !ok {
-		return nil, fmt.Errorf("ProviderConfig %q credentials Secret %s has no key %q", name, key.String(), selector.Key)
+		return Connection{}, fmt.Errorf("ProviderConfig %q credentials Secret %s has no key %q", name, key.String(), selector.Key)
 	}
 
 	credentials, err := parseCredentials(raw)
 	if err != nil {
-		return nil, fmt.Errorf("ProviderConfig %q credentials: %w", name, err)
+		return Connection{}, fmt.Errorf("ProviderConfig %q credentials: %w", name, err)
 	}
-	fingerprint := sha256.Sum256(append([]byte(pc.ResourceVersion+"\x00"+secret.ResourceVersion+"\x00"), raw...))
+	connectionMaterial := []byte(name + "\x00" + selector.Namespace + "\x00" + selector.Name + "\x00" + selector.Key + "\x00")
+	fingerprint := sha256.Sum256(append(connectionMaterial, raw...))
+	fingerprintText := hex.EncodeToString(fingerprint[:])
 	if credentials.CACertificate == "" {
 		c.mu.Lock()
 		cached, ok := c.clients[name]
 		c.mu.Unlock()
 		if ok && cached.fingerprint == fingerprint {
-			return cached.menu, nil
+			return Connection{Menu: cached.menu, Fingerprint: fingerprintText}, nil
 		}
 	}
 
 	httpClient, err := newHTTPClient(credentials)
 	if err != nil {
-		return nil, fmt.Errorf("ProviderConfig %q credentials: %w", name, err)
+		return Connection{}, fmt.Errorf("ProviderConfig %q credentials: %w", name, err)
 	}
 	menu, err := rest.New(credentials.HostURL,
 		rest.WithHTTPClient(httpClient),
 		rest.WithBasicAuth(credentials.Username, credentials.Password),
 	)
 	if err != nil {
-		return nil, err
+		return Connection{}, err
 	}
 	// A CA file may change independently of the Kubernetes objects that name
 	// it, so those clients are intentionally rebuilt on every poll.
@@ -120,7 +133,7 @@ func (c *ProviderConfigConnector) Connect(ctx context.Context, reader client.Rea
 		if old.menu != nil && old.fingerprint == fingerprint {
 			c.mu.Unlock()
 			httpClient.CloseIdleConnections()
-			return old.menu, nil
+			return Connection{Menu: old.menu, Fingerprint: fingerprintText}, nil
 		}
 		c.clients[name] = cachedClient{fingerprint: fingerprint, menu: menu, http: httpClient}
 		c.mu.Unlock()
@@ -128,7 +141,7 @@ func (c *ProviderConfigConnector) Connect(ctx context.Context, reader client.Rea
 			old.http.CloseIdleConnections()
 		}
 	}
-	return menu, nil
+	return Connection{Menu: menu, Fingerprint: fingerprintText}, nil
 }
 
 func parseCredentials(raw []byte) (Credentials, error) {

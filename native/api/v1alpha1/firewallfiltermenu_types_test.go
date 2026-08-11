@@ -45,3 +45,19 @@ func TestFirewallFilterRuleFieldsUsesRouterOSNames(t *testing.T) {
 		}
 	}
 }
+
+func TestFirewallFilterMenuDeepCopyCopiesPendingPlan(t *testing.T) {
+	original := &FirewallFilterMenu{Status: FirewallFilterMenuStatus{
+		PendingPlan: &FirewallFilterPlanStatus{
+			ApprovalToken: "token",
+			DeleteRows:    []FirewallFilterDeletePreview{{ID: "*1", Comment: "existing"}},
+		},
+	}}
+	copy := original.DeepCopy()
+	copy.Status.PendingPlan.ApprovalToken = "changed"
+	copy.Status.PendingPlan.DeleteRows[0].Comment = "changed"
+
+	if original.Status.PendingPlan.ApprovalToken != "token" || original.Status.PendingPlan.DeleteRows[0].Comment != "existing" {
+		t.Fatalf("DeepCopy shared pending plan storage: %#v", original.Status.PendingPlan)
+	}
+}

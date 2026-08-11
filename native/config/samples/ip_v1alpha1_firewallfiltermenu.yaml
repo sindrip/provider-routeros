@@ -1,7 +1,8 @@
-apiVersion: ip.routeros.sindrip.io/v1alpha1
+apiVersion: ip.routeros.m.sindrip.io/v1alpha1
 kind: FirewallFilterMenu
 metadata:
   name: native-smoke-test
+  namespace: crossplane-system
 spec:
   providerConfigRef:
     name: default

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	xpv2 "github.com/crossplane/crossplane/apis/v2/core/v2"
+	corev1 "k8s.io/api/core/v1"
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
@@ -18,23 +19,26 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	clusterv1beta1 "github.com/sindrip/provider-routeros/apis/cluster/v1beta1"
 	"github.com/sindrip/provider-routeros/rest"
 
+	providerv1alpha1 "github.com/sindrip/provider-routeros/native/api/provider/v1alpha1"
 	v1alpha1 "github.com/sindrip/provider-routeros/native/api/v1alpha1"
 	"github.com/sindrip/provider-routeros/native/internal/connection"
 )
 
 const (
 	menuPath        = "/ip/firewall/filter"
-	finalizer       = "firewallfiltermenus.ip.routeros.sindrip.io/finalizer"
+	finalizer       = "firewallfiltermenus.ip.routeros.m.sindrip.io/finalizer"
 	defaultInterval = time.Minute
 	conditionReady  = "Ready"
 	providerIndex   = "spec.providerConfigRef.name"
+	secretIndex     = "spec.secretRefs"
 	// PruneApprovalAnnotation approves exactly the pending plan token reported
 	// in status.pendingPlan.approvalToken.
-	PruneApprovalAnnotation = "firewallfiltermenus.ip.routeros.sindrip.io/approve-prune"
+	PruneApprovalAnnotation = "firewallfiltermenus.ip.routeros.m.sindrip.io/approve-prune"
 )
 
 var errApprovalStale = errors.New("approved plan changed before apply")
@@ -62,7 +66,7 @@ var deleteAllStaticSpec = rest.MenuSpec{
 
 // Connector resolves a ProviderConfig into a menu client.
 type Connector interface {
-	Connect(context.Context, client.Reader, string) (connection.Connection, error)
+	Connect(context.Context, client.Reader, string, string) (connection.Connection, error)
 }
 
 // Reconciler converges FirewallFilterMenu objects to RouterOS.
@@ -86,13 +90,65 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 			if menu.Spec.ProviderConfigRef.Name == "" {
 				return nil
 			}
-			return []string{menu.Spec.ProviderConfigRef.Name}
+			return []string{providerKey(menu.Namespace, menu.Spec.ProviderConfigRef.Name)}
 		}); err != nil {
 		return fmt.Errorf("index ProviderConfig references: %w", err)
 	}
+	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &providerv1alpha1.ProviderConfig{}, secretIndex,
+		providerSecretReferenceKeys); err != nil {
+		return fmt.Errorf("index ProviderConfig Secret references: %w", err)
+	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.FirewallFilterMenu{}).
+		Watches(&providerv1alpha1.ProviderConfig{}, handler.EnqueueRequestsFromMapFunc(r.requestsForProviderConfig)).
+		Watches(&corev1.Secret{}, handler.EnqueueRequestsFromMapFunc(r.requestsForSecret)).
 		Complete(r)
+}
+
+func providerSecretReferenceKeys(object client.Object) []string {
+	config := object.(*providerv1alpha1.ProviderConfig)
+	names := []string{config.Spec.Credentials.SecretRef.Name}
+	if config.Spec.TLS != nil && config.Spec.TLS.CASecretRef != nil {
+		names = append(names, config.Spec.TLS.CASecretRef.Name)
+	}
+	keys := make([]string, 0, len(names))
+	seen := map[string]bool{}
+	for _, name := range names {
+		if name == "" || seen[name] {
+			continue
+		}
+		seen[name] = true
+		keys = append(keys, providerKey(config.Namespace, name))
+	}
+	return keys
+}
+
+func (r *Reconciler) requestsForProviderConfig(ctx context.Context, object client.Object) []reconcile.Request {
+	menus := &v1alpha1.FirewallFilterMenuList{}
+	key := providerKey(object.GetNamespace(), object.GetName())
+	if err := r.List(ctx, menus, client.InNamespace(object.GetNamespace()), client.MatchingFields{providerIndex: key}); err != nil {
+		ctrl.LoggerFrom(ctx).Error(err, "list firewall menus for ProviderConfig event", "providerConfig", key)
+		return nil
+	}
+	requests := make([]reconcile.Request, len(menus.Items))
+	for i := range menus.Items {
+		requests[i] = reconcile.Request{NamespacedName: client.ObjectKeyFromObject(&menus.Items[i])}
+	}
+	return requests
+}
+
+func (r *Reconciler) requestsForSecret(ctx context.Context, object client.Object) []reconcile.Request {
+	configs := &providerv1alpha1.ProviderConfigList{}
+	key := providerKey(object.GetNamespace(), object.GetName())
+	if err := r.List(ctx, configs, client.InNamespace(object.GetNamespace()), client.MatchingFields{secretIndex: key}); err != nil {
+		ctrl.LoggerFrom(ctx).Error(err, "list ProviderConfigs for Secret event", "secret", key)
+		return nil
+	}
+	requests := make([]reconcile.Request, 0)
+	for i := range configs.Items {
+		requests = append(requests, r.requestsForProviderConfig(ctx, &configs.Items[i])...)
+	}
+	return requests
 }
 
 // Reconcile implements the menu lifecycle, including explicit delete versus
@@ -114,26 +170,27 @@ func (r *Reconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.
 		}
 		return ctrl.Result{Requeue: true}, nil
 	}
-	owner, err := r.ownerFor(ctx, menu.Spec.ProviderConfigRef.Name)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-	if owner != "" && owner != menu.Name {
-		message := fmt.Sprintf("FirewallFilterMenu %q already owns this ProviderConfig menu", owner)
-		if err := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "OwnershipConflict", message, nil); err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{RequeueAfter: r.interval()}, nil
-	}
 	if err := r.trackProviderConfigUsage(ctx, menu); err != nil {
 		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "UsageTrackingError", err.Error(), nil)
 		return ctrl.Result{}, errors.Join(err, statusErr)
 	}
 
-	connected, err := r.connect(ctx, menu.Spec.ProviderConfigRef.Name)
+	connected, err := r.connect(ctx, menu.Namespace, menu.Spec.ProviderConfigRef.Name)
 	if err != nil {
 		statusErr := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "ConnectionError", err.Error(), nil)
 		return ctrl.Result{}, errors.Join(err, statusErr)
+	}
+	owner, err := r.ownerFor(ctx, menu, connected.TargetFingerprint)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	current := client.ObjectKeyFromObject(menu)
+	if owner != (client.ObjectKey{}) && owner != current {
+		message := fmt.Sprintf("FirewallFilterMenu %q already owns this router menu", owner.String())
+		if err := r.setStatus(ctx, menu, rest.Plan{}, metav1.ConditionFalse, "OwnershipConflict", message, nil); err != nil {
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{RequeueAfter: r.interval()}, nil
 	}
 
 	desired := make([]rest.Record, len(menu.Spec.Rows))
@@ -169,7 +226,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.
 	}
 
 	ctrl.LoggerFrom(ctx).Info("reconciled RouterOS firewall filter menu",
-		"providerConfig", menu.Spec.ProviderConfigRef.Name,
+		"providerConfig", providerKey(menu.Namespace, menu.Spec.ProviderConfigRef.Name),
 		"rows", len(desired),
 		"operations", plan.Counts())
 	return ctrl.Result{RequeueAfter: r.interval()}, nil
@@ -193,7 +250,7 @@ func (r *Reconciler) reconcileAdoption(ctx context.Context, menu *v1alpha1.Firew
 			return ctrl.Result{}, err
 		}
 		ctrl.LoggerFrom(ctx).Info("waiting for first-prune approval",
-			"providerConfig", menu.Spec.ProviderConfigRef.Name,
+			"providerConfig", providerKey(menu.Namespace, menu.Spec.ProviderConfigRef.Name),
 			"deletes", pending.Deletes,
 			"approvalToken", pending.ApprovalToken)
 		return ctrl.Result{RequeueAfter: r.interval()}, nil
@@ -309,30 +366,31 @@ func (r *Reconciler) reconcileDelete(ctx context.Context, menu *v1alpha1.Firewal
 	if !controllerutil.ContainsFinalizer(menu, finalizer) {
 		return ctrl.Result{}, nil
 	}
-	owner, err := r.ownerFor(ctx, menu.Spec.ProviderConfigRef.Name)
+	policy := menu.Spec.DeletionPolicy
+	if policy == "" {
+		policy = v1alpha1.DeletionOrphan
+	}
+	if policy == v1alpha1.DeletionOrphan {
+		return r.removeFinalizer(ctx, menu)
+	}
+	if menu.Spec.Unlisted != v1alpha1.UnlistedPrune {
+		return ctrl.Result{}, errors.New("refusing deletionPolicy Delete without unlisted Prune")
+	}
+	connected, err := r.connect(ctx, menu.Namespace, menu.Spec.ProviderConfigRef.Name)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	owner, err := r.ownerFor(ctx, menu, connected.TargetFingerprint)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 	// A waiting object must never mutate the active owner's menu merely because
 	// it is being deleted with a destructive policy.
-	if owner != "" && owner != menu.Name {
+	if owner != (client.ObjectKey{}) && owner != client.ObjectKeyFromObject(menu) {
 		return r.removeFinalizer(ctx, menu)
 	}
-	policy := menu.Spec.DeletionPolicy
-	if policy == "" {
-		policy = v1alpha1.DeletionOrphan
-	}
-	if policy == v1alpha1.DeletionDelete {
-		if menu.Spec.Unlisted != v1alpha1.UnlistedPrune {
-			return ctrl.Result{}, errors.New("refusing deletionPolicy Delete without unlisted Prune")
-		}
-		connected, err := r.connect(ctx, menu.Spec.ProviderConfigRef.Name)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		if _, err := connected.Menu.Apply(ctx, deleteAllStaticSpec, nil); err != nil {
-			return ctrl.Result{}, fmt.Errorf("delete static RouterOS firewall filter rows: %w", err)
-		}
+	if _, err := connected.Menu.Apply(ctx, deleteAllStaticSpec, nil); err != nil {
+		return ctrl.Result{}, fmt.Errorf("delete static RouterOS firewall filter rows: %w", err)
 	}
 
 	return r.removeFinalizer(ctx, menu)
@@ -347,17 +405,17 @@ func (r *Reconciler) removeFinalizer(ctx context.Context, menu *v1alpha1.Firewal
 	return ctrl.Result{}, nil
 }
 
-func (r *Reconciler) connect(ctx context.Context, name string) (connection.Connection, error) {
+func (r *Reconciler) connect(ctx context.Context, namespace, name string) (connection.Connection, error) {
 	if r.Connector == nil {
 		r.Connector = &connection.ProviderConfigConnector{}
 	}
-	return r.Connector.Connect(ctx, r.Client, name)
+	return r.Connector.Connect(ctx, r.Client, namespace, name)
 }
 
-func (r *Reconciler) ownerFor(ctx context.Context, providerConfig string) (string, error) {
+func (r *Reconciler) ownerFor(ctx context.Context, current *v1alpha1.FirewallFilterMenu, target string) (client.ObjectKey, error) {
 	menus := &v1alpha1.FirewallFilterMenuList{}
-	if err := r.List(ctx, menus, client.MatchingFields{providerIndex: providerConfig}); err != nil {
-		return "", fmt.Errorf("list FirewallFilterMenus for ProviderConfig %q: %w", providerConfig, err)
+	if err := r.List(ctx, menus); err != nil {
+		return client.ObjectKey{}, fmt.Errorf("list FirewallFilterMenus for router ownership: %w", err)
 	}
 	var owner *v1alpha1.FirewallFilterMenu
 	for i := range menus.Items {
@@ -368,19 +426,36 @@ func (r *Reconciler) ownerFor(ctx context.Context, providerConfig string) (strin
 		if !candidate.DeletionTimestamp.IsZero() && !controllerutil.ContainsFinalizer(candidate, finalizer) {
 			continue
 		}
+		candidateTarget := target
+		if client.ObjectKeyFromObject(candidate) != client.ObjectKeyFromObject(current) {
+			connected, err := r.connect(ctx, candidate.Namespace, candidate.Spec.ProviderConfigRef.Name)
+			if err != nil {
+				ctrl.LoggerFrom(ctx).Error(err, "skip unresolved firewall menu during router ownership election",
+					"firewallFilterMenu", client.ObjectKeyFromObject(candidate).String())
+				continue
+			}
+			candidateTarget = connected.TargetFingerprint
+		}
+		if candidateTarget != target {
+			continue
+		}
 		if owner == nil || createdBefore(candidate, owner) {
 			owner = candidate
 		}
 	}
 	if owner == nil {
-		return "", nil
+		return client.ObjectKey{}, nil
 	}
-	return owner.Name, nil
+	return client.ObjectKeyFromObject(owner), nil
+}
+
+func providerKey(namespace, name string) string {
+	return namespace + "/" + name
 }
 
 func createdBefore(left, right *v1alpha1.FirewallFilterMenu) bool {
 	if left.CreationTimestamp.Equal(&right.CreationTimestamp) {
-		return left.Name < right.Name
+		return client.ObjectKeyFromObject(left).String() < client.ObjectKeyFromObject(right).String()
 	}
 	return left.CreationTimestamp.Before(&right.CreationTimestamp)
 }
@@ -389,24 +464,29 @@ func (r *Reconciler) trackProviderConfigUsage(ctx context.Context, menu *v1alpha
 	if menu.UID == "" {
 		return errors.New("FirewallFilterMenu has no UID for ProviderConfig usage tracking")
 	}
-	key := client.ObjectKey{Name: string(menu.UID)}
-	usage := &clusterv1beta1.ProviderConfigUsage{}
+	key := client.ObjectKey{Namespace: menu.Namespace, Name: string(menu.UID)}
+	usage := &providerv1alpha1.ProviderConfigUsage{}
 	err := r.Get(ctx, key, usage)
 	if err != nil && !apierrors.IsNotFound(err) {
 		return fmt.Errorf("get ProviderConfigUsage %q: %w", key.Name, err)
 	}
 
-	want := &clusterv1beta1.ProviderConfigUsage{
+	want := &providerv1alpha1.ProviderConfigUsage{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: key.Name,
+			Name:      key.Name,
+			Namespace: key.Namespace,
 			Labels: map[string]string{
 				xpv2.LabelKeyProviderName: menu.Spec.ProviderConfigRef.Name,
+				xpv2.LabelKeyProviderKind: providerv1alpha1.ProviderConfigKind,
 			},
 			OwnerReferences: []metav1.OwnerReference{*metav1.NewControllerRef(menu,
 				v1alpha1.SchemeGroupVersion.WithKind("FirewallFilterMenu"))},
 		},
-		ProviderConfigUsage: xpv2.ProviderConfigUsage{
-			ProviderConfigReference: xpv2.Reference{Name: menu.Spec.ProviderConfigRef.Name},
+		TypedProviderConfigUsage: xpv2.TypedProviderConfigUsage{
+			ProviderConfigReference: xpv2.ProviderConfigReference{
+				Kind: providerv1alpha1.ProviderConfigKind,
+				Name: menu.Spec.ProviderConfigRef.Name,
+			},
 			ResourceReference: xpv2.TypedReference{
 				APIVersion: v1alpha1.SchemeGroupVersion.String(),
 				Kind:       "FirewallFilterMenu",
@@ -425,7 +505,7 @@ func (r *Reconciler) trackProviderConfigUsage(ctx context.Context, menu *v1alpha
 	before := usage.DeepCopy()
 	usage.Labels = want.Labels
 	usage.OwnerReferences = want.OwnerReferences
-	usage.ProviderConfigUsage = want.ProviderConfigUsage
+	usage.TypedProviderConfigUsage = want.TypedProviderConfigUsage
 	if statusesEqualProviderUsage(before, usage) {
 		return nil
 	}
@@ -435,8 +515,8 @@ func (r *Reconciler) trackProviderConfigUsage(ctx context.Context, menu *v1alpha
 	return nil
 }
 
-func statusesEqualProviderUsage(left, right *clusterv1beta1.ProviderConfigUsage) bool {
-	return left.ProviderConfigReference.Name == right.ProviderConfigReference.Name &&
+func statusesEqualProviderUsage(left, right *providerv1alpha1.ProviderConfigUsage) bool {
+	return left.ProviderConfigReference == right.ProviderConfigReference &&
 		left.ResourceReference == right.ResourceReference &&
 		apiequality.Semantic.DeepEqual(left.Labels, right.Labels) &&
 		apiequality.Semantic.DeepEqual(left.OwnerReferences, right.OwnerReferences)

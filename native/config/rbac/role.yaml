@@ -4,7 +4,7 @@ metadata:
   name: provider-routeros-native
 rules:
   - apiGroups:
-      - ip.routeros.sindrip.io
+      - ip.routeros.m.sindrip.io
     resources:
       - firewallfiltermenus
     verbs:
@@ -14,7 +14,7 @@ rules:
       - update
       - patch
   - apiGroups:
-      - ip.routeros.sindrip.io
+      - ip.routeros.m.sindrip.io
     resources:
       - firewallfiltermenus/status
     verbs:
@@ -22,29 +22,52 @@ rules:
       - update
       - patch
   - apiGroups:
-      - ip.routeros.sindrip.io
+      - ip.routeros.m.sindrip.io
     resources:
       - firewallfiltermenus/finalizers
     verbs:
       - update
   - apiGroups:
-      - routeros.sindrip.io
+      - routeros.m.sindrip.io
     resources:
       - providerconfigs
     verbs:
       - get
+      - list
+      - watch
+      - update
+      - patch
   - apiGroups:
-      - routeros.sindrip.io
+      - routeros.m.sindrip.io
+    resources:
+      - providerconfigs/status
+    verbs:
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - routeros.m.sindrip.io
+    resources:
+      - providerconfigs/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - routeros.m.sindrip.io
     resources:
       - providerconfigusages
     verbs:
       - get
+      - list
+      - watch
       - create
       - update
       - patch
+      - delete
   - apiGroups:
       - ""
     resources:
       - secrets
     verbs:
       - get
+      - list
+      - watch

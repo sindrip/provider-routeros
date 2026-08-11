@@ -26,8 +26,9 @@ const (
 	DeletionDelete DeletionPolicy = "Delete"
 )
 
-// ProviderConfigReference names a cluster-scoped routeros.sindrip.io
-// ProviderConfig.
+// ProviderConfigReference names a routeros.m.sindrip.io ProviderConfig in the
+// FirewallFilterMenu's namespace. ClusterProviderConfig is intentionally not
+// supported by this API.
 type ProviderConfigReference struct {
 	// +kubebuilder:validation:MinLength=1
 	Name string `json:"name"`
@@ -269,7 +270,7 @@ type FirewallFilterMenuStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:scope=Cluster,categories={crossplane,provider,routeros}
+// +kubebuilder:resource:scope=Namespaced,categories={crossplane,provider,routeros}
 // +kubebuilder:printcolumn:name="READY",type=string,JSONPath=`.status.conditions[?(@.type=="Ready")].status`
 // +kubebuilder:printcolumn:name="POLICY",type=string,JSONPath=`.spec.unlisted`
 // +kubebuilder:printcolumn:name="ADOPTED",type=boolean,JSONPath=`.status.adopted`

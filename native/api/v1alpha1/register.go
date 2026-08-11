@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Group   = "ip.routeros.sindrip.io"
+	Group   = "ip.routeros.m.sindrip.io"
 	Version = "v1alpha1"
 )
 

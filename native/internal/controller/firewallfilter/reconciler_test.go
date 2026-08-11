@@ -19,9 +19,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	clusterv1beta1 "github.com/sindrip/provider-routeros/apis/cluster/v1beta1"
 	"github.com/sindrip/provider-routeros/rest"
 
+	providerv1alpha1 "github.com/sindrip/provider-routeros/native/api/provider/v1alpha1"
 	v1alpha1 "github.com/sindrip/provider-routeros/native/api/v1alpha1"
 	"github.com/sindrip/provider-routeros/native/internal/connection"
 )
@@ -37,6 +37,8 @@ type fakeMenu struct {
 	planCalls         int
 	applyCheckedCalls int
 }
+
+const testNamespace = "tenant-a"
 
 func (m *fakeMenu) Plan(_ context.Context, spec rest.MenuSpec, desired []rest.Record) (rest.Plan, error) {
 	m.planCalls++
@@ -73,22 +75,30 @@ func (m *fakeMenu) ApplyChecked(_ context.Context, spec rest.MenuSpec, desired [
 type fakeConnector struct {
 	menu        connection.Menu
 	fingerprint string
+	target      string
+	targets     map[string]string
 	err         error
+	namespace   string
 	name        string
 	calls       int
 }
 
-func (c *fakeConnector) Connect(_ context.Context, _ client.Reader, name string) (connection.Connection, error) {
+func (c *fakeConnector) Connect(_ context.Context, _ client.Reader, namespace, name string) (connection.Connection, error) {
 	c.calls++
+	c.namespace = namespace
 	c.name = name
-	return connection.Connection{Menu: c.menu, Fingerprint: c.fingerprint}, c.err
+	target := c.target
+	if c.targets != nil {
+		target = c.targets[providerKey(namespace, name)]
+	}
+	return connection.Connection{Menu: c.menu, Fingerprint: c.fingerprint, TargetFingerprint: target}, c.err
 }
 
 func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
 	scheme := testScheme(t)
 	chain, action := "forward", "accept"
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Generation: 3},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main"), Generation: 3},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedTolerate,
@@ -105,7 +115,7 @@ func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
 	}}
 	connector := &fakeConnector{menu: remote}
 	reconciler := &Reconciler{Client: kube, Connector: connector}
-	request := ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}
+	request := ctrl.Request{NamespacedName: testKey("main")}
 
 	// The first pass persists the finalizer before any remote mutation.
 	if result, err := reconciler.Reconcile(context.Background(), request); err != nil || !result.Requeue {
@@ -118,8 +128,8 @@ func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
 		t.Fatalf("second Reconcile() error = %v", err)
 	}
 
-	if connector.name != "router" {
-		t.Fatalf("connected ProviderConfig = %q, want router", connector.name)
+	if connector.namespace != testNamespace || connector.name != "router" {
+		t.Fatalf("connected ProviderConfig = %s/%s, want %s/router", connector.namespace, connector.name, testNamespace)
 	}
 	if remote.spec.Path != menuPath || !remote.spec.Ordered || remote.spec.Unlisted != rest.UnlistedTolerate {
 		t.Fatalf("REST menu spec = %#v", remote.spec)
@@ -133,7 +143,7 @@ func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
 	}
 
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if got.Status.ObservedGeneration != 3 {
@@ -146,12 +156,12 @@ func TestReconcileAppliesOrderedMenuAndReportsIDs(t *testing.T) {
 	if ready == nil || ready.Status != metav1.ConditionTrue || ready.Reason != "Available" {
 		t.Errorf("Ready condition = %#v", ready)
 	}
-	usage := &clusterv1beta1.ProviderConfigUsage{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "uid-main"}, usage); err != nil {
+	usage := &providerv1alpha1.ProviderConfigUsage{}
+	if err := kube.Get(context.Background(), testKey("uid-main"), usage); err != nil {
 		t.Fatalf("get ProviderConfigUsage: %v", err)
 	}
-	if usage.ProviderConfigReference.Name != "router" || usage.ResourceReference.Name != "main" {
-		t.Errorf("ProviderConfigUsage = %#v", usage.ProviderConfigUsage)
+	if usage.ProviderConfigReference.Kind != providerv1alpha1.ProviderConfigKind || usage.ProviderConfigReference.Name != "router" || usage.ResourceReference.Name != "main" {
+		t.Errorf("ProviderConfigUsage = %#v", usage.TypedProviderConfigUsage)
 	}
 }
 
@@ -189,38 +199,35 @@ func TestReconcileFromProviderConfigThroughREST(t *testing.T) {
 	scheme := testScheme(t)
 	chain, action := "forward", "accept"
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main")},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main")},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedTolerate,
 			Rows:              []v1alpha1.FirewallFilterRule{{Chain: &chain, Action: &action}},
 		},
 	}
-	providerConfig := &clusterv1beta1.ProviderConfig{
-		ObjectMeta: metav1.ObjectMeta{Name: "router"},
-		Spec: clusterv1beta1.ProviderConfigSpec{Credentials: clusterv1beta1.ProviderCredentials{
-			Source: xpv2.CredentialsSourceSecret,
-			CommonCredentialSelectors: xpv2.CommonCredentialSelectors{SecretRef: &xpv2.SecretKeySelector{
-				SecretReference: xpv2.SecretReference{Name: "router", Namespace: "crossplane-system"},
-				Key:             "credentials",
+	providerConfig := &providerv1alpha1.ProviderConfig{
+		ObjectMeta: metav1.ObjectMeta{Name: "router", Namespace: testNamespace},
+		Spec: providerv1alpha1.ProviderConfigSpec{
+			Endpoint: server.URL,
+			Credentials: providerv1alpha1.ProviderCredentials{SecretRef: providerv1alpha1.ProviderCredentialSecretReference{
+				Name: "router",
 			}},
-		}},
+		},
 	}
 	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: "router", Namespace: "crossplane-system"},
-		StringData: map[string]string{
-			"credentials": `{"hosturl":"` + server.URL + `","username":"admin","password":"secret"}`,
-		},
+		ObjectMeta: metav1.ObjectMeta{Name: "router", Namespace: testNamespace},
+		StringData: map[string]string{"username": "admin", "password": "secret"},
 	}
 	// The fake client does not run the API server conversion that normally
 	// copies StringData into Data.
-	secret.Data = map[string][]byte{"credentials": []byte(secret.StringData["credentials"])}
+	secret.Data = map[string][]byte{"username": []byte(secret.StringData["username"]), "password": []byte(secret.StringData["password"])}
 	kube := fake.NewClientBuilder().WithScheme(scheme).
 		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
 		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
 		WithObjects(object, providerConfig, secret).Build()
 	reconciler := &Reconciler{Client: kube, Connector: &connection.ProviderConfigConnector{}}
-	request := ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}
+	request := ctrl.Request{NamespacedName: testKey("main")}
 
 	if _, err := reconciler.Reconcile(context.Background(), request); err != nil {
 		t.Fatalf("persist finalizer: %v", err)
@@ -241,7 +248,7 @@ func TestReconcileFromProviderConfigThroughREST(t *testing.T) {
 		t.Fatalf("REST calls = %#v, want %#v", gotCalls, wantCalls)
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if len(got.Status.Rows) != 1 || got.Status.Rows[0].ID != "*A" {
@@ -252,7 +259,7 @@ func TestReconcileFromProviderConfigThroughREST(t *testing.T) {
 func TestReconcileSurfacesApplyFailure(t *testing.T) {
 	scheme := testScheme(t)
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedTolerate,
@@ -266,12 +273,12 @@ func TestReconcileSurfacesApplyFailure(t *testing.T) {
 	remote := &fakeMenu{err: errors.New("ambiguous row")}
 	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote}}
 
-	_, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}})
+	_, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: testKey("main")})
 	if err == nil {
 		t.Fatal("Reconcile() unexpectedly succeeded")
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if getErr := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); getErr != nil {
+	if getErr := kube.Get(context.Background(), testKey("main"), got); getErr != nil {
 		t.Fatal(getErr)
 	}
 	ready := condition(got, conditionReady)
@@ -283,7 +290,7 @@ func TestReconcileSurfacesApplyFailure(t *testing.T) {
 func TestFirstPruneRequiresMatchingApproval(t *testing.T) {
 	scheme := testScheme(t)
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedPrune,
@@ -298,7 +305,7 @@ func TestFirstPruneRequiresMatchingApproval(t *testing.T) {
 		Op: rest.OpDelete, ID: "*1", Row: rest.Record{rest.IDField: "*1", "comment": "existing"},
 	}}}}
 	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "connection-v1"}}
-	request := ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}
+	request := ctrl.Request{NamespacedName: testKey("main")}
 
 	result, err := reconciler.Reconcile(context.Background(), request)
 	if err != nil {
@@ -308,7 +315,7 @@ func TestFirstPruneRequiresMatchingApproval(t *testing.T) {
 		t.Fatalf("preview result=%#v plan=%d apply=%d checked=%d", result, remote.planCalls, remote.calls, remote.applyCheckedCalls)
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if got.Status.PendingPlan == nil || got.Status.PendingPlan.Deletes != 1 || len(got.Status.PendingPlan.ApprovalToken) != 64 {
@@ -333,7 +340,7 @@ func TestFirstPruneRequiresMatchingApproval(t *testing.T) {
 	if remote.planCalls != 2 || remote.applyCheckedCalls != 1 || remote.calls != 1 {
 		t.Fatalf("approved plan=%d checked=%d apply=%d", remote.planCalls, remote.applyCheckedCalls, remote.calls)
 	}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if !got.Status.Adopted || got.Status.AdoptedConnection != "connection-v1" || got.Status.PendingPlan != nil {
@@ -344,7 +351,7 @@ func TestFirstPruneRequiresMatchingApproval(t *testing.T) {
 func TestChangedPlanInvalidatesPruneApproval(t *testing.T) {
 	scheme := testScheme(t)
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedPrune,
@@ -359,13 +366,13 @@ func TestChangedPlanInvalidatesPruneApproval(t *testing.T) {
 		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
 		WithObjects(object).Build()
 	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "connection-v1"}}
-	request := ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}
+	request := ctrl.Request{NamespacedName: testKey("main")}
 
 	if _, err := reconciler.Reconcile(context.Background(), request); err != nil {
 		t.Fatal(err)
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	oldToken := got.Status.PendingPlan.ApprovalToken
@@ -381,7 +388,7 @@ func TestChangedPlanInvalidatesPruneApproval(t *testing.T) {
 	if remote.calls != 0 {
 		t.Fatalf("changed approved plan performed %d mutation(s)", remote.calls)
 	}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if got.Status.PendingPlan == nil || got.Status.PendingPlan.ApprovalToken == oldToken {
@@ -392,7 +399,7 @@ func TestChangedPlanInvalidatesPruneApproval(t *testing.T) {
 func TestNonDestructiveFirstPruneAdoptsAutomatically(t *testing.T) {
 	scheme := testScheme(t)
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedPrune,
@@ -406,14 +413,14 @@ func TestNonDestructiveFirstPruneAdoptsAutomatically(t *testing.T) {
 	remote := &fakeMenu{plan: rest.Plan{Matched: map[int]string{}}}
 	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "connection-v1"}}
 
-	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}); err != nil {
+	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: testKey("main")}); err != nil {
 		t.Fatal(err)
 	}
 	if remote.planCalls != 1 || remote.calls != 1 || remote.applyCheckedCalls != 1 {
 		t.Fatalf("plan=%d apply=%d checked=%d", remote.planCalls, remote.calls, remote.applyCheckedCalls)
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if !got.Status.Adopted || got.Status.AdoptedConnection != "connection-v1" {
@@ -424,7 +431,7 @@ func TestNonDestructiveFirstPruneAdoptsAutomatically(t *testing.T) {
 func TestChangedConnectionRequiresFreshAdoption(t *testing.T) {
 	scheme := testScheme(t)
 	object := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "main", UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: testNamespace, UID: types.UID("uid-main"), Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedPrune,
@@ -441,14 +448,14 @@ func TestChangedConnectionRequiresFreshAdoption(t *testing.T) {
 	}}}}
 	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote, fingerprint: "new-connection"}}
 
-	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}); err != nil {
+	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: testKey("main")}); err != nil {
 		t.Fatal(err)
 	}
 	if remote.calls != 0 || remote.applyCheckedCalls != 0 {
 		t.Fatal("changed connection pruned before fresh approval")
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "main"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("main"), got); err != nil {
 		t.Fatal(err)
 	}
 	if got.Status.Adopted || got.Status.PendingPlan == nil {
@@ -491,6 +498,7 @@ func TestReconcileDeletePolicyDeletesEveryRemoteRow(t *testing.T) {
 	object := &v1alpha1.FirewallFilterMenu{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:              "main",
+			Namespace:         testNamespace,
 			Finalizers:        []string{finalizer},
 			DeletionTimestamp: &now,
 		},
@@ -506,7 +514,7 @@ func TestReconcileDeletePolicyDeletesEveryRemoteRow(t *testing.T) {
 	remote := &fakeMenu{plan: rest.Plan{Matched: map[int]string{}}}
 	reconciler := &Reconciler{Client: kube, Connector: &fakeConnector{menu: remote}}
 
-	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "main"}}); err != nil {
+	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: testKey("main")}); err != nil {
 		t.Fatalf("Reconcile() error = %v", err)
 	}
 	if remote.calls != 1 || !reflect.DeepEqual(remote.spec, deleteAllStaticSpec) || remote.desired != nil {
@@ -519,7 +527,7 @@ func TestReconcileDeletingNonOwnerNeverTouchesRouter(t *testing.T) {
 	older := metav1.Now()
 	newer := metav1.NewTime(older.Add(1))
 	first := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "first", UID: types.UID("uid-first"), CreationTimestamp: older, Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "first", Namespace: testNamespace, UID: types.UID("uid-first"), CreationTimestamp: older, Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedPrune,
@@ -535,14 +543,15 @@ func TestReconcileDeletingNonOwnerNeverTouchesRouter(t *testing.T) {
 	kube := fake.NewClientBuilder().WithScheme(scheme).
 		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
 		WithObjects(first, second).Build()
-	connector := &fakeConnector{menu: &fakeMenu{}}
+	remote := &fakeMenu{}
+	connector := &fakeConnector{menu: remote}
 	reconciler := &Reconciler{Client: kube, Connector: connector}
 
-	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "second"}}); err != nil {
+	if _, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: testKey("second")}); err != nil {
 		t.Fatalf("Reconcile() error = %v", err)
 	}
-	if connector.calls != 0 {
-		t.Fatalf("connector called %d time(s) while deleting non-owner", connector.calls)
+	if remote.calls != 0 {
+		t.Fatalf("remote Apply called %d time(s) while deleting non-owner", remote.calls)
 	}
 }
 
@@ -551,7 +560,7 @@ func TestReconcileDoesNotFightAnExistingOwner(t *testing.T) {
 	older := metav1.Now()
 	newer := metav1.NewTime(older.Add(1))
 	first := &v1alpha1.FirewallFilterMenu{
-		ObjectMeta: metav1.ObjectMeta{Name: "first", UID: types.UID("uid-first"), CreationTimestamp: older, Finalizers: []string{finalizer}},
+		ObjectMeta: metav1.ObjectMeta{Name: "first", Namespace: testNamespace, UID: types.UID("uid-first"), CreationTimestamp: older, Finalizers: []string{finalizer}},
 		Spec: v1alpha1.FirewallFilterMenuSpec{
 			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
 			Unlisted:          v1alpha1.UnlistedTolerate,
@@ -566,26 +575,152 @@ func TestReconcileDoesNotFightAnExistingOwner(t *testing.T) {
 		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
 		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
 		WithObjects(first, second).Build()
-	connector := &fakeConnector{menu: &fakeMenu{}}
+	remote := &fakeMenu{}
+	connector := &fakeConnector{menu: remote}
 	reconciler := &Reconciler{Client: kube, Connector: connector}
 
-	result, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: client.ObjectKey{Name: "second"}})
+	result, err := reconciler.Reconcile(context.Background(), ctrl.Request{NamespacedName: testKey("second")})
 	if err != nil {
 		t.Fatalf("Reconcile() error = %v", err)
 	}
 	if result.RequeueAfter == 0 {
 		t.Fatal("ownership conflict did not schedule another ownership check")
 	}
-	if connector.calls != 0 {
-		t.Fatalf("connector called %d time(s) for non-owner", connector.calls)
+	if remote.calls != 0 {
+		t.Fatalf("remote Apply called %d time(s) for non-owner", remote.calls)
 	}
 	got := &v1alpha1.FirewallFilterMenu{}
-	if err := kube.Get(context.Background(), client.ObjectKey{Name: "second"}, got); err != nil {
+	if err := kube.Get(context.Background(), testKey("second"), got); err != nil {
 		t.Fatal(err)
 	}
 	ready := condition(got, conditionReady)
 	if ready == nil || ready.Reason != "OwnershipConflict" {
 		t.Fatalf("Ready condition = %#v", ready)
+	}
+}
+
+func TestReconcilePreventsCrossNamespaceOwnershipOfSameRouter(t *testing.T) {
+	scheme := testScheme(t)
+	older := metav1.Now()
+	newer := metav1.NewTime(older.Add(1))
+	first := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "first", Namespace: "tenant-a", UID: types.UID("uid-first"), CreationTimestamp: older, Finalizers: []string{finalizer}},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+			Unlisted:          v1alpha1.UnlistedTolerate,
+		},
+	}
+	second := first.DeepCopy()
+	second.Name = "second"
+	second.Namespace = "tenant-b"
+	second.UID = types.UID("uid-second")
+	second.CreationTimestamp = newer
+	remote := &fakeMenu{}
+	connector := &fakeConnector{menu: remote, target: "same-router"}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
+		WithObjects(first, second).Build()
+	reconciler := &Reconciler{Client: kube, Connector: connector}
+
+	request := ctrl.Request{NamespacedName: client.ObjectKeyFromObject(second)}
+	result, err := reconciler.Reconcile(context.Background(), request)
+	if err != nil {
+		t.Fatalf("Reconcile() error = %v", err)
+	}
+	if result.RequeueAfter == 0 || remote.calls != 0 {
+		t.Fatalf("cross-namespace conflict result=%#v remote calls=%d", result, remote.calls)
+	}
+	got := &v1alpha1.FirewallFilterMenu{}
+	if err := kube.Get(context.Background(), request.NamespacedName, got); err != nil {
+		t.Fatal(err)
+	}
+	ready := condition(got, conditionReady)
+	if ready == nil || ready.Reason != "OwnershipConflict" {
+		t.Fatalf("Ready condition = %#v", ready)
+	}
+}
+
+func TestReconcileAllowsSameProviderConfigNameForDifferentRouters(t *testing.T) {
+	scheme := testScheme(t)
+	older := metav1.Now()
+	newer := metav1.NewTime(older.Add(1))
+	first := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "first", Namespace: "tenant-a", UID: types.UID("uid-first"), CreationTimestamp: older, Finalizers: []string{finalizer}},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+			Unlisted:          v1alpha1.UnlistedTolerate,
+		},
+	}
+	second := first.DeepCopy()
+	second.Name = "second"
+	second.Namespace = "tenant-b"
+	second.UID = types.UID("uid-second")
+	second.CreationTimestamp = newer
+	remote := &fakeMenu{}
+	connector := &fakeConnector{
+		menu: remote,
+		targets: map[string]string{
+			"tenant-a/router": "router-a",
+			"tenant-b/router": "router-b",
+		},
+	}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithStatusSubresource(&v1alpha1.FirewallFilterMenu{}).
+		WithObjects(first, second).Build()
+	reconciler := &Reconciler{Client: kube, Connector: connector}
+
+	request := ctrl.Request{NamespacedName: client.ObjectKeyFromObject(second)}
+	if _, err := reconciler.Reconcile(context.Background(), request); err != nil {
+		t.Fatalf("Reconcile() error = %v", err)
+	}
+	if remote.calls != 1 {
+		t.Fatalf("remote Apply called %d time(s), want 1", remote.calls)
+	}
+}
+
+func TestProviderConfigAndSecretEventsEnqueueOnlyReferencingMenus(t *testing.T) {
+	scheme := testScheme(t)
+	menu := &v1alpha1.FirewallFilterMenu{
+		ObjectMeta: metav1.ObjectMeta{Name: "main", Namespace: "tenant-a"},
+		Spec: v1alpha1.FirewallFilterMenuSpec{
+			ProviderConfigRef: v1alpha1.ProviderConfigReference{Name: "router"},
+		},
+	}
+	otherMenu := menu.DeepCopy()
+	otherMenu.Name = "other"
+	otherMenu.Spec.ProviderConfigRef.Name = "other-router"
+	crossNamespace := menu.DeepCopy()
+	crossNamespace.Name = "cross-namespace"
+	crossNamespace.Namespace = "tenant-b"
+	config := &providerv1alpha1.ProviderConfig{
+		ObjectMeta: metav1.ObjectMeta{Name: "router", Namespace: "tenant-a"},
+		Spec: providerv1alpha1.ProviderConfigSpec{
+			Endpoint: "https://router.example",
+			Credentials: providerv1alpha1.ProviderCredentials{SecretRef: providerv1alpha1.ProviderCredentialSecretReference{
+				Name: "router-creds",
+			}},
+			TLS: &providerv1alpha1.ProviderTLSConfig{CASecretRef: &xpv2.LocalSecretKeySelector{Name: "router-ca", Key: "ca.crt"}},
+		},
+	}
+	kube := fake.NewClientBuilder().WithScheme(scheme).
+		WithIndex(&v1alpha1.FirewallFilterMenu{}, providerIndex, providerIndexValues).
+		WithIndex(&providerv1alpha1.ProviderConfig{}, secretIndex, providerSecretReferenceKeys).
+		WithObjects(menu, otherMenu, crossNamespace, config).Build()
+	reconciler := &Reconciler{Client: kube}
+
+	want := []ctrl.Request{{NamespacedName: client.ObjectKeyFromObject(menu)}}
+	if got := reconciler.requestsForProviderConfig(context.Background(), config); !reflect.DeepEqual(got, want) {
+		t.Fatalf("ProviderConfig requests = %#v, want %#v", got, want)
+	}
+	secret := &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "router-creds", Namespace: "tenant-a"}}
+	if got := reconciler.requestsForSecret(context.Background(), secret); !reflect.DeepEqual(got, want) {
+		t.Fatalf("credentials Secret requests = %#v, want %#v", got, want)
+	}
+	ca := &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "router-ca", Namespace: "tenant-a"}}
+	if got := reconciler.requestsForSecret(context.Background(), ca); !reflect.DeepEqual(got, want) {
+		t.Fatalf("CA Secret requests = %#v, want %#v", got, want)
 	}
 }
 
@@ -595,7 +730,7 @@ func testScheme(t *testing.T) *runtime.Scheme {
 	if err := v1alpha1.AddToScheme(scheme); err != nil {
 		t.Fatal(err)
 	}
-	if err := clusterv1beta1.SchemeBuilder.AddToScheme(scheme); err != nil {
+	if err := providerv1alpha1.AddToScheme(scheme); err != nil {
 		t.Fatal(err)
 	}
 	if err := corev1.AddToScheme(scheme); err != nil {
@@ -615,5 +750,9 @@ func condition(object *v1alpha1.FirewallFilterMenu, kind string) *metav1.Conditi
 
 func providerIndexValues(object client.Object) []string {
 	menu := object.(*v1alpha1.FirewallFilterMenu)
-	return []string{menu.Spec.ProviderConfigRef.Name}
+	return []string{providerKey(menu.Namespace, menu.Spec.ProviderConfigRef.Name)}
+}
+
+func testKey(name string) client.ObjectKey {
+	return client.ObjectKey{Namespace: testNamespace, Name: name}
 }

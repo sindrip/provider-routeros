@@ -5,38 +5,36 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/binary"
 	"encoding/hex"
-	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"time"
 
-	xpv2 "github.com/crossplane/crossplane/apis/v2/core/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	clusterv1beta1 "github.com/sindrip/provider-routeros/apis/cluster/v1beta1"
 	"github.com/sindrip/provider-routeros/rest"
+
+	providerv1alpha1 "github.com/sindrip/provider-routeros/native/api/provider/v1alpha1"
 )
 
 const defaultRESTTimeout = 59 * time.Second
 
-// Credentials is the REST-relevant subset of the existing Terraform provider
-// credential document. Keeping the same JSON shape lets one ProviderConfig be
-// shared by the shipping and native controllers.
-type Credentials struct {
-	HostURL       string `json:"hosturl"`
-	Username      string `json:"username"`
-	Password      string `json:"password"`
-	Insecure      bool   `json:"insecure"`
-	CACertificate string `json:"ca_certificate"`
-	RESTTimeout   int    `json:"rest_timeout"`
+const minimumRequestTimeout = 5 * time.Second
+
+type connectionSettings struct {
+	Endpoint           string
+	Username           string
+	Password           string
+	InsecureSkipVerify bool
+	CABundle           []byte
+	RequestTimeout     time.Duration
 }
 
 // Menu is the part of the REST client used by a menu controller.
@@ -50,12 +48,13 @@ type Menu interface {
 // Secret material that selected its router. Destructive adoption approval is
 // tied to this value, so repointing credentials requires a fresh preview.
 type Connection struct {
-	Menu        Menu
-	Fingerprint string
+	Menu              Menu
+	Fingerprint       string
+	TargetFingerprint string
 }
 
-// ProviderConfigConnector resolves the existing cluster ProviderConfig and
-// builds a RouterOS REST client from its Secret credentials.
+// ProviderConfigConnector resolves a namespaced ProviderConfig and builds a
+// RouterOS REST client from Secret credentials in the same namespace.
 type ProviderConfigConnector struct {
 	mu      sync.Mutex
 	clients map[string]cachedClient
@@ -67,144 +66,207 @@ type cachedClient struct {
 	http        *http.Client
 }
 
-// Connect returns a client for the named ProviderConfig.
-func (c *ProviderConfigConnector) Connect(ctx context.Context, reader client.Reader, name string) (Connection, error) {
+// Connect returns a client for the named ProviderConfig in namespace.
+func (c *ProviderConfigConnector) Connect(ctx context.Context, reader client.Reader, namespace, name string) (Connection, error) {
+	if namespace == "" {
+		return Connection{}, errors.New("ProviderConfig namespace is empty")
+	}
 	if name == "" {
 		return Connection{}, errors.New("providerConfigRef.name is empty")
 	}
 
-	pc := &clusterv1beta1.ProviderConfig{}
-	if err := reader.Get(ctx, types.NamespacedName{Name: name}, pc); err != nil {
-		return Connection{}, fmt.Errorf("get ProviderConfig %q: %w", name, err)
+	pc := &providerv1alpha1.ProviderConfig{}
+	pcKey := types.NamespacedName{Namespace: namespace, Name: name}
+	if err := reader.Get(ctx, pcKey, pc); err != nil {
+		return Connection{}, fmt.Errorf("get ProviderConfig %s: %w", pcKey.String(), err)
 	}
-	if pc.Spec.Credentials.Source != xpv2.CredentialsSourceSecret {
-		return Connection{}, fmt.Errorf("ProviderConfig %q uses credentials source %q; native REST currently supports Secret", name, pc.Spec.Credentials.Source)
-	}
-	selector := pc.Spec.Credentials.SecretRef
-	if selector == nil {
-		return Connection{}, fmt.Errorf("ProviderConfig %q has no credentials.secretRef", name)
-	}
-
-	secret := &corev1.Secret{}
-	key := types.NamespacedName{Name: selector.Name, Namespace: selector.Namespace}
-	if err := reader.Get(ctx, key, secret); err != nil {
-		return Connection{}, fmt.Errorf("get ProviderConfig %q credentials Secret %s: %w", name, key.String(), err)
-	}
-	raw, ok := secret.Data[selector.Key]
-	if !ok {
-		return Connection{}, fmt.Errorf("ProviderConfig %q credentials Secret %s has no key %q", name, key.String(), selector.Key)
-	}
-
-	credentials, err := parseCredentials(raw)
+	settings, fingerprint, err := resolveSettings(ctx, reader, pc)
 	if err != nil {
-		return Connection{}, fmt.Errorf("ProviderConfig %q credentials: %w", name, err)
+		return Connection{}, fmt.Errorf("ProviderConfig %s: %w", pcKey.String(), err)
 	}
-	connectionMaterial := []byte(name + "\x00" + selector.Namespace + "\x00" + selector.Name + "\x00" + selector.Key + "\x00")
-	fingerprint := sha256.Sum256(append(connectionMaterial, raw...))
 	fingerprintText := hex.EncodeToString(fingerprint[:])
-	if credentials.CACertificate == "" {
-		c.mu.Lock()
-		cached, ok := c.clients[name]
-		c.mu.Unlock()
-		if ok && cached.fingerprint == fingerprint {
-			return Connection{Menu: cached.menu, Fingerprint: fingerprintText}, nil
-		}
+	targetFingerprint := fingerprintTarget(settings.Endpoint)
+	cacheKey := pcKey.String()
+	c.mu.Lock()
+	cached, ok := c.clients[cacheKey]
+	c.mu.Unlock()
+	if ok && cached.fingerprint == fingerprint {
+		return Connection{Menu: cached.menu, Fingerprint: fingerprintText, TargetFingerprint: targetFingerprint}, nil
 	}
 
-	httpClient, err := newHTTPClient(credentials)
+	httpClient, err := newHTTPClient(settings)
 	if err != nil {
-		return Connection{}, fmt.Errorf("ProviderConfig %q credentials: %w", name, err)
+		return Connection{}, fmt.Errorf("ProviderConfig %s: %w", pcKey.String(), err)
 	}
-	menu, err := rest.New(credentials.HostURL,
+	menu, err := rest.New(settings.Endpoint,
 		rest.WithHTTPClient(httpClient),
-		rest.WithBasicAuth(credentials.Username, credentials.Password),
+		rest.WithBasicAuth(settings.Username, settings.Password),
 	)
 	if err != nil {
+		httpClient.CloseIdleConnections()
 		return Connection{}, err
 	}
-	// A CA file may change independently of the Kubernetes objects that name
-	// it, so those clients are intentionally rebuilt on every poll.
-	if credentials.CACertificate == "" {
-		c.mu.Lock()
-		if c.clients == nil {
-			c.clients = map[string]cachedClient{}
-		}
-		old := c.clients[name]
-		if old.menu != nil && old.fingerprint == fingerprint {
-			c.mu.Unlock()
-			httpClient.CloseIdleConnections()
-			return Connection{Menu: old.menu, Fingerprint: fingerprintText}, nil
-		}
-		c.clients[name] = cachedClient{fingerprint: fingerprint, menu: menu, http: httpClient}
-		c.mu.Unlock()
-		if old.http != nil && old.http != httpClient {
-			old.http.CloseIdleConnections()
-		}
+	c.mu.Lock()
+	if c.clients == nil {
+		c.clients = map[string]cachedClient{}
 	}
-	return Connection{Menu: menu, Fingerprint: fingerprintText}, nil
+	old := c.clients[cacheKey]
+	if old.menu != nil && old.fingerprint == fingerprint {
+		c.mu.Unlock()
+		httpClient.CloseIdleConnections()
+		return Connection{Menu: old.menu, Fingerprint: fingerprintText, TargetFingerprint: targetFingerprint}, nil
+	}
+	c.clients[cacheKey] = cachedClient{fingerprint: fingerprint, menu: menu, http: httpClient}
+	c.mu.Unlock()
+	if old.http != nil && old.http != httpClient {
+		old.http.CloseIdleConnections()
+	}
+	return Connection{Menu: menu, Fingerprint: fingerprintText, TargetFingerprint: targetFingerprint}, nil
 }
 
-func parseCredentials(raw []byte) (Credentials, error) {
-	var credentials Credentials
-	if err := json.Unmarshal(raw, &credentials); err != nil {
-		return Credentials{}, fmt.Errorf("decode JSON: %w", err)
-	}
-	credentials.HostURL = strings.TrimSpace(credentials.HostURL)
-	if credentials.HostURL == "" {
-		return Credentials{}, errors.New("hosturl is required")
-	}
-	if !strings.Contains(credentials.HostURL, "://") {
-		credentials.HostURL = "https://" + credentials.HostURL
-	}
-	parsed, err := url.Parse(credentials.HostURL)
+func resolveSettings(ctx context.Context, reader client.Reader, pc *providerv1alpha1.ProviderConfig) (connectionSettings, [sha256.Size]byte, error) {
+	settings := connectionSettings{RequestTimeout: defaultRESTTimeout}
+	endpoint, err := validateEndpoint(pc.Spec.Endpoint)
 	if err != nil {
-		return Credentials{}, fmt.Errorf("parse hosturl: %w", err)
+		return connectionSettings{}, [sha256.Size]byte{}, err
+	}
+	settings.Endpoint = endpoint
+	if pc.Spec.TLS != nil && strings.HasPrefix(settings.Endpoint, "http://") {
+		return connectionSettings{}, [sha256.Size]byte{}, errors.New("tls settings require an https endpoint")
+	}
+	if pc.Spec.RequestTimeout != nil {
+		if pc.Spec.RequestTimeout.Duration < minimumRequestTimeout {
+			return connectionSettings{}, [sha256.Size]byte{}, fmt.Errorf("requestTimeout must be at least %s", minimumRequestTimeout)
+		}
+		settings.RequestTimeout = pc.Spec.RequestTimeout.Duration
+	}
+
+	selector := pc.Spec.Credentials.SecretRef
+	if selector.Name == "" {
+		return connectionSettings{}, [sha256.Size]byte{}, errors.New("credentials.secretRef.name is required")
+	}
+	usernameKey := selector.UsernameKey
+	if usernameKey == "" {
+		usernameKey = "username"
+	}
+	passwordKey := selector.PasswordKey
+	if passwordKey == "" {
+		passwordKey = "password"
+	}
+	secret := &corev1.Secret{}
+	key := types.NamespacedName{Name: selector.Name, Namespace: pc.Namespace}
+	if err := reader.Get(ctx, key, secret); err != nil {
+		return connectionSettings{}, [sha256.Size]byte{}, fmt.Errorf("get credentials Secret %s: %w", key.String(), err)
+	}
+	username, ok := secret.Data[usernameKey]
+	if !ok {
+		return connectionSettings{}, [sha256.Size]byte{}, fmt.Errorf("credentials Secret %s has no username key %q", key.String(), usernameKey)
+	}
+	password, ok := secret.Data[passwordKey]
+	if !ok {
+		return connectionSettings{}, [sha256.Size]byte{}, fmt.Errorf("credentials Secret %s has no password key %q", key.String(), passwordKey)
+	}
+	settings.Username = string(username)
+	settings.Password = string(password)
+
+	caName := ""
+	caKey := ""
+	if pc.Spec.TLS != nil {
+		if pc.Spec.TLS.InsecureSkipVerify && pc.Spec.TLS.CASecretRef != nil {
+			return connectionSettings{}, [sha256.Size]byte{}, errors.New("tls.insecureSkipVerify and tls.caSecretRef are mutually exclusive")
+		}
+		settings.InsecureSkipVerify = pc.Spec.TLS.InsecureSkipVerify
+		if pc.Spec.TLS.CASecretRef != nil {
+			caName = pc.Spec.TLS.CASecretRef.Name
+			caKey = pc.Spec.TLS.CASecretRef.Key
+			if caName == "" || caKey == "" {
+				return connectionSettings{}, [sha256.Size]byte{}, errors.New("tls.caSecretRef.name and key are required")
+			}
+			caSecret := &corev1.Secret{}
+			caSecretKey := types.NamespacedName{Name: caName, Namespace: pc.Namespace}
+			if err := reader.Get(ctx, caSecretKey, caSecret); err != nil {
+				return connectionSettings{}, [sha256.Size]byte{}, fmt.Errorf("get CA Secret %s: %w", caSecretKey.String(), err)
+			}
+			bundle, ok := caSecret.Data[caKey]
+			if !ok {
+				return connectionSettings{}, [sha256.Size]byte{}, fmt.Errorf("CA Secret %s has no key %q", caSecretKey.String(), caKey)
+			}
+			settings.CABundle = bundle
+		}
+	}
+
+	fingerprint := fingerprintConnection(
+		[]byte(pc.Namespace), []byte(pc.Name), []byte(settings.Endpoint),
+		[]byte(selector.Name), []byte(usernameKey), username, []byte(passwordKey), password,
+		[]byte(fmt.Sprintf("%t", settings.InsecureSkipVerify)), []byte(caName), []byte(caKey), settings.CABundle,
+		[]byte(settings.RequestTimeout.String()),
+	)
+	return settings, fingerprint, nil
+}
+
+func fingerprintTarget(hostURL string) string {
+	parsed, _ := url.Parse(hostURL)
+	parsed.Scheme = strings.ToLower(parsed.Scheme)
+	parsed.Host = strings.ToLower(parsed.Host)
+	parsed.Path = strings.TrimRight(parsed.Path, "/")
+	parsed.RawQuery = ""
+	parsed.Fragment = ""
+	value := sha256.Sum256([]byte(parsed.String()))
+	return hex.EncodeToString(value[:])
+}
+
+func validateEndpoint(endpoint string) (string, error) {
+	endpoint = strings.TrimSpace(endpoint)
+	if endpoint == "" {
+		return "", errors.New("endpoint is required")
+	}
+	parsed, err := url.Parse(endpoint)
+	if err != nil {
+		return "", fmt.Errorf("parse endpoint: %w", err)
 	}
 	if parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return Credentials{}, fmt.Errorf("hosturl scheme %q is not REST-capable; use http or https", parsed.Scheme)
+		return "", fmt.Errorf("endpoint scheme %q is not REST-capable; use http or https", parsed.Scheme)
 	}
 	if parsed.Host == "" {
-		return Credentials{}, errors.New("hosturl has no host")
+		return "", errors.New("endpoint has no host")
 	}
-	if credentials.Insecure && credentials.CACertificate != "" {
-		return Credentials{}, errors.New("insecure and ca_certificate are mutually exclusive")
-	}
-	if credentials.RESTTimeout < 0 {
-		return Credentials{}, errors.New("rest_timeout cannot be negative")
-	}
-	if credentials.RESTTimeout > 0 && credentials.RESTTimeout < 5 {
-		return Credentials{}, errors.New("rest_timeout must be at least 5 seconds when set")
-	}
-	return credentials, nil
+	parsed.RawQuery = ""
+	parsed.Fragment = ""
+	parsed.Path = strings.TrimRight(parsed.Path, "/")
+	return parsed.String(), nil
 }
 
-func newHTTPClient(credentials Credentials) (*http.Client, error) {
+func fingerprintConnection(parts ...[]byte) [sha256.Size]byte {
+	hash := sha256.New()
+	var size [8]byte
+	for _, part := range parts {
+		binary.BigEndian.PutUint64(size[:], uint64(len(part)))
+		_, _ = hash.Write(size[:])
+		_, _ = hash.Write(part)
+	}
+	var fingerprint [sha256.Size]byte
+	copy(fingerprint[:], hash.Sum(nil))
+	return fingerprint
+}
+
+func newHTTPClient(settings connectionSettings) (*http.Client, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	tlsConfig := &tls.Config{MinVersion: tls.VersionTLS12}
-	if credentials.Insecure {
-		// This is an explicit option in the shared credentials document and is
-		// needed for the self-signed certificate RouterOS commonly ships with.
+	if settings.InsecureSkipVerify {
+		// This is explicit in ProviderConfig and needed for the self-signed
+		// certificate RouterOS commonly ships with.
 		tlsConfig.InsecureSkipVerify = true //nolint:gosec
 	}
-	if credentials.CACertificate != "" {
-		pem, err := os.ReadFile(credentials.CACertificate)
-		if err != nil {
-			return nil, fmt.Errorf("read ca_certificate %q: %w", credentials.CACertificate, err)
-		}
+	if len(settings.CABundle) > 0 {
 		pool, err := x509.SystemCertPool()
 		if err != nil {
 			return nil, fmt.Errorf("load system certificate pool: %w", err)
 		}
-		if !pool.AppendCertsFromPEM(pem) {
-			return nil, fmt.Errorf("ca_certificate %q contains no PEM certificates", credentials.CACertificate)
+		if !pool.AppendCertsFromPEM(settings.CABundle) {
+			return nil, errors.New("tls.caSecretRef contains no PEM certificates")
 		}
 		tlsConfig.RootCAs = pool
 	}
 	transport.TLSClientConfig = tlsConfig
-
-	timeout := defaultRESTTimeout
-	if credentials.RESTTimeout > 0 {
-		timeout = time.Duration(credentials.RESTTimeout) * time.Second
-	}
-	return &http.Client{Transport: transport, Timeout: timeout}, nil
+	return &http.Client{Transport: transport, Timeout: settings.RequestTimeout}, nil
 }

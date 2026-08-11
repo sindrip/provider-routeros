@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.20.1
-  name: firewallfiltermenus.ip.routeros.sindrip.io
+  name: firewallfiltermenus.ip.routeros.m.sindrip.io
 spec:
-  group: ip.routeros.sindrip.io
+  group: ip.routeros.m.sindrip.io
   names:
     categories:
     - crossplane
@@ -16,7 +16,7 @@ spec:
     listKind: FirewallFilterMenuList
     plural: firewallfiltermenus
     singular: firewallfiltermenu
-  scope: Cluster
+  scope: Namespaced
   versions:
   - additionalPrinterColumns:
     - jsonPath: .status.conditions[?(@.type=="Ready")].status
@@ -72,8 +72,9 @@ spec:
                 type: string
               providerConfigRef:
                 description: |-
-                  ProviderConfigReference names a cluster-scoped routeros.sindrip.io
-                  ProviderConfig.
+                  ProviderConfigReference names a routeros.m.sindrip.io ProviderConfig in the
+                  FirewallFilterMenu's namespace. ClusterProviderConfig is intentionally not
+                  supported by this API.
                 properties:
                   name:
                     minLength: 1

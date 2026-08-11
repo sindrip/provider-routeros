@@ -1,0 +1,334 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: firewallfiltermenus.ip.routeros.sindrip.io
+spec:
+  group: ip.routeros.sindrip.io
+  names:
+    categories:
+    - crossplane
+    - provider
+    - routeros
+    kind: FirewallFilterMenu
+    listKind: FirewallFilterMenuList
+    plural: firewallfiltermenus
+    singular: firewallfiltermenu
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: READY
+      type: string
+    - jsonPath: .spec.unlisted
+      name: POLICY
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          FirewallFilterMenu owns the ordered /ip/firewall/filter menu on one RouterOS
+          device.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: |-
+              FirewallFilterMenuSpec declares the ordered contents of
+              /ip/firewall/filter on one router.
+            properties:
+              deletionPolicy:
+                default: Orphan
+                description: |-
+                  DeletionPolicy defaults to Orphan so removing this object leaves RouterOS
+                  configuration intact. Delete is valid only with Unlisted=Prune, where the
+                  object explicitly owns the complete menu.
+                enum:
+                - Orphan
+                - Delete
+                type: string
+              providerConfigRef:
+                description: |-
+                  ProviderConfigReference names a cluster-scoped routeros.sindrip.io
+                  ProviderConfig.
+                properties:
+                  name:
+                    minLength: 1
+                    type: string
+                required:
+                - name
+                type: object
+              rows:
+                description: |-
+                  Rows are evaluated in list order by RouterOS. The list is atomic so
+                  server-side apply cannot merge rules from multiple field managers into a
+                  surprising first-match chain.
+                items:
+                  description: |-
+                    FirewallFilterRule is the writable RouterOS 7.23.2 surface discovered by
+                    the IR for /ip/firewall/filter. Pointer fields preserve the distinction
+                    between an omitted field and an explicitly empty/false value.
+
+                    RouterOS accepts several scalar mini-languages (ranges, comma-separated
+                    sets, negation, and time units), so non-boolean values remain strings at the
+                    API boundary instead of being narrowed into lossy Go numeric types.
+                  properties:
+                    action:
+                      type: string
+                    addressList:
+                      type: string
+                    addressListTimeout:
+                      type: string
+                    chain:
+                      type: string
+                    comment:
+                      type: string
+                    connectionBytes:
+                      type: string
+                    connectionLimit:
+                      type: string
+                    connectionMark:
+                      type: string
+                    connectionNatState:
+                      type: string
+                    connectionRate:
+                      type: string
+                    connectionState:
+                      type: string
+                    connectionType:
+                      type: string
+                    content:
+                      type: string
+                    disabled:
+                      type: boolean
+                    dscp:
+                      type: string
+                    dstAddress:
+                      type: string
+                    dstAddressList:
+                      type: string
+                    dstAddressType:
+                      type: string
+                    dstLimit:
+                      type: string
+                    dstPort:
+                      type: string
+                    fragment:
+                      type: boolean
+                    hotspot:
+                      type: string
+                    icmpOptions:
+                      type: string
+                    inBridgePort:
+                      type: string
+                    inBridgePortList:
+                      type: string
+                    inInterface:
+                      type: string
+                    inInterfaceList:
+                      type: string
+                    ingressPriority:
+                      type: string
+                    ipsecPolicy:
+                      type: string
+                    ipv4Options:
+                      type: string
+                    jumpTarget:
+                      type: string
+                    layer7Protocol:
+                      type: string
+                    limit:
+                      type: string
+                    log:
+                      type: boolean
+                    logPrefix:
+                      type: string
+                    nth:
+                      type: string
+                    outBridgePort:
+                      type: string
+                    outBridgePortList:
+                      type: string
+                    outInterface:
+                      type: string
+                    outInterfaceList:
+                      type: string
+                    p2p:
+                      type: string
+                    packetMark:
+                      type: string
+                    packetSize:
+                      type: string
+                    perConnectionClassifier:
+                      type: string
+                    port:
+                      type: string
+                    priority:
+                      type: string
+                    protocol:
+                      type: string
+                    psd:
+                      type: string
+                    random:
+                      type: string
+                    realm:
+                      type: string
+                    rejectWith:
+                      type: string
+                    routingMark:
+                      type: string
+                    srcAddress:
+                      type: string
+                    srcAddressList:
+                      type: string
+                    srcAddressType:
+                      type: string
+                    srcMacAddress:
+                      type: string
+                    srcPort:
+                      type: string
+                    tcpFlags:
+                      type: string
+                    tcpMss:
+                      type: string
+                    time:
+                      type: string
+                    tlsHost:
+                      type: string
+                    tos:
+                      type: string
+                    ttl:
+                      type: string
+                  type: object
+                type: array
+                x-kubernetes-list-type: atomic
+              unlisted:
+                description: |-
+                  Unlisted is required because both choices have material consequences:
+                  Tolerate preserves hand-written rules; Prune makes this object own the
+                  complete menu.
+                enum:
+                - Tolerate
+                - Prune
+                type: string
+            required:
+            - providerConfigRef
+            - rows
+            - unlisted
+            type: object
+            x-kubernetes-validations:
+            - message: deletionPolicy Delete requires unlisted Prune because only
+                a full-menu owner may empty the menu
+              rule: '!has(self.deletionPolicy) || self.deletionPolicy != ''Delete''
+                || self.unlisted == ''Prune'''
+          status:
+            description: |-
+              FirewallFilterMenuStatus is intentionally compact: the desired values
+              already live in spec, so status reports only resolution and health.
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                format: int64
+                type: integer
+              rows:
+                items:
+                  description: |-
+                    FirewallFilterRowStatus identifies the RouterOS row matched to one desired
+                    list position without mirroring the full spec into status.
+                  properties:
+                    id:
+                      type: string
+                    index:
+                      format: int32
+                      type: integer
+                  required:
+                  - index
+                  type: object
+                type: array
+                x-kubernetes-list-type: atomic
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

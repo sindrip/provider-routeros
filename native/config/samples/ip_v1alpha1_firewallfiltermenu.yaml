@@ -1,0 +1,14 @@
+apiVersion: ip.routeros.sindrip.io/v1alpha1
+kind: FirewallFilterMenu
+metadata:
+  name: native-smoke-test
+spec:
+  providerConfigRef:
+    name: default
+  unlisted: Tolerate
+  deletionPolicy: Orphan
+  rows:
+    - chain: input
+      action: accept
+      comment: provider-routeros native smoke test
+      disabled: true

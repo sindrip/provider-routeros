@@ -1,8 +1,14 @@
 package rest
 
 import (
+	"encoding/json/v2"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -23,6 +29,91 @@ func ops(p Plan) []Op {
 		out = append(out, s.Op)
 	}
 	return out
+}
+
+// orderingRouter is the small stateful slice of RouterOS needed to exercise
+// Apply across its create, re-read and move phases. The planning tests above
+// and below stay pure; this one exists because a created row's id is unknowable
+// until the device returns it.
+type orderingRouter struct {
+	t      *testing.T
+	rows   []Record
+	nextID int
+}
+
+func (r *orderingRouter) client(t *testing.T) *Client {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(r.serveHTTP))
+	t.Cleanup(srv.Close)
+	c, err := New(srv.URL, WithHTTPClient(srv.Client()), WithBasicAuth("admin", ""))
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	return c
+}
+
+func (r *orderingRouter) serveHTTP(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	switch {
+	case req.Method == http.MethodGet && req.URL.Path == "/rest/ip/firewall/filter":
+		writeJSON(r.t, w, http.StatusOK, r.rows)
+	case req.Method == http.MethodPut && req.URL.Path == "/rest/ip/firewall/filter":
+		var created Record
+		r.decode(req, &created)
+		r.nextID++
+		created[IDField] = fmt.Sprintf("*%d", r.nextID)
+		r.rows = append(r.rows, created)
+		writeJSON(r.t, w, http.StatusCreated, created)
+	case req.Method == http.MethodPost && req.URL.Path == "/rest/ip/firewall/filter/move":
+		var args Record
+		r.decode(req, &args)
+		r.move(strings.Split(args["numbers"], ","), args["destination"])
+		writeJSON(r.t, w, http.StatusOK, []Record{})
+	default:
+		r.t.Errorf("unexpected request: %s %s", req.Method, req.URL.Path)
+		http.Error(w, "unexpected request", http.StatusNotFound)
+	}
+}
+
+func (r *orderingRouter) decode(req *http.Request, into any) {
+	raw, err := io.ReadAll(req.Body)
+	if err != nil {
+		r.t.Errorf("reading %s %s: %v", req.Method, req.URL.Path, err)
+		return
+	}
+	if err := json.Unmarshal(raw, into); err != nil {
+		r.t.Errorf("decoding %s %s: %v", req.Method, req.URL.Path, err)
+	}
+}
+
+func (r *orderingRouter) move(ids []string, before string) {
+	byID := map[string]Record{}
+	selected := map[string]bool{}
+	for _, row := range r.rows {
+		byID[row.ID()] = row
+	}
+	for _, id := range ids {
+		selected[id] = true
+	}
+	block := make([]Record, 0, len(ids))
+	for _, id := range ids {
+		block = append(block, byID[id])
+	}
+	remaining := slices.DeleteFunc(slices.Clone(r.rows), func(row Record) bool {
+		return selected[row.ID()]
+	})
+	if before == "" {
+		r.rows = append(remaining, block...)
+		return
+	}
+	i := slices.IndexFunc(remaining, func(row Record) bool { return row.ID() == before })
+	if i < 0 {
+		r.t.Errorf("move destination %q is not present", before)
+		return
+	}
+	out := append([]Record{}, remaining[:i]...)
+	out = append(out, block...)
+	r.rows = append(out, remaining[i:]...)
 }
 
 // TestUnlistedPolicyIsRequired is the gate ADR 0004 asks for. Prune deletes a
@@ -195,6 +286,51 @@ func TestOwnedMenuSortsInOneMove(t *testing.T) {
 	}
 }
 
+// TestApplyOrdersCreatedRowBeforeReturning covers the id boundary that Plan
+// alone cannot: RouterOS assigns an id during create, and that id must take
+// part in the ordering phase of the same Apply. Leaving the new rule at the end
+// until another reconcile preserves the dead-rule window ADR 0004 removes.
+func TestApplyOrdersCreatedRowBeforeReturning(t *testing.T) {
+	router := &orderingRouter{
+		t:      t,
+		nextID: 2,
+		rows: rows(
+			rec("*1", "comment", "accept-first"),
+			rec("*2", "comment", "drop-last"),
+		),
+	}
+	c := router.client(t)
+	spec := MenuSpec{Path: "/ip/firewall/filter", Ordered: true, Unlisted: UnlistedPrune}
+	desired := []Record{
+		{"comment": "accept-first"},
+		{"comment": "accept-middle"},
+		{"comment": "drop-last"},
+	}
+
+	p, err := c.Apply(t.Context(), spec, desired)
+	if err != nil {
+		t.Fatalf("Apply: %v", err)
+	}
+	if got := p.Counts(); got[OpCreate] != 1 || got[OpMove] != 1 {
+		t.Fatalf("operations = %v, want one create followed by one move", got)
+	}
+	got := make([]string, 0, len(router.rows))
+	for _, row := range router.rows {
+		got = append(got, row["comment"])
+	}
+	if want := []string{"accept-first", "accept-middle", "drop-last"}; !slices.Equal(got, want) {
+		t.Errorf("order after Apply = %v, want %v", got, want)
+	}
+
+	converged, err := c.Apply(t.Context(), spec, desired)
+	if err != nil {
+		t.Fatalf("second Apply: %v", err)
+	}
+	if !converged.Empty() {
+		t.Errorf("second Apply planned %v, want no work", converged.Counts())
+	}
+}
+
 // TestToleratedReorderLeavesUnmanagedRowsAlone is why the one-call sort is not
 // used unconditionally: moving the managed block would also move it relative to
 // rules nobody asked to touch, which changes first-match behaviour for them.
@@ -291,4 +427,57 @@ func TestUnmentionedFieldsAreNotManaged(t *testing.T) {
 	if !p.Empty() {
 		t.Errorf("ops = %v; log and bytes are unmanaged and must not provoke anything", ops(p))
 	}
+}
+
+// TestPresentEmptyIsNotAbsent carries Record's three-state boolean contract
+// through menu reconciliation. RouterOS uses a present empty string for a set
+// flag and omission for an unset one, so ordinary map zero-value comparisons
+// silently reverse the intended state.
+func TestPresentEmptyIsNotAbsent(t *testing.T) {
+	t.Run("keyed row is updated", func(t *testing.T) {
+		current := rows(rec("*1", "name", "peer"))
+		desired := []Record{{"name": "peer", "ebgp": ""}}
+		p, err := plan(MenuSpec{Path: "/routing/bgp/session", Unlisted: UnlistedTolerate, Key: "name"}, desired, current)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !slices.Equal(ops(p), []Op{OpUpdate}) {
+			t.Fatalf("ops = %v, want an update that sets the flag", ops(p))
+		}
+		if value, present := p.Steps[0].Row["ebgp"]; !present || value != "" {
+			t.Errorf("update = %v, want ebgp present with an empty value", p.Steps[0].Row)
+		}
+	})
+
+	t.Run("unkeyed row does not match", func(t *testing.T) {
+		current := rows(rec("*1", "name", "peer"))
+		desired := []Record{{"name": "peer", "ebgp": ""}}
+		p, err := plan(MenuSpec{Path: "/routing/bgp/session", Unlisted: UnlistedPrune}, desired, current)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !slices.Equal(ops(p), []Op{OpCreate, OpDelete}) {
+			t.Errorf("ops = %v, want replace because the requested flag is absent", ops(p))
+		}
+	})
+
+	t.Run("candidate rows remain distinguishable", func(t *testing.T) {
+		current := rows(
+			rec("*1", "name", "peer", "ebgp", ""),
+			rec("*2", "name", "peer", "ibgp", ""),
+		)
+		_, err := plan(MenuSpec{Path: "/routing/bgp/session", Unlisted: UnlistedTolerate},
+			[]Record{{"name": "peer"}}, current)
+		var amb *AmbiguousError
+		if !errors.As(err, &amb) {
+			t.Fatalf("err = %v, want ambiguity between different set flags", err)
+		}
+	})
+
+	t.Run("empty key does not match a missing key", func(t *testing.T) {
+		got := candidates(MenuSpec{Key: "flag"}, Record{"flag": ""}, rows(rec("*1", "name", "row")), nil)
+		if len(got) != 0 {
+			t.Errorf("candidates = %v, want none", got)
+		}
+	})
 }

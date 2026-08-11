@@ -215,8 +215,10 @@ func candidates(spec MenuSpec, want Record, current []Record, claimed map[string
 		if spec.Key != "" {
 			// A device-enforced key cannot match twice, so this loop returns at
 			// most one id and an ambiguity is impossible by construction.
-			if v, ok := want[spec.Key]; ok && row[spec.Key] == v {
-				return []string{id}
+			if v, ok := want[spec.Key]; ok {
+				if got, present := row[spec.Key]; present && got == v {
+					return []string{id}
+				}
 			}
 			continue
 		}
@@ -233,14 +235,19 @@ func indistinguishable(current []Record, ids []string) bool {
 	first := byID(current, ids[0])
 	for _, id := range ids[1:] {
 		other := byID(current, id)
-		if len(first) != len(other) {
-			return false
-		}
 		for k, v := range first {
 			if k == IDField {
 				continue
 			}
-			if other[k] != v {
+			if got, present := other[k]; !present || got != v {
+				return false
+			}
+		}
+		for k := range other {
+			if k == IDField {
+				continue
+			}
+			if _, present := first[k]; !present {
 				return false
 			}
 		}
@@ -256,7 +263,7 @@ func subset(want, row Record) bool {
 		if k == IDField {
 			continue
 		}
-		if row[k] != v {
+		if got, present := row[k]; !present || got != v {
 			return false
 		}
 	}
@@ -270,7 +277,7 @@ func changes(want, row Record) Record {
 		if k == IDField {
 			continue
 		}
-		if row[k] != v {
+		if got, present := row[k]; !present || got != v {
 			out[k] = v
 		}
 	}
@@ -290,8 +297,9 @@ func changes(want, row Record) Record {
 // they are.
 //
 // Creates are not in the plan's id space yet, so ordering is only emitted for
-// rows that already exist. A create lands at the end and is put in place by the
-// next reconcile, which is the same bounded window ADR 0002 describes.
+// rows that already exist. Apply handles that boundary by executing structural
+// steps first, reading the menu again, and replacing this preliminary ordering
+// phase with one that includes the newly assigned ids.
 func reorder(spec MenuSpec, desired, current []Record, matched map[int]string, claimed map[string]bool) []Step {
 	// The managed rows, in the order the spec wants them.
 	var want []string
@@ -342,6 +350,48 @@ func (c *Client) Apply(ctx context.Context, spec MenuSpec, desired []Record) (Pl
 	if err != nil {
 		return Plan{}, err
 	}
+
+	// A move planned against the first reading cannot include rows created by
+	// this apply, and deletes can make its anchors unnecessarily stale. Run the
+	// structural phase first and plan order again from the resulting device
+	// state, so a new first-match rule reaches its requested position before
+	// this call returns.
+	structural := spec.Ordered && slices.ContainsFunc(p.Steps, func(s Step) bool {
+		return s.Op == OpCreate || s.Op == OpDelete
+	})
+	if structural {
+		var mutations []Step
+		for _, s := range p.Steps {
+			if s.Op != OpMove {
+				mutations = append(mutations, s)
+			}
+		}
+		p.Steps = mutations
+		for i, s := range mutations {
+			if err := c.step(ctx, spec, s); err != nil {
+				return p, fmt.Errorf("%s mutation step %d/%d (%s): %w", spec.Path, i+1, len(mutations), s.Op, err)
+			}
+		}
+
+		ordered, err := c.Plan(ctx, spec, desired)
+		if err != nil {
+			return p, fmt.Errorf("%s: planning order after structural steps: %w", spec.Path, err)
+		}
+		for _, s := range ordered.Steps {
+			if s.Op != OpMove {
+				return p, fmt.Errorf("%s: structural steps did not converge; next plan still contains %s", spec.Path, s.Op)
+			}
+		}
+		p.Matched = ordered.Matched
+		p.Steps = append(p.Steps, ordered.Steps...)
+		for i, s := range ordered.Steps {
+			if err := c.step(ctx, spec, s); err != nil {
+				return p, fmt.Errorf("%s ordering step %d/%d (%s): %w", spec.Path, i+1, len(ordered.Steps), s.Op, err)
+			}
+		}
+		return p, nil
+	}
+
 	for i, s := range p.Steps {
 		if err := c.step(ctx, spec, s); err != nil {
 			return p, fmt.Errorf("%s step %d/%d (%s): %w", spec.Path, i+1, len(p.Steps), s.Op, err)

@@ -108,9 +108,18 @@ those menus and this trade-off is worth revisiting.
   bounded window — a rule created after its chain's drop sits dead until the
   sequencer's next reconcile — closes, because there is no separate sequencer to
   run second.
-- **Large menus become large objects.** `/ip/firewall/filter` on a real router is
-  hundreds of rows in one spec, against etcd's limits and Kubernetes' patch
-  semantics. Needs measuring before this ships; it is the main open risk.
+- **Large menus become large objects — measured, and survivable.** With the CR
+  shape this ADR implies — rows as an atomic list in spec, mirrored in status
+  with a per-row condition — a v1.36.2 API server on default-limit etcd stores
+  a realistic-density `/ip/firewall/filter` at ~400 bytes a row, and the first
+  refusal comes at 3873 rows; rows with all 63 writable fields set hit it at
+  443 (`hack/sizeprobe`, pinned in `config/menu-object-size.json`). Two
+  findings shape the design. The write that dies is the *status* one, since it
+  carries spec plus the observed mirror and the mirror is the larger half —
+  and a floor, because a live router returns defaulted fields on top — so
+  status is where the shape gives under pressure, and compacting the mirror is
+  the lever. And managedFields stays flat at any row count, because an atomic
+  list is one entry; atomic is forced anyway, position being identity.
 - **The bridge cannot express this**, exactly as 0001 found. This is a native-
   provider decision; the upjet bridge keeps 0001 and 0002 for its lifetime, and
   those ADRs stay in force rather than being superseded.
@@ -129,6 +138,9 @@ go test ./...                                          # the gates that pin thes
 
 - `config/key-uniqueness.json` — per-field uniqueness verdicts, and the note
   recording that two consecutive runs agreed on 404 of 407.
+- `config/menu-object-size.json` — what a menu CR costs stored and where a
+  default-limit API server refuses one, per row shape (`hack/sizeprobe`, which
+  reruns it against a disposable envtest control plane).
 - `schema/ir.json` — `identity.tested` per menu, `identity.key` where proven.
 - `hack/keyprobe` — how the verdicts were obtained, including why a rejection
   that does not name the field is `AMBIGUOUS` rather than `UNIQUE`.

@@ -1,0 +1,107 @@
+{
+  "generated_by": "hack/sizeprobe",
+  "kubernetes_version": "v1.36.2",
+  "menu": "/ip/firewall/filter",
+  "routeros_version": "7.23.2 (stable)",
+  "mirror_note": "status.atProvider mirrors the desired row plus .id and the menu's read-only fields; a live router also returns defaulted fields, so real stored sizes sit above these, not below",
+  "shapes": {
+    "dense": {
+      "description": "every writable field the menu has set on every row",
+      "fields_per_row_avg": 63,
+      "row_json_bytes_avg": 1688
+    },
+    "typical": {
+      "description": "archetypes of real firewall policy, ~5 fields a rule",
+      "fields_per_row_avg": 5,
+      "row_json_bytes_avg": 137
+    }
+  },
+  "measurements": [
+    {
+      "shape": "typical",
+      "rows": 100,
+      "apply_request_bytes": 14007,
+      "stored_bytes": 40741,
+      "spec_bytes": 13892,
+      "status_bytes": 26115,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 14044
+    },
+    {
+      "shape": "typical",
+      "rows": 250,
+      "apply_request_bytes": 34874,
+      "stored_bytes": 101075,
+      "spec_bytes": 34759,
+      "status_bytes": 65582,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 34907
+    },
+    {
+      "shape": "typical",
+      "rows": 500,
+      "apply_request_bytes": 69560,
+      "stored_bytes": 201937,
+      "spec_bytes": 69445,
+      "status_bytes": 131758,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 69592
+    },
+    {
+      "shape": "typical",
+      "rows": 1000,
+      "apply_request_bytes": 139465,
+      "stored_bytes": 404746,
+      "spec_bytes": 139349,
+      "status_bytes": 264662,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 139489
+    },
+    {
+      "shape": "typical",
+      "rows": 2000,
+      "apply_request_bytes": 279246,
+      "stored_bytes": 811308,
+      "spec_bytes": 279130,
+      "status_bytes": 531443,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 279280
+    },
+    {
+      "shape": "dense",
+      "rows": 100,
+      "apply_request_bytes": 170516,
+      "stored_bytes": 353761,
+      "spec_bytes": 170403,
+      "status_bytes": 182626,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 170535
+    },
+    {
+      "shape": "dense",
+      "rows": 250,
+      "apply_request_bytes": 427898,
+      "stored_bytes": 887125,
+      "spec_bytes": 427785,
+      "status_bytes": 458608,
+      "managed_fields_bytes": 465,
+      "one_row_change_request_bytes": 427916
+    }
+  ],
+  "ceilings": [
+    {
+      "shape": "typical",
+      "max_rows_ok": 3872,
+      "first_failure_rows": 3873,
+      "failed_at": "status-apply",
+      "refusal": "etcdserver: request is too large"
+    },
+    {
+      "shape": "dense",
+      "max_rows_ok": 442,
+      "first_failure_rows": 443,
+      "failed_at": "status-apply",
+      "refusal": "etcdserver: request is too large"
+    }
+  ]
+}

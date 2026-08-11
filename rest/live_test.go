@@ -285,13 +285,26 @@ func TestLiveCHRMenuApply(t *testing.T) {
 		}
 	})
 
-	desired := []Record{rule("live-a", "accept"), rule("live-b", "accept"), rule("live-c", "drop")}
+	desired := []Record{rule("live-a", "accept"), rule("live-c", "drop")}
 	p, err := c.Apply(ctx, spec, desired)
 	if err != nil {
 		t.Fatalf("first apply: %v", err)
 	}
-	if n := p.Counts()[OpCreate]; n != 3 {
-		t.Errorf("first apply made %d rows, want 3 (%v)", n, p.Counts())
+	if n := p.Counts()[OpCreate]; n != 2 {
+		t.Errorf("first apply made %d rows, want 2 (%v)", n, p.Counts())
+	}
+	assertOrder(t, ctx, c, path, "live-a", "live-c")
+
+	// Insert before the terminal drop. Create returns the new id, then Apply
+	// re-reads and moves it into place before returning; requiring another
+	// reconcile here would preserve the first-match window this API removes.
+	desired = []Record{rule("live-a", "accept"), rule("live-b", "accept"), rule("live-c", "drop")}
+	p, err = c.Apply(ctx, spec, desired)
+	if err != nil {
+		t.Fatalf("middle insert: %v", err)
+	}
+	if got := p.Counts(); got[OpCreate] != 1 || got[OpMove] != 1 {
+		t.Errorf("middle insert operations = %v, want one create and one move", got)
 	}
 	assertOrder(t, ctx, c, path, "live-a", "live-b", "live-c")
 

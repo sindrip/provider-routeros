@@ -14,6 +14,16 @@ import (
 	"time"
 )
 
+// Record is one record as the device returns it: field names to string
+// values. Rows and singleton settings alike; the client knows no schemas.
+type Record map[string]string
+
+// shape is the closed set of things a RouterOS REST response can decode
+// into.
+type shape interface {
+	Record | []Record
+}
+
 type Client struct {
 	base     string
 	user     string
@@ -31,24 +41,24 @@ func New(base, user, password string) *Client {
 }
 
 // Get fetches a menu's single record.
-func (c *Client) Get(ctx context.Context, path string) (map[string]string, error) {
-	return c.do[map[string]string](ctx, http.MethodGet, path, nil)
+func (c *Client) Get(ctx context.Context, path string) (Record, error) {
+	return c.do[Record](ctx, http.MethodGet, path, nil)
 }
 
 // List fetches a menu's rows.
-func (c *Client) List(ctx context.Context, path string) ([]map[string]string, error) {
-	return c.do[[]map[string]string](ctx, http.MethodGet, path, nil)
+func (c *Client) List(ctx context.Context, path string) ([]Record, error) {
+	return c.do[[]Record](ctx, http.MethodGet, path, nil)
 }
 
 // Exec runs a console command with the given arguments and returns the
 // records it emits.
-func (c *Client) Exec(ctx context.Context, path string, args map[string]string) ([]map[string]string, error) {
-	return c.do[[]map[string]string](ctx, http.MethodPost, path, args)
+func (c *Client) Exec(ctx context.Context, path string, args Record) ([]Record, error) {
+	return c.do[[]Record](ctx, http.MethodPost, path, args)
 }
 
 // Raw performs one request and returns the raw status and body — the
 // escape hatch probes use to observe response shape.
-func (c *Client) Raw(ctx context.Context, method, path string, args map[string]string) (int, []byte, error) {
+func (c *Client) Raw(ctx context.Context, method, path string, args Record) (int, []byte, error) {
 	var body io.Reader
 
 	if args != nil {
@@ -85,9 +95,8 @@ func (c *Client) Raw(ctx context.Context, method, path string, args map[string]s
 	return resp.StatusCode, b, nil
 }
 
-// do is the one HTTP path: request, auth, status check, decode. T is the
-// caller's response shape, never a schema.
-func (c *Client) do[T any](ctx context.Context, method, path string, args map[string]string) (T, error) {
+// do is the one HTTP path: request, auth, status check, decode.
+func (c *Client) do[T shape](ctx context.Context, method, path string, args Record) (T, error) {
 	var zero T
 
 	status, body, err := c.Raw(ctx, method, path, args)

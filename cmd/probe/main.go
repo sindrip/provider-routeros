@@ -13,6 +13,15 @@ import (
 	"github.com/sindrip/routeros/lab"
 )
 
+// stamp identifies the router every observation was pinned on. Version
+// alone lies: the menu tree differs across architectures and boards.
+type stamp struct {
+	Probe        string `json:"probe"`
+	RouterOS     string `json:"routeros"`
+	Architecture string `json:"architecture"`
+	Board        string `json:"board"`
+}
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "probe:", err)
@@ -28,6 +37,7 @@ func run() (err error) {
 	if err != nil {
 		return err
 	}
+
 	// Teardown must survive ^C.
 	defer func() {
 		if derr := l.Down(context.WithoutCancel(ctx)); err == nil {
@@ -37,25 +47,47 @@ func run() (err error) {
 
 	c := routeros.New(l.URL, l.User, l.Password)
 
-	rec, err := c.Get(ctx, "/system/resource")
+	st, err := identity(ctx, c)
 	if err != nil {
 		return err
 	}
 
-	if rec["version"] == "" {
-		return fmt.Errorf("/system/resource has no version: %v", rec)
+	if err := write("version", stamp{Probe: "version", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}); err != nil {
+		return err
 	}
 
-	return write("version", rec["version"])
+	paths, err := inventory(ctx, c)
+	if err != nil {
+		return err
+	}
+
+	return write("inventory", struct {
+		stamp
+		Paths []pathInfo `json:"paths"`
+	}{stamp{Probe: "inventory", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, paths})
 }
 
-// write pins one observation, stamped with the router's version. No
-// timestamps: same router, byte-identical file.
-func write(probe, version string) error {
-	b, err := json.MarshalIndent(struct {
-		Probe    string `json:"probe"`
-		RouterOS string `json:"routeros"`
-	}{probe, version}, "", "  ")
+func identity(ctx context.Context, c *routeros.Client) (stamp, error) {
+	rec, err := c.Get(ctx, "/system/resource")
+	if err != nil {
+		return stamp{}, err
+	}
+
+	if rec["version"] == "" {
+		return stamp{}, fmt.Errorf("/system/resource has no version: %v", rec)
+	}
+
+	return stamp{
+		RouterOS:     rec["version"],
+		Architecture: rec["architecture-name"],
+		Board:        rec["board-name"],
+	}, nil
+}
+
+// write pins one observation. No timestamps: same router, byte-identical
+// file.
+func write(name string, v any) error {
+	b, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -64,5 +96,5 @@ func write(probe, version string) error {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join("observations", probe+".json"), append(b, '\n'), 0o644)
+	return os.WriteFile(filepath.Join("observations", name+".json"), append(b, '\n'), 0o644)
 }

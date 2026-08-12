@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  test:
+    desc: Unit tests, no docker
+    cmd: go test ./...
+
+  lint:
+    desc: golangci-lint over the workspace
+    cmd: go tool golangci-lint run

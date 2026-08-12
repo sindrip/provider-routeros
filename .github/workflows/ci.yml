@@ -21,6 +21,12 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
+          # No root go.sum (the substrate stays clean), so name the real
+          # key inputs; go.mod so a toolchain bump rotates the cache.
+          cache-dependency-path: |
+            go.mod
+            go.work.sum
+            tools/go.sum
 
       # setup-go exports GOTOOLCHAIN=local, which forbids fetching the
       # pinned prerelease. GITHUB_ENV overrides it; job-level env would not.

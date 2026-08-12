@@ -40,6 +40,31 @@ func (c *Client) List(ctx context.Context, path string) ([]map[string]string, er
 	return c.do[[]map[string]string](ctx, http.MethodGet, path, nil)
 }
 
+// Add creates one row and returns it as the device expanded it.
+func (c *Client) Add(ctx context.Context, path string, fields map[string]string) (map[string]string, error) {
+	return c.do[map[string]string](ctx, http.MethodPut, path, fields)
+}
+
+// Set updates the stated fields of one row or singleton record and
+// returns the result.
+func (c *Client) Set(ctx context.Context, path, id string, fields map[string]string) (map[string]string, error) {
+	return c.do[map[string]string](ctx, http.MethodPatch, path+"/"+id, fields)
+}
+
+// Remove deletes one row. The device answers 204 with no body.
+func (c *Client) Remove(ctx context.Context, path, id string) error {
+	status, body, err := c.Raw(ctx, http.MethodDelete, path+"/"+id, nil)
+	if err != nil {
+		return err
+	}
+
+	if status != http.StatusNoContent && status != http.StatusOK {
+		return restError(http.MethodDelete, path+"/"+id, status, body)
+	}
+
+	return nil
+}
+
 // Exec runs a console command with the given arguments and returns the
 // records it emits.
 func (c *Client) Exec(ctx context.Context, path string, args map[string]string) ([]map[string]string, error) {

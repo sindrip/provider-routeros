@@ -45,6 +45,42 @@ func TestGetError(t *testing.T) {
 	}
 }
 
+// TestMutations pins the request shapes the live router answered on
+// 2026-08-13: PUT creates, PATCH by id updates, DELETE by id answers 204.
+func TestMutations(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method + " " + r.URL.Path {
+		case "PUT /rest/ip/firewall/address-list":
+			w.Write([]byte(`{".id": "*1", "address": "10.9.9.9", "list": "probe"}`))
+		case "PATCH /rest/ip/firewall/address-list/*1":
+			w.Write([]byte(`{".id": "*1", "address": "10.9.9.9", "comment": "probed"}`))
+		case "DELETE /rest/ip/firewall/address-list/*1":
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			t.Errorf("unexpected %s %s", r.Method, r.URL.Path)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	}))
+	defer srv.Close()
+
+	c := New(srv.URL, "admin", "")
+	ctx := context.Background()
+
+	created, err := c.Add(ctx, "/ip/firewall/address-list", map[string]string{"address": "10.9.9.9", "list": "probe"})
+	if err != nil || created[".id"] != "*1" {
+		t.Errorf("Add = %v, %v", created, err)
+	}
+
+	updated, err := c.Set(ctx, "/ip/firewall/address-list", "*1", map[string]string{"comment": "probed"})
+	if err != nil || updated["comment"] != "probed" {
+		t.Errorf("Set = %v, %v", updated, err)
+	}
+
+	if err := c.Remove(ctx, "/ip/firewall/address-list", "*1"); err != nil {
+		t.Errorf("Remove = %v", err)
+	}
+}
+
 func TestGetNonString(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"n": 1}`))

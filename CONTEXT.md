@@ -1,7 +1,8 @@
 # RouterOS Provider
 
 A Kubernetes provider that reconciles MikroTik RouterOS devices from typed,
-per-menu custom resources, generated from evidence probed out of live routers.
+per-menu custom resources, generated from observations probed out of live
+routers.
 
 ## Language
 
@@ -14,7 +15,7 @@ _Avoid_: table, section, config block
 
 **Menu class**:
 The behavioural shape of a menu: an ordered list (position carries meaning),
-a list, or a singleton. A class is assigned from evidence, never assumed.
+a list, or a singleton. A class is assigned from observation, never assumed.
 
 **Row**:
 One record within a list-class menu. A row is addressed by its position in
@@ -30,15 +31,15 @@ stated fields and tolerates the rest.
 A field a spec explicitly sets. Only stated fields are converged; an unstated
 field is unmanaged, not "default".
 
-**Evidence**:
+**Observation**:
 A fact about RouterOS behaviour pinned by probing a live, disposable router.
-Documentation is not evidence; console output formatted for humans is
-presentation, not evidence.
+Documentation is not an observation; console output formatted for humans is
+presentation, not observation.
 
 **Probe**:
 A program that asks a disposable router one class of question and pins the
-answers as an evidence artifact.
+answers as observations.
 
 **IR**:
-The intermediate representation compiled from evidence artifacts — the sole
+The intermediate representation compiled from observations — the sole
 authority the generator reads. Never hand-edited.

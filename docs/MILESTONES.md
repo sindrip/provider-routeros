@@ -5,11 +5,11 @@ M1–M3 and M6 exit against a fresh `docker compose up`.
 
 ## M1 — Harness
 
-Go module: boot the router, probe over REST, write evidence artifacts
-stamped with the RouterOS version, tear down.
+Go module: boot the router, probe over REST, write observations stamped
+with the RouterOS version, tear down.
 
-Exit: one command reproduces a trivial artifact (the version) from a clean
-checkout.
+Exit: one command reproduces a trivial observation (the version) from a
+clean checkout.
 
 ## M2 — Inventory
 
@@ -21,17 +21,18 @@ Exit: every path has a verdict.
 ## M3 — Menu behaviour
 
 Per-menu probes: fields, booleans, default expansion, uniqueness, ordering,
-fixed-membership keys. Main's probes are prior art; its evidence is not —
-re-pin.
+fixed-membership keys. Main's probes are prior art; its observations are
+not — re-pin.
 
-Exit: every writable menu has a behaviour artifact; contradictions with M2
-fail the run.
+Exit: every writable menu has behaviour observations; contradictions with
+M2 fail the run.
 
 ## M4 — IR
 
-Compile the artifacts into the IR.
+Compile the observations into the IR.
 
-Exit: same artifacts, byte-identical IR; contradictions fail compilation.
+Exit: same observations, byte-identical IR; contradictions fail
+compilation.
 
 ## M5 — Generator
 

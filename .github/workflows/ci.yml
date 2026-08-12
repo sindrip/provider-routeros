@@ -36,4 +36,4 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: docker compose --project-directory lab up --wait
-      - run: curl -sfu admin: http://127.0.0.1:18080/rest/system/resource
+      - run: 'curl -sfu admin: http://127.0.0.1:18080/rest/system/resource'

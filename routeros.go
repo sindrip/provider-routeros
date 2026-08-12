@@ -35,6 +35,7 @@ func (c *Client) Get(ctx context.Context, path string) (map[string]string, error
 	if err != nil {
 		return nil, err
 	}
+
 	req.SetBasicAuth(c.user, c.password)
 
 	resp, err := c.httpc.Do(req)
@@ -47,6 +48,7 @@ func (c *Client) Get(ctx context.Context, path string) (map[string]string, error
 	if err != nil {
 		return nil, fmt.Errorf("GET %s: %w", path, err)
 	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, restError(path, resp.StatusCode, body)
 	}
@@ -55,6 +57,7 @@ func (c *Client) Get(ctx context.Context, path string) (map[string]string, error
 	if err := json.Unmarshal(body, &rec); err != nil {
 		return nil, fmt.Errorf("GET %s: %w", path, err)
 	}
+
 	return rec, nil
 }
 
@@ -63,13 +66,17 @@ func restError(path string, code int, body []byte) error {
 		Message string `json:"message"`
 		Detail  string `json:"detail"`
 	}
+
 	_ = json.Unmarshal(body, &e)
+
 	msg := e.Message
 	if e.Detail != "" {
 		msg += ": " + e.Detail
 	}
+
 	if msg == "" {
 		msg = strings.TrimSpace(string(body))
 	}
+
 	return fmt.Errorf("GET %s: %d %s", path, code, msg)
 }

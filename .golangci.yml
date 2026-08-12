@@ -1,6 +1,15 @@
 version: "2"
 
 linters:
+  enable:
+    # Codified style: logical statement groups separated by blank lines.
+    - wsl_v5
+    - whitespace
+  disable:
+    # buildir panics on go1.27's struct-literal selectors (in the linux
+    # stdlib, so CI dies while macOS passes). Re-enable when
+    # honnef.co/go/tools supports 1.27.
+    - staticcheck
   settings:
     errcheck:
       exclude-functions:

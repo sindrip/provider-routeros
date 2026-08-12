@@ -13,9 +13,11 @@ func TestGet(t *testing.T) {
 		if user, pass, ok := r.BasicAuth(); !ok || user != "admin" || pass != "" {
 			t.Errorf("basic auth = %q %q", user, pass)
 		}
+
 		if r.URL.Path != "/rest/system/resource" {
 			t.Errorf("path = %q", r.URL.Path)
 		}
+
 		w.Write([]byte(`{"version": "7.23.3 (stable)", "uptime": "1m"}`))
 	}))
 	defer srv.Close()
@@ -24,6 +26,7 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if rec["version"] != "7.23.3 (stable)" {
 		t.Errorf("version = %q", rec["version"])
 	}

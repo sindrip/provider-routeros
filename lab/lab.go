@@ -24,6 +24,7 @@ func Boot(ctx context.Context) (*Lab, error) {
 	if out, err := compose(ctx, dir, "up", "--wait"); err != nil {
 		return nil, fmt.Errorf("compose up: %w\n%s", err, out)
 	}
+
 	return &Lab{URL: "http://127.0.0.1:18080", User: "admin", Password: "", dir: dir}, nil
 }
 
@@ -32,6 +33,7 @@ func (l *Lab) Down(ctx context.Context) error {
 	if out, err := compose(ctx, l.dir, "down"); err != nil {
 		return fmt.Errorf("compose down: %w\n%s", err, out)
 	}
+
 	return nil
 }
 

@@ -36,13 +36,16 @@ func run() (err error) {
 	}()
 
 	c := routeros.New(l.URL, l.User, l.Password)
+
 	rec, err := c.Get(ctx, "/system/resource")
 	if err != nil {
 		return err
 	}
+
 	if rec["version"] == "" {
 		return fmt.Errorf("/system/resource has no version: %v", rec)
 	}
+
 	return write("version", rec["version"])
 }
 
@@ -56,8 +59,10 @@ func write(probe, version string) error {
 	if err != nil {
 		return err
 	}
+
 	if err := os.MkdirAll("observations", 0o755); err != nil {
 		return err
 	}
+
 	return os.WriteFile(filepath.Join("observations", probe+".json"), append(b, '\n'), 0o644)
 }

@@ -1,6 +1,3 @@
-# Disposable RouterOS from MikroTik's official CHR image (see README.md).
-# REST: http://127.0.0.1:18080/rest (admin, empty password).
-
 name: routeros-lab
 
 services:
@@ -9,22 +6,18 @@ services:
     privileged: true
     # The VM's ether1 MAC is this + 1; dhcp pins its lease to .11.
     mac_address: 02:52:6f:53:00:10
-    environment:
-      MEM: ${CHR_MEMORY:-512m}
-      CPUS: ${CHR_CPUS:-2}
     networks: [mgmt]
 
   dhcp:
     build:
       context: .
       dockerfile_inline: |
-        FROM alpine:3.22
+        FROM alpine:3.24
         RUN apk add --no-cache dnsmasq
     cap_add: [NET_ADMIN]
     command: >-
-      dnsmasq --no-daemon --log-dhcp --port=0
-      --interface=eth0 --bind-interfaces
-      --dhcp-range=172.31.99.100,172.31.99.199,1h
+      dnsmasq --no-daemon --port=0
+      --dhcp-range=172.31.99.0,static
       --dhcp-host=02:52:6f:53:00:11,172.31.99.11
     networks: [mgmt]
 
@@ -34,16 +27,14 @@ services:
     build:
       context: .
       dockerfile_inline: |
-        FROM alpine:3.22
+        FROM alpine:3.24
         RUN apk add --no-cache socat
     command: socat TCP-LISTEN:80,fork,reuseaddr TCP:172.31.99.11:80
     ports:
-      - "127.0.0.1:${LAB_REST_PORT:-18080}:80"
+      - "127.0.0.1:18080:80"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://admin:@172.31.99.11/rest/system/resource"]
       interval: 5s
-      timeout: 3s
-      retries: 3
       start_period: 240s
     networks: [mgmt]
 

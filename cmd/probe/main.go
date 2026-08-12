@@ -3,7 +3,8 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"os"
 	"os/signal"
@@ -84,10 +85,10 @@ func identity(ctx context.Context, c *routeros.Client) (stamp, error) {
 	}, nil
 }
 
-// write pins one observation. No timestamps: same router, byte-identical
-// file.
+// write pins one observation. No timestamps, deterministic map order:
+// same router, byte-identical file.
 func write(name string, v any) error {
-	b, err := json.MarshalIndent(v, "", "  ")
+	b, err := json.Marshal(v, json.Deterministic(true), jsontext.WithIndent("  "))
 	if err != nil {
 		return err
 	}

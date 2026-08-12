@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -53,7 +53,7 @@ func fakeRouter(t *testing.T) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost && r.URL.Path == "/rest/console/inspect" {
 			var args map[string]string
-			if err := json.NewDecoder(r.Body).Decode(&args); err != nil {
+			if err := json.UnmarshalRead(r.Body, &args); err != nil {
 				t.Errorf("inspect body: %v", err)
 			}
 
@@ -62,7 +62,7 @@ func fakeRouter(t *testing.T) *httptest.Server {
 				t.Errorf("unexpected inspect path %q", args["path"])
 			}
 
-			_ = json.NewEncoder(w).Encode(rows)
+			_ = json.MarshalWrite(w, rows)
 
 			return
 		}

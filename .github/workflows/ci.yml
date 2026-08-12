@@ -37,9 +37,18 @@ jobs:
       - run: go test ./...
       - run: go tool golangci-lint run
 
-  lab:
+  pipeline:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - run: docker compose --project-directory lab up --wait
-      - run: 'curl -sfu admin: http://127.0.0.1:18080/rest/system/resource'
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.mod
+            go.work.sum
+            tools/go.sum
+      - name: Allow toolchain downloads
+        run: echo "GOTOOLCHAIN=auto" >> "$GITHUB_ENV"
+      - run: go run ./cmd/probe
+      - run: cat observations/version.json

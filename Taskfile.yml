@@ -1,6 +1,10 @@
 version: '3'
 
 tasks:
+  probe:
+    desc: Boot the lab, pin observations, tear down
+    cmd: go run ./cmd/probe
+
   test:
     desc: Unit tests, no docker
     cmd: go test ./...

@@ -1,5 +1,12 @@
 version: "2"
 
+linters:
+  settings:
+    errcheck:
+      exclude-functions:
+        - (io.ReadCloser).Close
+        - (net/http.ResponseWriter).Write
+
 formatters:
   enable:
     - gofmt

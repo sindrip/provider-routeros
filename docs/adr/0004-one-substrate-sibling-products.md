@@ -17,8 +17,10 @@ caching, a cost decision deferred until the cost exists. Consequence: CI
 runs the pipeline, router included.
 
 Tooling is Go-native: go 1.27rc2 via `GOTOOLCHAIN=auto`, tools pinned as
-go.mod `tool` directives, go-task (never make) as the verb menu with no
-logic in it, golangci-lint near defaults. `lab/compose.yaml` is the lab's
+`tool` directives in a dedicated tools module — their requires would
+otherwise be the substrate's, and the workspace exposes them to plain
+`go tool` anyway — go-task (never make) as the verb menu with no logic in
+it, golangci-lint near defaults. `lab/compose.yaml` is the lab's
 single topology definition — humans and programs boot the same file. Unit
 tests only at day zero; the first router-touching test lands in a
 dedicated e2e module, keeping `go test ./...` docker-free everywhere.

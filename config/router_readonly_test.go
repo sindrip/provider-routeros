@@ -36,6 +36,45 @@ func TestRouterReadOnlyBothSchemas(t *testing.T) {
 	}
 }
 
+// Upstream shares one *schema.Schema across resources — PropVrfRw is a single
+// pointer behind every menu that takes vrf as a set argument — so a demotion
+// written in place travels to menus the router does let write the field. Only
+// the resource we name may come out changed.
+//
+// The baseline is read as values, not as a second provider to compare against
+// later: an in-place demotion would follow the shared pointer into any provider
+// still holding it, baseline included, and the comparison would agree with
+// itself while both were wrong.
+func TestRouterReadOnlyDemotesOnlyTheNamedResource(t *testing.T) {
+	type settability struct{ optional, required, computed bool }
+	baseline := map[string]map[string]settability{}
+	for name, r := range routeros.Provider().ResourcesMap {
+		fields := map[string]settability{}
+		for field, s := range r.Schema {
+			fields[field] = settability{s.Optional, s.Required, s.Computed}
+		}
+		baseline[name] = fields
+	}
+
+	after := withRouterReadOnly(routeros.Provider())
+	for demoted, fields := range routerReadOnlyFields {
+		for _, field := range fields {
+			for name, r := range after.ResourcesMap {
+				if name == demoted || r.Schema[field] == nil {
+					continue
+				}
+				s := r.Schema[field]
+				was := baseline[name][field]
+				if s.Optional != was.optional || s.Required != was.required || s.Computed != was.computed {
+					t.Errorf("demoting %s.%s reached %s.%s: optional %v->%v required %v->%v computed %v->%v",
+						demoted, field, name, field,
+						was.optional, s.Optional, was.required, s.Required, was.computed, s.Computed)
+				}
+			}
+		}
+	}
+}
+
 // Upstream must still be offering the field as settable, or the override is
 // redundant and should be dropped rather than left to rot.
 func TestRouterReadOnlyGates(t *testing.T) {

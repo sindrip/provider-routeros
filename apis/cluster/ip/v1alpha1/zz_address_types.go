@@ -32,10 +32,6 @@ type AddressInitParameters struct {
 	// to-point links it should be the address of the remote end. Starting from v5RC6 this parameter is configurable only for addresses with /32 netmask (point to point links)
 	// IP address for the network. For point-to-point links it should be the address of the remote end. Starting from v5RC6 this parameter is configurable only for addresses with /32 netmask (point to point links)
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
-
-	// (String) The VRF table this resource operates on.
-	// The VRF table this resource operates on.
-	Vrf *string `json:"vrf,omitempty" tf:"vrf,omitempty"`
 }
 
 type AddressObservation struct {
@@ -105,11 +101,6 @@ type AddressParameters struct {
 	// IP address for the network. For point-to-point links it should be the address of the remote end. Starting from v5RC6 this parameter is configurable only for addresses with /32 netmask (point to point links)
 	// +kubebuilder:validation:Optional
 	Network *string `json:"network,omitempty" tf:"network,omitempty"`
-
-	// (String) The VRF table this resource operates on.
-	// The VRF table this resource operates on.
-	// +kubebuilder:validation:Optional
-	Vrf *string `json:"vrf,omitempty" tf:"vrf,omitempty"`
 }
 
 // AddressSpec defines the desired state of Address

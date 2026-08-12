@@ -27,8 +27,18 @@ import (
 // rather than a bool — and could not make the field writable, which was never
 // the schema's to grant. Applied to the generation schema as well as the
 // runtime one, because moving a field out of spec is a CRD change.
+// vrf on /ip/address is the second case. An address does not choose its VRF;
+// it inherits the one its interface was put in through /ip/vrf, and the router
+// reports the result back on the address. config/arg-types.json has it from the
+// router itself: on /ip/address vrf is access read-only, enumerated by print
+// rather than by the add/set walk — unlike the thirty-odd menus that do take
+// vrf as a set argument. Upstream offers it as PropVrfRw all the same, so it
+// lands in spec.forProvider, late-initialization fills it with main from the
+// observation, and every create from that spec afterwards carries a parameter
+// /ip/address/add will not accept.
 var routerReadOnlyFields = map[string][]string{
 	"routeros_interface_macvlan": {"loop_protect_status"},
+	"routeros_ip_address":        {"vrf"},
 }
 
 func withRouterReadOnly(p *schema.Provider) *schema.Provider {
@@ -42,11 +52,18 @@ func withRouterReadOnly(p *schema.Provider) *schema.Provider {
 			if s == nil {
 				panic("routerReadOnlyFields: " + resource + " has no field " + field)
 			}
-			s.Computed = true
-			s.Optional = false
-			s.Required = false
-			s.Default = nil
-			s.ForceNew = false
+			// Upstream hands several resources the same *schema.Schema value —
+			// PropVrfRw is one pointer shared by every menu that takes vrf as a
+			// set argument. Retyping it in place would follow the pointer out to
+			// all of them and take a writable field away from menus the router
+			// lets write it. Demote a copy, and leave the shared one alone.
+			demoted := *s
+			demoted.Computed = true
+			demoted.Optional = false
+			demoted.Required = false
+			demoted.Default = nil
+			demoted.ForceNew = false
+			r.Schema[field] = &demoted
 		}
 	}
 	return p

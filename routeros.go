@@ -120,7 +120,7 @@ func (c *Client) do[T any](ctx context.Context, method, path string, args map[st
 		return zero, err
 	}
 
-	if status != http.StatusOK {
+	if status/100 != 2 {
 		return zero, restError(method, path, status, body)
 	}
 

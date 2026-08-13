@@ -1,4 +1,4 @@
-// Package lab boots the disposable RouterOS router and tears it down.
+// Package lab boots the disposable RouterOS routers and tears them down.
 package lab
 
 import (
@@ -9,26 +9,44 @@ import (
 	"runtime"
 )
 
-// Lab is a running disposable router.
-type Lab struct {
+// routers is the number of pinned ordinals in compose.yaml.
+const routers = 2
+
+// Router is one running disposable router.
+type Router struct {
 	URL      string
 	User     string
 	Password string
-	dir      string
+}
+
+// Lab is the running set of disposable routers.
+type Lab struct {
+	Routers []Router
+	dir     string
 }
 
 // Boot runs `docker compose up --wait` on the compose file beside this
-// package and returns the router's REST endpoint.
+// package and returns the routers' REST endpoints. Ordinal n listens on
+// 127.0.0.1:801n.
 func Boot(ctx context.Context) (*Lab, error) {
 	dir := composeDir()
-	if out, err := compose(ctx, dir, "up", "--wait"); err != nil {
+	if out, err := compose(ctx, dir, "up", "--wait", "--remove-orphans"); err != nil {
 		return nil, fmt.Errorf("compose up: %w\n%s", err, out)
 	}
 
-	return &Lab{URL: "http://127.0.0.1:18080", User: "admin", Password: "", dir: dir}, nil
+	l := &Lab{dir: dir}
+
+	for n := 1; n <= routers; n++ {
+		l.Routers = append(l.Routers, Router{
+			URL:  fmt.Sprintf("http://127.0.0.1:801%d", n),
+			User: "admin",
+		})
+	}
+
+	return l, nil
 }
 
-// Down discards the router and its state.
+// Down discards the routers and their state.
 func (l *Lab) Down(ctx context.Context) error {
 	if out, err := compose(ctx, l.dir, "down"); err != nil {
 		return fmt.Errorf("compose down: %w\n%s", err, out)

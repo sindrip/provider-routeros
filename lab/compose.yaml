@@ -1,41 +1,53 @@
 name: routeros-lab
 
+x-chr: &chr
+  image: mikrotik/chr:${CHR_VERSION:-7.23.3}
+  privileged: true
+  networks: [mgmt]
+
 services:
-  r1:
-    image: mikrotik/chr:${CHR_VERSION:-7.23.3}
-    privileged: true
-    # The VM's ether1 MAC is this + 1; dhcp pins its lease to .11.
-    mac_address: 02:52:6f:53:00:10
-    networks: [mgmt]
+  # Ordinal n: container MAC 02:52:6f:53:00:n0, the VM's ether1 is +1,
+  # dhcp leases it 172.31.99.1n, host reaches it at 127.0.0.1:801n.
+  r1: { <<: *chr, mac_address: "02:52:6f:53:00:10" }
+  r2: { <<: *chr, mac_address: "02:52:6f:53:00:20" }
 
-  dhcp:
+  net:
     build:
       context: .
       dockerfile_inline: |
         FROM alpine:3.24
-        RUN apk add --no-cache dnsmasq
+        RUN apk add --no-cache dnsmasq socat
     cap_add: [NET_ADMIN]
-    command: >-
-      dnsmasq --no-daemon --port=0
-      --dhcp-range=172.31.99.0,static
-      --dhcp-host=02:52:6f:53:00:11,172.31.99.11
-    networks: [mgmt]
-
-  # macOS can't reach the leased address; gw publishes it and carries the
-  # readiness healthcheck `up --wait` blocks on.
-  gw:
-    build:
-      context: .
-      dockerfile_inline: |
-        FROM alpine:3.24
-        RUN apk add --no-cache socat
-    command: socat TCP-LISTEN:80,fork,reuseaddr TCP:172.31.99.11:80
+    # Relays 801n -> 172.31.99.1n:80 for every ordinal: macOS hosts cannot
+    # reach the VMs directly, and the routers cannot publish ports — the
+    # chr image bridges the container NIC out of its own netns. Idle
+    # relays for absent routers cost nothing.
+    command:
+      - sh
+      - -c
+      - >-
+        for n in 1 2 3 4 5 6 7 8 9; do
+        socat TCP-LISTEN:801$$n,fork,reuseaddr TCP:172.31.99.1$$n:80 &
+        done;
+        exec dnsmasq --no-daemon --port=0
+        --dhcp-range=172.31.99.0,static
+        --dhcp-host=02:52:6f:53:00:11,172.31.99.11
+        --dhcp-host=02:52:6f:53:00:21,172.31.99.12
     ports:
-      - "127.0.0.1:18080:80"
+      - "127.0.0.1:8011-8019:8011-8019"
+    # The routers cannot self-probe (same bridged netns); net vouches for
+    # every pinned ordinal. `up --wait` blocks on this.
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://admin:@172.31.99.11/rest/system/resource"]
+      test:
+        - CMD
+        - sh
+        - -c
+        - >-
+          for n in 1 2; do
+          wget -qO /dev/null http://admin:@172.31.99.1$$n/rest/system/resource || exit 1;
+          done
       interval: 5s
-      start_period: 240s
+      start_period: 300s
     networks: [mgmt]
 
 networks:

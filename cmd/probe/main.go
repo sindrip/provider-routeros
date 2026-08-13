@@ -46,7 +46,8 @@ func run() (err error) {
 		}
 	}()
 
-	c := routeros.New(l.URL, l.User, l.Password)
+	r := l.Routers[0]
+	c := routeros.New(r.URL, r.User, r.Password)
 
 	st, err := identity(ctx, c)
 	if err != nil {

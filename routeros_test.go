@@ -51,6 +51,8 @@ func TestMutations(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method + " " + r.URL.Path {
 		case "PUT /rest/ip/firewall/address-list":
+			// The live router creates with 201, not 200.
+			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(`{".id": "*1", "address": "10.9.9.9", "list": "probe"}`))
 		case "PATCH /rest/ip/firewall/address-list/*1":
 			w.Write([]byte(`{".id": "*1", "address": "10.9.9.9", "comment": "probed"}`))

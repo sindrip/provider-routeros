@@ -51,4 +51,4 @@ jobs:
       - name: Allow toolchain downloads
         run: echo "GOTOOLCHAIN=auto" >> "$GITHUB_ENV"
       - run: go run ./cmd/probe
-      - run: cat observations/version.json
+      - run: jq -r '"\(.probe): \(.menus | length) menus on \(.routeros)"' observations/*.json

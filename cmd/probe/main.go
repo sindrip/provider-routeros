@@ -1,4 +1,5 @@
-// Probe boots the disposable router, pins observations, and tears it down.
+// Probe boots the disposable routers, pins observations, and tears them
+// down.
 package main
 
 import (
@@ -52,43 +53,27 @@ func run() (err error) {
 		return err
 	}
 
-	if err := write("version", stamp{Probe: "version", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}); err != nil {
-		return err
-	}
-
-	paths, err := inventory(ctx, c)
+	menus, err := describe(ctx, c)
 	if err != nil {
 		return err
 	}
 
-	if err := write("inventory", struct {
+	if err := write("description", struct {
 		stamp
-		Paths []pathInfo `json:"paths"`
-	}{stamp{Probe: "inventory", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, paths}); err != nil {
+		Menus []*menuDesc `json:"menus"`
+	}{st.probe("description"), menus}); err != nil {
 		return err
 	}
 
-	menus, err := fields(ctx, c, paths)
-	if err != nil {
-		return err
-	}
-
-	if err := write("fields", struct {
+	return write("behaviour", struct {
 		stamp
-		Menus []menuFields `json:"menus"`
-	}{stamp{Probe: "fields", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, menus}); err != nil {
-		return err
-	}
+		Menus []expansion `json:"menus"`
+	}{st.probe("behaviour"), behave(ctx, l, menus)})
+}
 
-	args, err := types(ctx, c, paths, menus)
-	if err != nil {
-		return err
-	}
-
-	return write("types", struct {
-		stamp
-		Args []*argType `json:"args"`
-	}{stamp{Probe: "types", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, args})
+func (s stamp) probe(name string) stamp {
+	s.Probe = name
+	return s
 }
 
 func identity(ctx context.Context, c *routeros.Client) (stamp, error) {

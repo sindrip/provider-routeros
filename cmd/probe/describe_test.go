@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
@@ -62,13 +61,8 @@ func fakeRouter(t *testing.T) *httptest.Server {
 		},
 	}
 
-	gets := map[string]string{
-		"/rest/ip/address":  `[{"address": "10.0.0.1/24"}]`,
-		"/rest/ip/settings": `{"arp-timeout": "30s"}`,
-	}
-
 	completions := map[string][]map[string]string{
-		"/ip/address/set disabled=":        {{"completion": "no", "show": "true"}, {"completion": "yes", "show": "true"}},
+		"/ip/address/set disabled=":        {{"completion": "no", "show": "true"}, {"completion": "yes", "show": "true"}, {"completion": "!", "show": "true", "style": "syntax-meta"}},
 		"/ip/address/set interface=":       {{"completion": "ether1", "show": "true"}, {"completion": "<value>"}},
 		"/ip/address/set address=":         {{"completion": "<value>"}},
 		"/ip/address/print where ":         {{"completion": "address", "show": "true"}, {"completion": "disabled", "show": "true"}, {"completion": "dynamic", "show": "true"}, {"completion": "interface", "show": "true"}, {"completion": ".id", "show": "true"}},
@@ -76,6 +70,8 @@ func fakeRouter(t *testing.T) *httptest.Server {
 		"/ip/settings/set arp-timeout=":    {{"completion": "<value>"}},
 		"/ip/settings/get ":                {{"completion": "arp-timeout", "show": "true"}, {"completion": "value-name", "show": "true"}},
 	}
+
+	var addressRows []map[string]string
 
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost && r.URL.Path == "/rest/console/inspect" {
@@ -108,150 +104,126 @@ func fakeRouter(t *testing.T) *httptest.Server {
 			return
 		}
 
-		if r.URL.Path == "/rest/ip/sick" {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`{"error": 500, "message": "internal error"}`))
-
-			return
-		}
-
-		body, ok := gets[r.URL.Path]
-		if !ok {
+		switch r.Method + " " + r.URL.Path {
+		case "PUT /rest/ip/address":
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(`{"error": 400, "message": "Bad Request", "detail": "missing =address="}`))
+		case "PUT /rest/ip/odd", "PUT /rest/ip/sick":
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(`{"error": 400, "message": "no such command"}`))
-
-			return
+		case "GET /rest/ip/address":
+			_ = json.MarshalWrite(w, append([]map[string]string{{"address": "10.0.0.1/24"}}, addressRows...))
+		case "GET /rest/ip/settings":
+			w.Write([]byte(`{"arp-timeout": "30s"}`))
+		case "GET /rest/ip/sick":
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": 500, "message": "internal error"}`))
+		default:
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(`{"error": 400, "message": "no such command"}`))
 		}
-
-		w.Write([]byte(body))
 	}))
 }
 
-func TestInventory(t *testing.T) {
+func TestDescribe(t *testing.T) {
 	srv := fakeRouter(t)
 	defer srv.Close()
 
-	got, err := inventory(context.Background(), routeros.New(srv.URL, "admin", ""))
+	menus, err := describe(t.Context(), routeros.New(srv.URL, "admin", ""))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want := []pathInfo{
-		{Path: "/ip", NodeType: "dir", Get: "400", GetError: "no such command", Class: "none"},
-		{Path: "/ip/address", NodeType: "dir", Commands: []string{"add", "move", "print", "set"}, Get: "rows", Class: "rows"},
-		{Path: "/ip/odd", NodeType: "dir", Commands: []string{"print"}, Get: "400", GetError: "no such command", Class: "unknown"},
-		{Path: "/ip/settings", NodeType: "dir", Commands: []string{"print", "set"}, Get: "record", Class: "singleton"},
-		{Path: "/ip/sick", NodeType: "dir", Get: "500", GetError: "internal error", Class: "unknown"},
+	byPath := map[string]*menuDesc{}
+	for _, m := range menus {
+		byPath[m.Path] = m
 	}
 
-	if len(got) != len(want) {
-		t.Fatalf("got %d paths, want %d: %+v", len(got), len(want), got)
+	verdicts := []struct{ path, class, get, getError string }{
+		{"/ip", "none", "400", "no such command"},
+		{"/ip/address", "rows", "rows", ""},
+		{"/ip/odd", "unknown", "400", "no such command"},
+		{"/ip/settings", "singleton", "record", ""},
+		{"/ip/sick", "unknown", "500", "internal error"},
 	}
 
-	for i, w := range want {
-		g := got[i]
+	if len(menus) != len(verdicts) {
+		t.Fatalf("got %d menus: %+v", len(menus), menus)
+	}
 
-		if g.Path != w.Path || g.NodeType != w.NodeType || g.Get != w.Get || g.GetError != w.GetError || g.Class != w.Class {
-			t.Errorf("path %d: got %+v, want %+v", i, g, w)
-		}
-
-		if len(g.Commands) != len(w.Commands) {
-			t.Errorf("%s commands: got %v, want %v", w.Path, g.Commands, w.Commands)
-
+	for _, want := range verdicts {
+		m := byPath[want.path]
+		if m == nil {
+			t.Errorf("%s: missing", want.path)
 			continue
 		}
 
-		for j := range w.Commands {
-			if g.Commands[j] != w.Commands[j] {
-				t.Errorf("%s commands: got %v, want %v", w.Path, g.Commands, w.Commands)
-				break
-			}
+		if m.Class != want.class || m.Get != want.get || m.GetError != want.getError {
+			t.Errorf("%s: got class=%s get=%s err=%q", want.path, m.Class, m.Get, m.GetError)
 		}
 	}
-}
 
-func TestFields(t *testing.T) {
-	srv := fakeRouter(t)
-	defer srv.Close()
-
-	c := routeros.New(srv.URL, "admin", "")
-
-	paths, err := inventory(t.Context(), c)
-	if err != nil {
-		t.Fatal(err)
+	addr := byPath["/ip/address"]
+	if !slices.Equal(addr.Args["add"], []string{"address", "interface"}) || len(addr.Args["move"]) != 0 {
+		t.Errorf("address args = %+v", addr.Args)
 	}
 
-	got, err := fields(t.Context(), c, paths)
-	if err != nil {
-		t.Fatal(err)
+	props := map[string]*property{}
+	for _, p := range addr.Properties {
+		props[p.Arg] = p
 	}
 
-	if len(got) != 2 {
-		t.Fatalf("got %d menus: %+v", len(got), got)
-	}
-
-	addr := got[0]
-	if addr.Path != "/ip/address" || !slices.Equal(addr.Args["add"], []string{"address", "interface"}) || len(addr.Args["move"]) != 0 {
-		t.Errorf("address = %+v", addr)
-	}
-
-	settings := got[1]
-	if settings.Path != "/ip/settings" || !slices.Equal(settings.Args["set"], []string{"arp-timeout"}) {
-		t.Errorf("settings = %+v", settings)
-	}
-}
-
-func TestTypes(t *testing.T) {
-	srv := fakeRouter(t)
-	defer srv.Close()
-
-	c := routeros.New(srv.URL, "admin", "")
-
-	paths, err := inventory(t.Context(), c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	menus, err := fields(t.Context(), c, paths)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	got, err := types(t.Context(), c, paths, menus)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	byKey := map[string]*argType{}
-	for _, a := range got {
-		byKey[a.Path+" "+a.Arg] = a
-	}
-
-	checks := []struct{ key, access, kind, values string }{
-		{"/ip/address disabled", "writable", "enum", "no,yes"},
-		{"/ip/address interface", "writable", "open-enum", "ether1"},
-		{"/ip/address address", "writable", "scalar", ""},
-		{"/ip/address dynamic", "read-only", "enum", "no,yes"},
-		{"/ip/settings arp-timeout", "writable", "scalar", ""},
+	checks := []struct{ arg, access, kind, values string }{
+		{"disabled", "writable", "enum", "no,yes"},
+		{"interface", "writable", "open-enum", "ether1"},
+		{"address", "writable", "scalar", ""},
+		{"dynamic", "read-only", "enum", "no,yes"},
 	}
 
 	for _, want := range checks {
-		g := byKey[want.key]
-		if g == nil {
-			t.Errorf("%s: missing", want.key)
+		p := props[want.arg]
+		if p == nil {
+			t.Errorf("%s: missing", want.arg)
 			continue
 		}
 
-		if g.Access != want.access || g.Kind != want.kind || strings.Join(g.Values, ",") != want.values {
-			t.Errorf("%s: got %s %s %v", want.key, g.Access, g.Kind, g.Values)
+		if p.Access != want.access || p.Kind != want.kind || strings.Join(p.Values, ",") != want.values {
+			t.Errorf("%s: got %s %s %v", want.arg, p.Access, p.Kind, p.Values)
 		}
 
-		if g.Kind == "scalar" && len(g.Syntax) == 0 {
-			t.Errorf("%s: scalar without syntax", want.key)
+		if p.Kind != "unknown" && len(p.Syntax) == 0 {
+			t.Errorf("%s: no syntax recorded", want.arg)
 		}
 	}
 
-	if a := byKey["/ip/address .id"]; a != nil {
-		t.Errorf(".id should be skipped, got %+v", a)
+	if p := props["disabled"]; p != nil && !p.Negatable {
+		t.Error("disabled: syntax-meta ! should mark negatable")
+	}
+
+	if _, ok := props[".id"]; ok {
+		t.Error(".id should be skipped")
+	}
+}
+
+func TestBehave(t *testing.T) {
+	srv := fakeRouter(t)
+	defer srv.Close()
+
+	c := routeros.New(srv.URL, "admin", "")
+
+	menus, err := describe(t.Context(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := behaveOne(t.Context(), c, "/ip/address")
+	if got.PutEmpty != "error" || got.Error != "Bad Request: missing =address=" {
+		t.Errorf("behaveOne = %+v", got)
+	}
+
+	for _, m := range menus {
+		if m.Path == "/ip/address" && m.Class != "rows" {
+			t.Errorf("class changed: %+v", m)
+		}
 	}
 }

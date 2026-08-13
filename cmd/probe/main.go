@@ -14,8 +14,7 @@ import (
 	"github.com/sindrip/routeros/lab"
 )
 
-// stamp identifies the router every observation was pinned on. Version
-// alone lies: the menu tree differs across architectures and boards.
+// The menu tree differs across architectures and boards; version alone lies.
 type stamp struct {
 	Probe        string `json:"probe"`
 	RouterOS     string `json:"routeros"`
@@ -39,7 +38,6 @@ func run() (err error) {
 		return err
 	}
 
-	// Teardown must survive ^C.
 	defer func() {
 		if derr := l.Down(context.WithoutCancel(ctx)); err == nil {
 			err = derr
@@ -86,8 +84,7 @@ func identity(ctx context.Context, c *routeros.Client) (stamp, error) {
 	}, nil
 }
 
-// write pins one observation. No timestamps, deterministic map order:
-// same router, byte-identical file.
+// No timestamps, deterministic map order: same router, byte-identical file.
 func write(name string, v any) error {
 	b, err := json.Marshal(v, json.Deterministic(true), jsontext.WithIndent("  "))
 	if err != nil {

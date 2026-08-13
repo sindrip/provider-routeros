@@ -9,25 +9,19 @@ import (
 	"runtime"
 )
 
-// routers is the number of pinned ordinals in compose.yaml.
 const routers = 2
 
-// Router is one running disposable router.
 type Router struct {
 	URL      string
 	User     string
 	Password string
 }
 
-// Lab is the running set of disposable routers.
 type Lab struct {
 	Routers []Router
 	dir     string
 }
 
-// Boot runs `docker compose up --wait` on the compose file beside this
-// package and returns the routers' REST endpoints. Ordinal n listens on
-// 127.0.0.1:801n.
 func Boot(ctx context.Context) (*Lab, error) {
 	dir := composeDir()
 	if out, err := compose(ctx, dir, "up", "--wait", "--remove-orphans"); err != nil {
@@ -46,7 +40,6 @@ func Boot(ctx context.Context) (*Lab, error) {
 	return l, nil
 }
 
-// Down discards the routers and their state.
 func (l *Lab) Down(ctx context.Context) error {
 	if out, err := compose(ctx, l.dir, "down"); err != nil {
 		return fmt.Errorf("compose down: %w\n%s", err, out)
@@ -60,8 +53,7 @@ func compose(ctx context.Context, dir string, args ...string) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
-// composeDir works from any working directory: the source path pins the
-// compose file's location.
+// The compose file lives beside this package's source.
 func composeDir() string {
 	_, file, _, _ := runtime.Caller(0)
 	return filepath.Dir(file)

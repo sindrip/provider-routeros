@@ -10,12 +10,9 @@ import (
 	"github.com/sindrip/routeros"
 )
 
-// fakeRouter serves a minimal console tree:
-//
-//	/ip          dir, no commands, GET 400   → none
-//	/ip/address  dir, add/move/print/set,    GET array  → rows
-//	/ip/settings dir, print/set,             GET object → singleton
-//	/ip/odd      dir, print,                 GET 400    → unknown
+// /ip has no commands and GETs 400 (none); /ip/address is rows;
+// /ip/settings a singleton; /ip/odd has print but GETs 400
+// (contradiction); /ip/sick GETs 500 (device error, never "none").
 func fakeRouter(t *testing.T) *httptest.Server {
 	t.Helper()
 
@@ -29,6 +26,7 @@ func fakeRouter(t *testing.T) *httptest.Server {
 			{"type": "child", "name": "address", "node-type": "dir"},
 			{"type": "child", "name": "settings", "node-type": "dir"},
 			{"type": "child", "name": "odd", "node-type": "dir"},
+			{"type": "child", "name": "sick", "node-type": "dir"},
 		},
 		"ip,address": {
 			{"type": "child", "name": "add", "node-type": "cmd"},
@@ -43,6 +41,7 @@ func fakeRouter(t *testing.T) *httptest.Server {
 		"ip,odd": {
 			{"type": "child", "name": "print", "node-type": "cmd"},
 		},
+		"ip,sick": {},
 	}
 
 	gets := map[string]string{
@@ -63,6 +62,13 @@ func fakeRouter(t *testing.T) *httptest.Server {
 			}
 
 			_ = json.MarshalWrite(w, rows)
+
+			return
+		}
+
+		if r.URL.Path == "/rest/ip/sick" {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": 500, "message": "internal error"}`))
 
 			return
 		}
@@ -89,10 +95,11 @@ func TestInventory(t *testing.T) {
 	}
 
 	want := []pathInfo{
-		{Path: "/ip", NodeType: "dir", Get: "400", Class: "none"},
+		{Path: "/ip", NodeType: "dir", Get: "400", GetError: "no such command", Class: "none"},
 		{Path: "/ip/address", NodeType: "dir", Commands: []string{"add", "move", "print", "set"}, Get: "rows", Class: "rows"},
-		{Path: "/ip/odd", NodeType: "dir", Commands: []string{"print"}, Get: "400", Class: "unknown"},
+		{Path: "/ip/odd", NodeType: "dir", Commands: []string{"print"}, Get: "400", GetError: "no such command", Class: "unknown"},
 		{Path: "/ip/settings", NodeType: "dir", Commands: []string{"print", "set"}, Get: "record", Class: "singleton"},
+		{Path: "/ip/sick", NodeType: "dir", Get: "500", GetError: "internal error", Class: "unknown"},
 	}
 
 	if len(got) != len(want) {
@@ -102,7 +109,7 @@ func TestInventory(t *testing.T) {
 	for i, w := range want {
 		g := got[i]
 
-		if g.Path != w.Path || g.NodeType != w.NodeType || g.Get != w.Get || g.Class != w.Class {
+		if g.Path != w.Path || g.NodeType != w.NodeType || g.Get != w.Get || g.GetError != w.GetError || g.Class != w.Class {
 			t.Errorf("path %d: got %+v, want %+v", i, g, w)
 		}
 

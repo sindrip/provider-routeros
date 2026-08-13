@@ -1,33 +1,29 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"encoding/json/jsontext"
 	"errors"
 	"fmt"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/sindrip/routeros"
 )
 
-// pathInfo is one path's verdict: what commands it bears, what GET
-// returned, and the menu class that follows from those two.
 type pathInfo struct {
 	Path     string   `json:"path"`
 	NodeType string   `json:"node_type"`
 	Commands []string `json:"commands,omitempty"`
-	Get      string   `json:"get"`             // "rows", "record", or the HTTP status
-	Class    string   `json:"class"`           // rows | singleton | none | unknown
-	Error    string   `json:"error,omitempty"` // inspect failure; class stays unknown
+	Get      string   `json:"get"`
+	GetError string   `json:"get_error,omitempty"`
+	Class    string   `json:"class"`
+	Error    string   `json:"error,omitempty"`
 }
 
 const maxDepth = 16
 
-// inventory walks the console tree and gives every dir and path node a
-// verdict. Unknowns stay unknown: a failed listing or a contradiction is
-// recorded, never guessed away.
 func inventory(ctx context.Context, c *routeros.Client) ([]pathInfo, error) {
 	var out []pathInfo
 
@@ -35,7 +31,7 @@ func inventory(ctx context.Context, c *routeros.Client) ([]pathInfo, error) {
 		return nil, err
 	}
 
-	sort.Slice(out, func(i, j int) bool { return out[i].Path < out[j].Path })
+	slices.SortFunc(out, func(a, b pathInfo) int { return cmp.Compare(a.Path, b.Path) })
 
 	return out, nil
 }
@@ -47,7 +43,6 @@ func walk(ctx context.Context, c *routeros.Client, segs []string, nodeType strin
 
 	kids, err := children(ctx, c, segs)
 
-	// The root must list; below it a failure is that path's verdict.
 	if len(segs) == 0 {
 		if err != nil {
 			return err
@@ -72,9 +67,9 @@ func walk(ctx context.Context, c *routeros.Client, segs []string, nodeType strin
 			}
 		}
 
-		sort.Strings(info.Commands)
+		slices.Sort(info.Commands)
 
-		info.Get, info.Class = classify(ctx, c, info.Path, info.Commands)
+		info.Get, info.GetError, info.Class = classify(ctx, c, info.Path, info.Commands)
 		*out = append(*out, info)
 	}
 
@@ -96,9 +91,7 @@ type child struct {
 	nodeType string
 }
 
-// children lists the direct children of the path (nil = root). Each
-// listing leads with a "self" row describing the node itself; only
-// "child" rows are children.
+// Each listing leads with a "self" row describing the node itself.
 func children(ctx context.Context, c *routeros.Client, segs []string) ([]child, error) {
 	args := map[string]string{"request": "child"}
 
@@ -121,58 +114,45 @@ func children(ctx context.Context, c *routeros.Client, segs []string) ([]child, 
 		out = append(out, child{name: row["name"], nodeType: row["node-type"]})
 	}
 
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].name != out[j].name {
-			return out[i].name < out[j].name
-		}
-
-		return out[i].nodeType < out[j].nodeType
+	slices.SortFunc(out, func(a, b child) int {
+		return cmp.Or(cmp.Compare(a.name, b.name), cmp.Compare(a.nodeType, b.nodeType))
 	})
 
 	return out, nil
 }
 
-// classify observes what GET returns for the path and derives the class.
-// A print-bearing path that GET cannot read is a contradiction, not a
-// container — unknown, never guessed.
-func classify(ctx context.Context, c *routeros.Client, path string, commands []string) (get, class string) {
+// Only 400/404 on a print-less path means "not a menu"; any other
+// failure, or a print-bearing path GET cannot read, stays unknown.
+func classify(ctx context.Context, c *routeros.Client, path string, commands []string) (get, getErr, class string) {
 	body, err := c.Get[jsontext.Value](ctx, path)
-	hasPrint := slices.Contains(commands, "print")
-
 	if err != nil {
-		var re *routeros.Error
-		if !errors.As(err, &re) {
-			return "error: " + err.Error(), "unknown"
+		re, ok := errors.AsType[*routeros.Error](err)
+		if !ok {
+			return "", err.Error(), "unknown"
 		}
 
 		get = fmt.Sprintf("%d", re.Status)
+		getErr = re.Message
 
-		if hasPrint {
-			return get, "unknown"
+		if re.Detail != "" {
+			getErr += ": " + re.Detail
 		}
 
-		return get, "none"
+		notFound := re.Status == 400 || re.Status == 404
+
+		if notFound && !slices.Contains(commands, "print") {
+			return get, getErr, "none"
+		}
+
+		return get, getErr, "unknown"
 	}
 
-	switch firstByte(body) {
+	switch body.Kind() {
 	case '[':
-		return "rows", "rows"
+		return "rows", "", "rows"
 	case '{':
-		return "record", "singleton"
+		return "record", "", "singleton"
 	default:
-		return "unrecognized body", "unknown"
+		return "unrecognized body", "", "unknown"
 	}
-}
-
-func firstByte(b []byte) byte {
-	for _, c := range b {
-		switch c {
-		case ' ', '\t', '\n', '\r':
-			continue
-		}
-
-		return c
-	}
-
-	return 0
 }

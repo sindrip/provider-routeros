@@ -67,7 +67,7 @@ func run() (err error) {
 
 	return write("behaviour", struct {
 		stamp
-		Menus []expansion `json:"menus"`
+		Menus []behaviour `json:"menus"`
 	}{st.probe("behaviour"), behave(ctx, l, menus)})
 }
 

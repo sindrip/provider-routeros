@@ -217,7 +217,7 @@ func TestBehave(t *testing.T) {
 	}
 
 	got := behaveOne(t.Context(), c, "/ip/address")
-	if got.PutEmpty != "error" || got.Error != "Bad Request: missing =address=" {
+	if got.putEmpty != "error" || got.err != "Bad Request: missing =address=" {
 		t.Errorf("behaveOne = %+v", got)
 	}
 
@@ -225,5 +225,31 @@ func TestBehave(t *testing.T) {
 		if m.Path == "/ip/address" && m.Class != "rows" {
 			t.Errorf("class changed: %+v", m)
 		}
+	}
+}
+
+func TestMerge(t *testing.T) {
+	ss := []sample{
+		{putEmpty: "created", created: map[string]string{".id": "*1", "mtu": "1500", "mac-address": "AA:AA"}, deleted: "ok"},
+		{putEmpty: "created", created: map[string]string{".id": "*1", "mtu": "1500", "mac-address": "BB:BB"}, deleted: "ok"},
+	}
+
+	b := merge("/interface/bridge", ss)
+
+	if b.PutEmpty != "created" || b.Deleted != "ok" {
+		t.Errorf("merge = %+v", b)
+	}
+
+	if b.Created["mtu"] != "1500" || b.Created[".id"] != "*1" {
+		t.Errorf("stable fields = %v", b.Created)
+	}
+
+	if _, ok := b.Created["mac-address"]; ok || !slices.Equal(b.Generated, []string{"mac-address"}) {
+		t.Errorf("generated = %v, created = %v", b.Generated, b.Created)
+	}
+
+	ss[1].putEmpty = "error"
+	if got := merge("/x", ss).PutEmpty; !strings.Contains(got, "disagree") {
+		t.Errorf("PutEmpty = %q", got)
 	}
 }

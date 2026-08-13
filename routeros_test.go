@@ -1,9 +1,9 @@
 package routeros
 
 import (
-	"context"
 	"encoding/json/jsontext"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +27,7 @@ func TestGetShapes(t *testing.T) {
 	defer srv.Close()
 
 	c := New(srv.URL, "admin", "")
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rec, err := c.Get[map[string]string](ctx, "/ip/dns")
 	if err != nil || rec["servers"] != "1.1.1.1" {
@@ -52,16 +52,15 @@ func TestError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	_, err := New(srv.URL, "admin", "").Get[map[string]string](context.Background(), "/nope")
+	_, err := New(srv.URL, "admin", "").Get[map[string]string](t.Context(), "/nope")
 
-	var re *Error
-	if !errors.As(err, &re) || re.Status != 400 || re.Message != "unknown path" {
+	re, ok := errors.AsType[*Error](err)
+	if !ok || re.Status != 400 || re.Message != "unknown path" {
 		t.Errorf("err = %v", err)
 	}
 }
 
-// TestMutations pins the request shapes the live router answered on
-// 2026-08-13: PUT creates with 201, PATCH updates, DELETE answers 204.
+// Shapes pinned against the live router, 2026-08-13.
 func TestMutations(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method + " " + r.URL.Path {
@@ -82,7 +81,7 @@ func TestMutations(t *testing.T) {
 	defer srv.Close()
 
 	c := New(srv.URL, "admin", "")
-	ctx := context.Background()
+	ctx := t.Context()
 
 	created, err := c.Put[map[string]string](ctx, "/ip/firewall/address-list", map[string]string{"address": "10.9.9.9"})
 	if err != nil || created[".id"] != "*1" {
@@ -110,7 +109,37 @@ func TestNonStringValue(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	if _, err := New(srv.URL, "admin", "").Get[map[string]string](context.Background(), "/x"); err == nil {
+	if _, err := New(srv.URL, "admin", "").Get[map[string]string](t.Context(), "/x"); err == nil {
 		t.Error("want decode error for non-string value")
+	}
+}
+
+func TestBodyFidelity(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+
+		switch r.URL.Path {
+		case "/rest/nil":
+			if len(b) != 0 || r.Header.Get("Content-Type") != "" {
+				t.Errorf("nil body arrived as %q, content-type %q", b, r.Header.Get("Content-Type"))
+			}
+		case "/rest/empty":
+			if string(b) != "{}" || r.Header.Get("Content-Type") != "application/json" {
+				t.Errorf("empty map arrived as %q, content-type %q", b, r.Header.Get("Content-Type"))
+			}
+		}
+
+		w.Write([]byte(`[]`))
+	}))
+	defer srv.Close()
+
+	c := New(srv.URL, "admin", "")
+
+	if _, err := c.Post[[]map[string]string](t.Context(), "/nil", nil); err != nil {
+		t.Errorf("nil body = %v", err)
+	}
+
+	if _, err := c.Post[[]map[string]string](t.Context(), "/empty", map[string]string{}); err != nil {
+		t.Errorf("empty map = %v", err)
 	}
 }

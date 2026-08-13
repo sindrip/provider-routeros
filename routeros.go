@@ -15,13 +15,10 @@ import (
 	"time"
 )
 
-// response is what a RouterOS REST answer decodes into: one record, a
-// menu's rows, or the raw JSON when the caller wants shape itself.
 type response interface {
 	map[string]string | []map[string]string | jsontext.Value
 }
 
-// Error is a non-2xx answer from the device.
 type Error struct {
 	Method  string
 	Path    string
@@ -46,13 +43,25 @@ type Client struct {
 	httpc    *http.Client
 }
 
-func New(base, user, password string) *Client {
-	return &Client{
+type Option func(*Client)
+
+func WithHTTPClient(httpc *http.Client) Option {
+	return func(c *Client) { c.httpc = httpc }
+}
+
+func New(base, user, password string, opts ...Option) *Client {
+	c := &Client{
 		base:     strings.TrimRight(base, "/"),
 		user:     user,
 		password: password,
 		httpc:    &http.Client{Timeout: 30 * time.Second},
 	}
+
+	for _, opt := range opts {
+		opt(c)
+	}
+
+	return c
 }
 
 func (c *Client) Get[T response](ctx context.Context, path string) (T, error) {
@@ -76,8 +85,6 @@ func (c *Client) Delete(ctx context.Context, path string) error {
 	return err
 }
 
-// do is the one HTTP path: request, auth, status check, decode. An empty
-// 2xx body (204) decodes to the zero value.
 func (c *Client) do[T response](ctx context.Context, method, path string, body map[string]string) (T, error) {
 	var zero T
 

@@ -86,7 +86,7 @@ func (c *Client) do[T response](ctx context.Context, method, path string, body m
 		return zero, err
 	}
 
-	if status/100 != 2 {
+	if status < 200 || status >= 300 {
 		return zero, newError(method, path, status, b)
 	}
 

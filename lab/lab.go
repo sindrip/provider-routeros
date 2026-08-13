@@ -25,6 +25,9 @@ type Lab struct {
 func Boot(ctx context.Context) (*Lab, error) {
 	dir := composeDir()
 	if out, err := compose(ctx, dir, "up", "--wait", "--remove-orphans"); err != nil {
+		// A failed up leaves half-created containers that poison the retry.
+		_, _ = compose(context.WithoutCancel(ctx), dir, "down")
+
 		return nil, fmt.Errorf("compose up: %w\n%s", err, out)
 	}
 

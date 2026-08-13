@@ -6,9 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"os"
+	"regexp"
 	"slices"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/sindrip/routeros"
 	"github.com/sindrip/routeros/lab"
@@ -16,6 +19,7 @@ import (
 
 type behaviour struct {
 	Path      string            `json:"path"`
+	Wedged    bool              `json:"wedged,omitempty"`
 	PutEmpty  string            `json:"put_empty"`
 	Error     string            `json:"error,omitempty"`
 	Created   map[string]string `json:"created,omitempty"`
@@ -23,6 +27,22 @@ type behaviour struct {
 	Read      map[string]string `json:"read,omitempty"`
 	ReadErr   string            `json:"read_error,omitempty"`
 	Deleted   string            `json:"deleted,omitempty"`
+	Required  []string          `json:"required,omitempty"`
+	Minimal   map[string]string `json:"minimal,omitempty"`
+	Duplicate *duplicate        `json:"duplicate,omitempty"`
+	Ordering  *ordering         `json:"ordering,omitempty"`
+}
+
+type duplicate struct {
+	Verdict string `json:"verdict"`
+	Error   string `json:"error,omitempty"`
+}
+
+type ordering struct {
+	Insert string `json:"insert,omitempty"`
+	Move   string `json:"move,omitempty"`
+	Order  string `json:"order,omitempty"`
+	Error  string `json:"error,omitempty"`
 }
 
 type sample struct {
@@ -60,11 +80,37 @@ func behave(ctx context.Context, l *lab.Lab, all []*menuDesc) []behaviour {
 		go func() {
 			defer wg.Done()
 
-			c := routeros.New(r.URL, r.User, r.Password)
+			c := client(r)
+
+			done := 0
 
 			for j := i; j < len(menus); j += len(l.Routers) {
-				ss := []sample{behaveOne(ctx, c, menus[j].Path), behaveOne(ctx, c, menus[j].Path)}
-				shards[i] = append(shards[i], merge(menus[j].Path, ss))
+				m := menus[j]
+
+				menuCtx, cancel := context.WithTimeout(ctx, time.Minute)
+				ss := []sample{behaveOne(menuCtx, c, m.Path), behaveOne(menuCtx, c, m.Path)}
+				b := merge(m.Path, ss)
+				extend(menuCtx, c, m, &b)
+				cancel()
+
+				if !healthy(ctx, c) {
+					b.Wedged = true
+
+					fmt.Fprintf(os.Stderr, "behave: r%d wedged by %s, recycling\n", i+1, m.Path)
+
+					if err := l.Recycle(ctx, i); err != nil {
+						fmt.Fprintf(os.Stderr, "behave: r%d lost: %v\n", i+1, err)
+						shards[i] = append(shards[i], b)
+
+						return
+					}
+				}
+
+				shards[i] = append(shards[i], b)
+
+				if done++; done%25 == 0 {
+					fmt.Fprintf(os.Stderr, "behave: r%d %d menus\n", i+1, done)
+				}
 			}
 		}()
 	}
@@ -199,4 +245,194 @@ func errText(err error) string {
 	}
 
 	return err.Error()
+}
+
+var missingRe = regexp.MustCompile(`missing =([^=]+)=`)
+
+// extend resolves a minimal creatable row by iterating on the device's
+// missing-field errors, then asks the two remaining behaviour questions:
+// is a duplicate of that row rejected (the rejection names the enforced
+// field), and where do new rows land and move.
+func extend(ctx context.Context, c *routeros.Client, m *menuDesc, b *behaviour) {
+	fields := map[string]string{}
+
+	for range 8 {
+		created, err := c.Put[map[string]string](ctx, m.Path, fields)
+		if err == nil {
+			b.Minimal = fields
+
+			defer remove(ctx, c, m.Path, created[".id"])
+
+			b.Duplicate = duplicateOf(ctx, c, m, fields)
+
+			if slices.Contains(m.Commands, "move") {
+				b.Ordering = orderingOf(ctx, c, m, fields)
+			}
+
+			return
+		}
+
+		miss := missingRe.FindStringSubmatch(errText(err))
+		if miss == nil {
+			return
+		}
+
+		b.Required = append(b.Required, miss[1])
+
+		v, ok := synth(m, miss[1], len(fields))
+		if !ok {
+			return
+		}
+
+		fields[miss[1]] = v
+	}
+}
+
+func duplicateOf(ctx context.Context, c *routeros.Client, m *menuDesc, fields map[string]string) *duplicate {
+	row, err := c.Put[map[string]string](ctx, m.Path, fields)
+	if err != nil {
+		return &duplicate{Verdict: "rejected", Error: errText(err)}
+	}
+
+	remove(ctx, c, m.Path, row[".id"])
+
+	return &duplicate{Verdict: "accepted"}
+}
+
+func orderingOf(ctx context.Context, c *routeros.Client, m *menuDesc, fields map[string]string) *ordering {
+	o := &ordering{}
+
+	var ids []string
+
+	defer func() {
+		for _, id := range ids {
+			remove(ctx, c, m.Path, id)
+		}
+	}()
+
+	before, err := c.Get[[]map[string]string](ctx, m.Path)
+	if err != nil {
+		o.Error = errText(err)
+		return o
+	}
+
+	for i := range 3 {
+		varied := maps.Clone(fields)
+
+		for k := range varied {
+			if v, ok := synth(m, k, 100+i); ok {
+				varied[k] = v
+			}
+		}
+
+		row, err := c.Put[map[string]string](ctx, m.Path, varied)
+		if err != nil {
+			o.Error = errText(err)
+			return o
+		}
+
+		ids = append(ids, row[".id"])
+	}
+
+	order, err := rowOrder(ctx, c, m.Path, len(before), ids)
+	if err != nil {
+		o.Error = errText(err)
+		return o
+	}
+
+	switch order {
+	case "1,2,3":
+		o.Insert = "append"
+	case "3,2,1":
+		o.Insert = "prepend"
+	default:
+		o.Insert = "other: " + order
+	}
+
+	if _, err := c.Post[[]map[string]string](ctx, m.Path+"/move", map[string]string{"numbers": ids[2], "destination": ids[0]}); err != nil {
+		o.Move = errText(err)
+		return o
+	}
+
+	o.Move = "ok"
+
+	if order, err = rowOrder(ctx, c, m.Path, len(before), ids); err == nil {
+		o.Order = order
+	} else {
+		o.Error = errText(err)
+	}
+
+	return o
+}
+
+// rowOrder reports our created rows' positions after skipping the menu's
+// pre-existing rows, as creation indexes in device order.
+func rowOrder(ctx context.Context, c *routeros.Client, path string, skip int, ids []string) (string, error) {
+	rows, err := c.Get[[]map[string]string](ctx, path)
+	if err != nil {
+		return "", err
+	}
+
+	var order []string
+
+	for _, r := range rows[min(skip, len(rows)):] {
+		if i := slices.Index(ids, r[".id"]); i >= 0 {
+			order = append(order, fmt.Sprintf("%d", i+1))
+		}
+	}
+
+	return strings.Join(order, ","), nil
+}
+
+// synth invents a value for a field from its described value space; i
+// keeps repeated inventions distinct where the space allows it.
+func synth(m *menuDesc, field string, i int) (string, bool) {
+	var p *property
+
+	for _, cand := range m.Properties {
+		if cand.Arg == field {
+			p = cand
+			break
+		}
+	}
+
+	if p == nil {
+		return "", false
+	}
+
+	if len(p.Values) > 0 {
+		return p.Values[min(i, len(p.Values)-1)], true
+	}
+
+	text := string(p.Syntax)
+
+	switch {
+	case strings.Contains(text, "(IP address)"), strings.Contains(text, "IP prefix"):
+		return fmt.Sprintf("10.99.99.%d", i+1), true
+	case strings.Contains(text, "IPv6"):
+		return fmt.Sprintf("fd99::%d", i+1), true
+	case strings.Contains(text, "(MAC address)"):
+		return fmt.Sprintf("02:99:00:00:00:%02X", i+1), true
+	case strings.Contains(text, "(time interval)"):
+		return "1m", true
+	case strings.Contains(text, "(integer number)"):
+		return "1", true
+	default:
+		return fmt.Sprintf("probe%d", i), true
+	}
+}
+
+func remove(ctx context.Context, c *routeros.Client, path, id string) {
+	if id != "" {
+		_ = c.Delete(ctx, path+"/"+id)
+	}
+}
+
+func healthy(ctx context.Context, c *routeros.Client) bool {
+	hctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := c.Get[map[string]string](hctx, "/system/resource")
+
+	return err == nil
 }

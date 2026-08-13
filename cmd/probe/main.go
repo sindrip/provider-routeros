@@ -7,9 +7,11 @@ import (
 	"encoding/json/jsontext"
 	"encoding/json/v2"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"time"
 
 	"github.com/sindrip/routeros"
 	"github.com/sindrip/routeros/lab"
@@ -45,18 +47,21 @@ func run() (err error) {
 		}
 	}()
 
-	r := l.Routers[0]
-	c := routeros.New(r.URL, r.User, r.Password)
+	c := client(l.Routers[0])
 
 	st, err := identity(ctx, c)
 	if err != nil {
 		return err
 	}
 
+	start := time.Now()
+
 	menus, err := describe(ctx, c)
 	if err != nil {
 		return err
 	}
+
+	fmt.Fprintf(os.Stderr, "describe: %s\n", time.Since(start).Round(time.Second))
 
 	if err := write("description", struct {
 		stamp
@@ -65,10 +70,25 @@ func run() (err error) {
 		return err
 	}
 
+	start = time.Now()
+	menus2 := behave(ctx, l, menus)
+
+	fmt.Fprintf(os.Stderr, "behave: %s\n", time.Since(start).Round(time.Second))
+
 	return write("behaviour", struct {
 		stamp
 		Menus []behaviour `json:"menus"`
-	}{st.probe("behaviour"), behave(ctx, l, menus)})
+	}{st.probe("behaviour"), menus2})
+}
+
+// The CHR answers in single-digit milliseconds; a fresh handshake
+// dominates that, and the default transport keeps only two idle
+// connections.
+func client(r lab.Router) *routeros.Client {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	t.MaxIdleConnsPerHost = 64
+
+	return routeros.New(r.URL, r.User, r.Password, routeros.WithHTTPClient(&http.Client{Transport: t}))
 }
 
 func (s stamp) probe(name string) stamp {

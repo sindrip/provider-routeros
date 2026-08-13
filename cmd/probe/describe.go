@@ -285,7 +285,7 @@ func enumerate(ctx context.Context, c *routeros.Client, m *menuDesc) ([]string, 
 func probeProperties(ctx context.Context, c *routeros.Client, menus []*menuDesc) {
 	var wg sync.WaitGroup
 
-	sem := make(chan struct{}, 8)
+	sem := make(chan struct{}, 32)
 
 	for _, m := range menus {
 		for _, p := range m.Properties {

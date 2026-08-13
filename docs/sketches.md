@@ -2,6 +2,15 @@
 
 Pinned ideas, not decisions. Delete when built or refuted.
 
+## Lab coverage dimensions (parked 2026-08-13)
+
+License and package set shape the tree: free-tier CHR hides cloud menus;
+all-packages exposes ~1k more paths (restraml). If baking an
+all-packages lab image: p1 trial needs a mikrotik.com account + router
+egress (`/system/license renew level=p1`), and 17 extra packages on a
+small-RAM CHR mimics a wedge (inspect 70ms → 10s+, then dead) — give the
+VM 1024MB. Both change evidence scope: grill before adopting.
+
 ## From forum #149360 (parked 2026-08-13)
 
 restraml (tikoci.github.io/restraml) generates per-version OpenAPI from

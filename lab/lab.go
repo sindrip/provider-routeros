@@ -4,9 +4,11 @@ package lab
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"time"
 )
 
 const routers = 2
@@ -41,6 +43,44 @@ func Boot(ctx context.Context) (*Lab, error) {
 	}
 
 	return l, nil
+}
+
+// Recycle recreates one router and waits for its REST endpoint to
+// answer again. Recreate, not restart: the VM disk lives in the
+// container filesystem, so a restart boots the dirty config.
+func (l *Lab) Recycle(ctx context.Context, ordinal int) error {
+	if out, err := compose(ctx, l.dir, "up", "-d", "--force-recreate", fmt.Sprintf("r%d", ordinal+1)); err != nil {
+		return fmt.Errorf("compose recreate: %w\n%s", err, out)
+	}
+
+	r := l.Routers[ordinal]
+	deadline := time.Now().Add(4 * time.Minute)
+
+	for time.Now().Before(deadline) {
+		reqCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+		req, _ := http.NewRequestWithContext(reqCtx, http.MethodGet, r.URL+"/rest/system/resource", nil)
+		req.SetBasicAuth(r.User, r.Password)
+
+		resp, err := http.DefaultClient.Do(req)
+
+		cancel()
+
+		if err == nil {
+			resp.Body.Close()
+
+			if resp.StatusCode == http.StatusOK {
+				return nil
+			}
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(2 * time.Second):
+		}
+	}
+
+	return fmt.Errorf("r%d: not healthy after recycle", ordinal+1)
 }
 
 func (l *Lab) Down(ctx context.Context) error {

@@ -1,8 +1,13 @@
 name: routeros-lab
 
+# 512MB starves inspect under load (restraml: 70ms calls inflate past
+# 10s, then the REST server dies); one vCPU serializes the probes.
 x-chr: &chr
   image: mikrotik/chr:${CHR_VERSION:-7.23.3}
   privileged: true
+  environment:
+    MEM: 1024m
+    CPUS: "2"
   networks: [mgmt]
 
 services:

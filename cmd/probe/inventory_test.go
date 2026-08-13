@@ -5,6 +5,7 @@ import (
 	"encoding/json/v2"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"testing"
 
 	"github.com/sindrip/routeros"
@@ -42,6 +43,18 @@ func fakeRouter(t *testing.T) *httptest.Server {
 			{"type": "child", "name": "print", "node-type": "cmd"},
 		},
 		"ip,sick": {},
+		"ip,address,add": {
+			{"type": "self", "name": "add", "node-type": "cmd"},
+			{"type": "child", "name": "address", "node-type": "arg"},
+			{"type": "child", "name": "interface", "node-type": "arg"},
+		},
+		"ip,address,move":   {},
+		"ip,address,print":  {},
+		"ip,address,set":    {},
+		"ip,settings,print": {},
+		"ip,settings,set": {
+			{"type": "child", "name": "arp-timeout", "node-type": "arg"},
+		},
 	}
 
 	gets := map[string]string{
@@ -125,5 +138,36 @@ func TestInventory(t *testing.T) {
 				break
 			}
 		}
+	}
+}
+
+func TestFields(t *testing.T) {
+	srv := fakeRouter(t)
+	defer srv.Close()
+
+	c := routeros.New(srv.URL, "admin", "")
+
+	paths, err := inventory(t.Context(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := fields(t.Context(), c, paths)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(got) != 2 {
+		t.Fatalf("got %d menus: %+v", len(got), got)
+	}
+
+	addr := got[0]
+	if addr.Path != "/ip/address" || !slices.Equal(addr.Args["add"], []string{"address", "interface"}) || len(addr.Args["move"]) != 0 {
+		t.Errorf("address = %+v", addr)
+	}
+
+	settings := got[1]
+	if settings.Path != "/ip/settings" || !slices.Equal(settings.Args["set"], []string{"arp-timeout"}) {
+		t.Errorf("settings = %+v", settings)
 	}
 }

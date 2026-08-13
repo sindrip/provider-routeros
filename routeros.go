@@ -86,7 +86,7 @@ func (c *Client) do[T response](ctx context.Context, method, path string, body m
 		return zero, err
 	}
 
-	if !success(status) {
+	if status < 200 || status >= 300 {
 		return zero, newError(method, path, status, b)
 	}
 
@@ -137,12 +137,6 @@ func (c *Client) request(ctx context.Context, method, path string, body map[stri
 	}
 
 	return resp.StatusCode, b, nil
-}
-
-// success reports whether the status is 2xx; the device answers 200,
-// 201, and 204.
-func success(status int) bool {
-	return status >= 200 && status < 300
 }
 
 func newError(method, path string, status int, body []byte) *Error {

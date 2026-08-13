@@ -1,0 +1,62 @@
+name: routeros-lab
+
+# 512MB starves inspect under load (restraml: 70ms calls inflate past
+# 10s, then the REST server dies); one vCPU serializes the probes.
+x-chr: &chr
+  image: mikrotik/chr:${CHR_VERSION:-7.23.3}
+  privileged: true
+  environment:
+    MEM: 1024m
+    CPUS: "2"
+  networks: [mgmt]
+
+services:
+  # Ordinal n: container MAC 02:52:6f:53:00:n0, the VM's ether1 is +1,
+  # dhcp leases it 172.31.99.1n, host reaches it at 127.0.0.1:801n.
+  r1: { <<: *chr, mac_address: "02:52:6f:53:00:10" }
+  r2: { <<: *chr, mac_address: "02:52:6f:53:00:20" }
+
+  net:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM alpine:3.24
+        RUN apk add --no-cache dnsmasq socat
+    cap_add: [NET_ADMIN]
+    # Relays 801n -> 172.31.99.1n:80 for every ordinal: macOS hosts cannot
+    # reach the VMs directly, and the routers cannot publish ports — the
+    # chr image bridges the container NIC out of its own netns. Idle
+    # relays for absent routers cost nothing.
+    command:
+      - sh
+      - -c
+      - >-
+        for n in 1 2 3 4 5 6 7 8 9; do
+        socat TCP-LISTEN:801$$n,fork,reuseaddr TCP:172.31.99.1$$n:80 &
+        done;
+        exec dnsmasq --no-daemon --port=0
+        --dhcp-range=172.31.99.0,static
+        --dhcp-host=02:52:6f:53:00:11,172.31.99.11
+        --dhcp-host=02:52:6f:53:00:21,172.31.99.12
+    ports:
+      - "127.0.0.1:8011-8019:8011-8019"
+    # The routers cannot self-probe (same bridged netns); net vouches for
+    # every pinned ordinal. `up --wait` blocks on this.
+    healthcheck:
+      test:
+        - CMD
+        - sh
+        - -c
+        - >-
+          for n in 1 2; do
+          wget -qO /dev/null http://admin:@172.31.99.1$$n/rest/system/resource || exit 1;
+          done
+      interval: 5s
+      start_period: 300s
+    networks: [mgmt]
+
+networks:
+  mgmt:
+    ipam:
+      config:
+        - subnet: 172.31.99.0/24

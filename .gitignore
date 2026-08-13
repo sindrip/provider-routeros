@@ -1,26 +1,4 @@
-/.cache
-/.work
-/_output
-cover.out
-/vendor
-/.vendor-new
+# Derived, never committed (ADR 0004)
+/observations/
+
 .DS_Store
-
-# ignore IDE folders
-.vscode/
-.idea/
-
-# Python bytecode from hack/schemaaudit
-__pycache__/
-
-# Compiled probe binaries; each hack/ tool is its own module and is run with
-# `go run`, so a binary next to main.go is a build artifact, not a deliverable.
-/hack/inspectdump/inspectdump
-/hack/typedump/typedump
-/hack/uniqprobe/uniqprobe
-/hack/valueprobe/valueprobe
-/hack/telemetry/telemetry
-/hack/schemaaudit/upstreamdump/upstreamdump
-
-# ocb's generated distribution tree, including a ~30MB binary.
-/collector/_dist/

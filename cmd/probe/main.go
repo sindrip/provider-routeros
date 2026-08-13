@@ -73,10 +73,22 @@ func run() (err error) {
 		return err
 	}
 
-	return write("fields", struct {
+	if err := write("fields", struct {
 		stamp
 		Menus []menuFields `json:"menus"`
-	}{stamp{Probe: "fields", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, menus})
+	}{stamp{Probe: "fields", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, menus}); err != nil {
+		return err
+	}
+
+	args, err := types(ctx, c, paths, menus)
+	if err != nil {
+		return err
+	}
+
+	return write("types", struct {
+		stamp
+		Args []*argType `json:"args"`
+	}{stamp{Probe: "types", RouterOS: st.RouterOS, Architecture: st.Architecture, Board: st.Board}, args})
 }
 
 func identity(ctx context.Context, c *routeros.Client) (stamp, error) {

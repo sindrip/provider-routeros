@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json/jsontext"
+	"errors"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -103,7 +106,7 @@ func children(ctx context.Context, c *routeros.Client, segs []string) ([]child, 
 		args["path"] = strings.Join(segs, ",")
 	}
 
-	rows, err := c.Exec(ctx, "/console/inspect", args)
+	rows, err := c.Post[[]map[string]string](ctx, "/console/inspect", args)
 	if err != nil {
 		return nil, err
 	}
@@ -133,21 +136,16 @@ func children(ctx context.Context, c *routeros.Client, segs []string) ([]child, 
 // A print-bearing path that GET cannot read is a contradiction, not a
 // container — unknown, never guessed.
 func classify(ctx context.Context, c *routeros.Client, path string, commands []string) (get, class string) {
-	status, body, err := c.Raw(ctx, "GET", path, nil)
+	body, err := c.Get[jsontext.Value](ctx, path)
+	hasPrint := slices.Contains(commands, "print")
+
 	if err != nil {
-		return "error: " + err.Error(), "unknown"
-	}
-
-	hasPrint := false
-
-	for _, cmd := range commands {
-		if cmd == "print" {
-			hasPrint = true
+		var re *routeros.Error
+		if !errors.As(err, &re) {
+			return "error: " + err.Error(), "unknown"
 		}
-	}
 
-	if status != 200 {
-		get = fmt.Sprintf("%d", status)
+		get = fmt.Sprintf("%d", re.Status)
 
 		if hasPrint {
 			return get, "unknown"

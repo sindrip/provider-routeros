@@ -70,7 +70,7 @@ func run() (err error) {
 }
 
 func identity(ctx context.Context, c *routeros.Client) (stamp, error) {
-	rec, err := c.Get(ctx, "/system/resource")
+	rec, err := c.Get[map[string]string](ctx, "/system/resource")
 	if err != nil {
 		return stamp{}, err
 	}
